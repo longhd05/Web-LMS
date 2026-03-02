@@ -31,3 +31,17 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
     res.status(401).json({ error: 'Invalid or expired token' });
   }
 }
+
+/** Optional auth — attaches req.user if a valid Bearer token is present, but never blocks */
+export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    try {
+      req.user = jwt.verify(token, JWT_SECRET) as AuthPayload;
+    } catch {
+      // ignore invalid token for optional auth
+    }
+  }
+  next();
+}

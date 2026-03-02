@@ -40,38 +40,10 @@ export default function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route
-              path="/library"
-              element={
-                <ProtectedRoute>
-                  <LibraryList />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/library/:id"
-              element={
-                <ProtectedRoute>
-                  <LibraryDetail />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/community"
-              element={
-                <ProtectedRoute>
-                  <CommunityList />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/community/:communityKey"
-              element={
-                <ProtectedRoute>
-                  <CommunityDetail />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/library" element={<LibraryList />} />
+            <Route path="/library/:id" element={<LibraryDetail />} />
+            <Route path="/community" element={<CommunityList />} />
+            <Route path="/community/:communityKey" element={<CommunityDetail />} />
 
             {/* Student routes */}
             <Route

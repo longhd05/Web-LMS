@@ -1,10 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
-import { authenticate } from '../middleware/auth';
+import { optionalAuth } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { search, page = '1', limit = '10' } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page, 10));
   const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
@@ -31,7 +31,7 @@ router.get('/', authenticate, async (req: Request, res: Response): Promise<void>
   });
 });
 
-router.get('/:id', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.get('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const item = await prisma.libraryItem.findUnique({ where: { id: req.params.id } });
   if (!item) {
     res.status(404).json({ error: 'Library item not found' });

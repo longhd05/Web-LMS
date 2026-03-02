@@ -1,10 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
-import { authenticate } from '../middleware/auth';
+import { optionalAuth } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/:communityKey/posts', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { communityKey } = req.params;
   const { page = '1', limit = '10' } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page, 10));
@@ -37,7 +37,7 @@ router.get('/:communityKey/posts', authenticate, async (req: Request, res: Respo
   });
 });
 
-router.get('/:communityKey/posts/:postId', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId } = req.params;
 
   const post = await prisma.communityPost.findFirst({

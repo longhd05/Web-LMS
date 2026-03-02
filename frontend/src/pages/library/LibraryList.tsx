@@ -11,6 +11,16 @@ interface LibraryItem {
   createdAt: string
 }
 
+interface ContentData {
+  text: string
+  questions?: Array<{ id: string; text: string; maxMark: number }>
+  integrationPrompt?: string
+}
+
+function parseContent(raw: string): ContentData {
+  try { return JSON.parse(raw) } catch { return { text: raw } }
+}
+
 interface Meta {
   total: number
   page: number
@@ -119,7 +129,7 @@ export default function LibraryList() {
                 <h3 className="font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-green-600 transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-sm text-gray-500 mb-4 line-clamp-3">{item.content}</p>
+                <p className="text-sm text-gray-500 mb-4 line-clamp-3">{parseContent(item.content).text}</p>
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {item.tags.slice(0, 3).map((tag) => (
                     <span key={tag} className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full">

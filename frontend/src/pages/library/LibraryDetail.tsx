@@ -9,20 +9,22 @@ interface LibraryItem {
   content: string
   tags: string[]
   level: string
-  readingQuestionsJson?: string | null
-  integrationPrompt?: string | null
+}
+
+interface ContentData {
+  text: string
+  questions?: Array<{ id: string; text: string; maxMark: number }>
+  integrationPrompt?: string
+}
+
+function parseContent(raw: string): ContentData {
+  try { return JSON.parse(raw) } catch { return { text: raw } }
 }
 
 interface Assignment {
   id: string
   type: 'READING' | 'INTEGRATION'
   libraryItemId: string
-}
-
-interface ReadingQuestion {
-  question: string
-  options: string[]
-  answer?: number
 }
 
 export default function LibraryDetail() {
@@ -37,7 +39,7 @@ export default function LibraryDetail() {
   const [error, setError] = useState('')
 
   // Submission state
-  const [readingAnswers, setReadingAnswers] = useState<Record<number, number>>({})
+  const [readingAnswers, setReadingAnswers] = useState<Record<string, string>>({})
   const [file, setFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
@@ -63,14 +65,9 @@ export default function LibraryDetail() {
     fetchData()
   }, [id, assignmentId])
 
-  const readingQuestions: ReadingQuestion[] = (() => {
-    if (!item?.readingQuestionsJson) return []
-    try {
-      return JSON.parse(item.readingQuestionsJson)
-    } catch {
-      return []
-    }
-  })()
+  const contentData: ContentData = item ? parseContent(item.content) : { text: '' }
+  const readingQuestions = contentData.questions ?? []
+  const integrationPrompt = contentData.integrationPrompt
 
   const handleSubmitReading = async (e: FormEvent) => {
     e.preventDefault()
@@ -135,9 +132,14 @@ export default function LibraryDetail() {
   }
 
   const levelColor: Record<string, string> = {
-    'Cơ bản': 'bg-green-100 text-green-700',
-    'Trung cấp': 'bg-yellow-100 text-yellow-700',
-    'Nâng cao': 'bg-red-100 text-red-700',
+    beginner: 'bg-green-100 text-green-700',
+    intermediate: 'bg-yellow-100 text-yellow-700',
+    advanced: 'bg-red-100 text-red-700',
+  }
+  const levelLabel: Record<string, string> = {
+    beginner: 'Cơ bản',
+    intermediate: 'Trung cấp',
+    advanced: 'Nâng cao',
   }
 
   return (
@@ -152,18 +154,18 @@ export default function LibraryDetail() {
       {/* Header */}
       <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{item.title}</h1>
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-6">
           {item.tags.map((tag) => (
             <span key={tag} className="text-sm bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full">{tag}</span>
           ))}
           {item.level && (
             <span className={`text-sm px-3 py-1 rounded-full font-medium ${levelColor[item.level] ?? 'bg-gray-100 text-gray-600'}`}>
-              {item.level}
+              {levelLabel[item.level] ?? item.level}
             </span>
           )}
         </div>
         <div className="prose prose-gray max-w-none">
-          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{item.content}</p>
+          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{contentData.text}</p>
         </div>
       </div>
 
@@ -177,23 +179,24 @@ export default function LibraryDetail() {
         ) : (
           <div className="space-y-6">
             {readingQuestions.map((q, idx) => (
-              <div key={idx} className="border border-gray-100 rounded-xl p-5">
-                <p className="font-medium text-gray-800 mb-3">Câu {idx + 1}: {q.question}</p>
-                <div className="space-y-2">
-                  {q.options.map((opt, optIdx) => (
-                    <label key={optIdx} className="flex items-center gap-3 cursor-pointer group">
-                      <input
-                        type="radio"
-                        name={`q-${idx}`}
-                        value={optIdx}
-                        onChange={() => setReadingAnswers((prev) => ({ ...prev, [idx]: optIdx }))}
-                        className="text-green-600 focus:ring-green-500"
-                        disabled={!assignmentId || submitSuccess}
-                      />
-                      <span className="text-gray-700 group-hover:text-gray-900">{opt}</span>
-                    </label>
-                  ))}
-                </div>
+              <div key={q.id} className="border border-gray-100 rounded-xl p-5">
+                <p className="font-medium text-gray-800 mb-3">
+                  Câu {idx + 1}: {q.text}
+                  <span className="ml-2 text-xs text-gray-400 font-normal">({q.maxMark} điểm)</span>
+                </p>
+                {user?.role === 'STUDENT' && assignmentId && !submitSuccess ? (
+                  <textarea
+                    value={readingAnswers[q.id] ?? ''}
+                    onChange={(e) => setReadingAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                    placeholder="Nhập câu trả lời của bạn..."
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                  />
+                ) : (
+                  <p className="text-sm text-gray-500 italic">
+                    {user?.role === 'STUDENT' ? 'Đăng nhập và vào lớp học để trả lời câu hỏi.' : 'Tự luận — học sinh trả lời bằng văn bản.'}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -201,16 +204,29 @@ export default function LibraryDetail() {
       </div>
 
       {/* Integration Section */}
-      {item.integrationPrompt && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span>🔗</span> Bài Tích hợp
-          </h2>
+      <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <span>🔗</span> Bài Tích hợp
+        </h2>
+        {integrationPrompt ? (
           <div className="bg-indigo-50 rounded-xl p-5">
-            <p className="text-indigo-800 leading-relaxed whitespace-pre-wrap">{item.integrationPrompt}</p>
+            <p className="text-indigo-800 leading-relaxed whitespace-pre-wrap">{integrationPrompt}</p>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="bg-indigo-50 rounded-xl p-5">
+            <p className="text-indigo-700 font-medium mb-2">Đề bài Tích hợp</p>
+            <p className="text-indigo-600 text-sm">
+              Dựa trên nội dung bài đọc trên, hãy viết một bài luận hoặc thực hiện dự án thực tế liên quan đến chủ đề này. 
+              Tải lên tập tin (Word, ảnh hoặc video) thể hiện sản phẩm của bạn.
+            </p>
+          </div>
+        )}
+        {!user && (
+          <p className="mt-3 text-sm text-gray-500">
+            <Link to="/login" className="text-green-600 hover:underline">Đăng nhập</Link> và tham gia lớp học để nộp bài Tích hợp.
+          </p>
+        )}
+      </div>
 
       {/* Submit Section (only if student and has assignmentId) */}
       {user?.role === 'STUDENT' && assignmentId && assignment && (
@@ -231,12 +247,12 @@ export default function LibraryDetail() {
                 </div>
               )}
 
-              {assignment.type === 'READING' && readingQuestions.length > 0 && (
+              {assignment.type === 'READING' && (
                 <form onSubmit={handleSubmitReading}>
-                  <p className="text-gray-600 mb-4">Chọn câu trả lời ở phần Đọc hiểu bên trên, sau đó nhấn nộp bài.</p>
+                  <p className="text-gray-600 mb-4">Điền câu trả lời ở phần Đọc hiểu bên trên, sau đó nhấn nộp bài.</p>
                   <button
                     type="submit"
-                    disabled={submitting || Object.keys(readingAnswers).length < readingQuestions.length}
+                    disabled={submitting || readingQuestions.some((q) => !readingAnswers[q.id]?.trim())}
                     className="bg-green-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Đang nộp...' : 'Nộp bài'}
@@ -248,7 +264,7 @@ export default function LibraryDetail() {
                 <form onSubmit={handleSubmitIntegration} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tải lên tập tin (Word, ảnh, video MP4 - tối đa 50MB)
+                      Tải lên tập tin (Word, ảnh, video MP4 — tối đa 50MB)
                     </label>
                     <input
                       type="file"
