@@ -1,0 +1,723 @@
+import { TextDetail, SubmitAnswerRequest, SubmitAnswerResponse, Question } from '../types/readingComprehension'
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+const useMock = !BASE_URL
+
+console.log('🔍 Reading Comprehension API Config:', { BASE_URL, useMock })
+
+// 👇 Thêm mock data cho TẤT CẢ văn bản có hasReadingQuiz = true
+const mockTextDetails: Record<string, TextDetail> = {
+  t_env_01: {
+    id: 't_env_01',
+    title: 'Bạch tuộc',
+    type: 'Văn bản',
+    categoryId: 'env',
+    categoryName: 'Giáo dục về môi trường',
+    difficulty: 'Trung bình',
+    hasReadingQuiz: true,
+    hasIntegratedTask: true,
+    content: `Ngày xưa, ở một vùng biển xa xôi, có một con bạch tuộc rất thông minh. Con bạch tuộc này có tám chiếc xúc tu dài và linh hoạt, có thể thay đổi màu sắc để hòa mình vào môi trường xung quanh.
+
+Một hôm, con bạch tuộc quyết định khám phá vùng biển mới. Trên đường đi, nó gặp nhiều sinh vật biển khác nhau: cá hề đầy màu sắc, rùa biển già nua, và những rạn san hô tuyệt đẹp.
+
+Con bạch tuộc đã học được rằng sự thông minh và khả năng thích nghi là chìa khóa để sinh tồn trong đại dương rộng lớn. Nó biết cách trốn tránh kẻ thù bằng cách thay đổi màu sắc, biết cách tìm kiếm thức ăn một cách khéo léo, và quan trọng nhất là biết cách sống hòa bình với các sinh vật khác.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Con bạch tuộc trong truyện có bao nhiêu xúc tu?',
+        options: ['Sáu chiếc', 'Tám chiếc', 'Mười chiếc', 'Mười hai chiếc'],
+        correctAnswer: 'Tám chiếc',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'multiple-choice',
+        question: 'Khả năng đặc biệt của con bạch tuộc là gì?',
+        options: [
+          'Bay trong nước',
+          'Thay đổi màu sắc',
+          'Phát ra ánh sáng',
+          'Hát hay',
+        ],
+        correctAnswer: 'Thay đổi màu sắc',
+        order: 2,
+      },
+      {
+        id: 'q3',
+        type: 'multiple-choice',
+        question: 'Con bạch tuộc gặp những sinh vật nào trong hành trình?',
+        options: [
+          'Cá mập và cá voi',
+          'Cá hề và rùa biển',
+          'Hải mã và sứa biển',
+          'Cá ngừ và cá heo',
+        ],
+        correctAnswer: 'Cá hề và rùa biển',
+        order: 3,
+      },
+      {
+        id: 'q4',
+        type: 'short-answer',
+        question: 'Em học được bài học gì từ câu chuyện về con bạch tuộc?',
+        order: 4,
+      },
+    ],
+  },
+  t_env_02: {
+    id: 't_env_02',
+    title: 'Giọt nước',
+    type: 'Văn bản',
+    categoryId: 'env',
+    categoryName: 'Giáo dục về môi trường',
+    difficulty: null,
+    hasReadingQuiz: true,
+    hasIntegratedTask: false,
+    content: `Giọt nước nhỏ bé lăn trên lá sen, lấp lánh dưới ánh nắng mai. Dù nhỏ bé, nhưng giọt nước ấy chứa đựng cả một thế giới kỳ diệu.
+
+Khi nhiều giọt nước gom lại, chúng tạo thành con suối róc rách, dòng sông mát lành, và đại dương bao la. Nước nuôi sống cây cối, động vật và con người.
+
+Hãy trân trọng từng giọt nước, vì không có nước, sẽ không có sự sống trên Trái Đất này.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Giọt nước trong bài văn lăn trên gì?',
+        options: ['Lá cây', 'Lá sen', 'Đất', 'Đá'],
+        correctAnswer: 'Lá sen',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Tại sao chúng ta cần trân trọng từng giọt nước?',
+        order: 2,
+      },
+    ],
+  },
+  t_env_03: {
+    id: 't_env_03',
+    title: 'Rừng xanh',
+    type: 'Văn bản',
+    categoryId: 'env',
+    categoryName: 'Giáo dục về môi trường',
+    difficulty: 'Dễ',
+    hasReadingQuiz: true,
+    hasIntegratedTask: true,
+    content: `Rừng xanh là lá phổi của Trái Đất. Những tán cây cao vút che phủ mặt đất, tạo bóng mát và không khí trong lành. Trong rừng sống hàng ngàn loài động vật và thực vật, tạo nên một hệ sinh thái phong phú.
+
+Mỗi cây cối đều có vai trò quan trọng. Chúng hấp thụ khí CO2, thải ra oxy, giúp điều hòa khí hậu. Rừng cũng là nơi cung cấp thực phẩm và thuốc men quý giá.
+
+Bảo vệ rừng xanh chính là bảo vệ tương lai của nhân loại.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Rừng xanh được ví như gì?',
+        options: ['Tim của Trái Đất', 'Lá phổi của Trái Đất', 'Gan của Trái Đất', 'Não của Trái Đất'],
+        correctAnswer: 'Lá phổi của Trái Đất',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'multiple-choice',
+        question: 'Cây cối làm gì để giúp điều hòa khí hậu?',
+        options: [
+          'Hấp thụ oxy, thải ra CO2',
+          'Hấp thụ CO2, thải ra oxy',
+          'Hấp thụ nước, thải ra khí',
+          'Không làm gì cả',
+        ],
+        correctAnswer: 'Hấp thụ CO2, thải ra oxy',
+        order: 2,
+      },
+      {
+        id: 'q3',
+        type: 'short-answer',
+        question: 'Tại sao bảo vệ rừng xanh là bảo vệ tương lai của nhân loại?',
+        order: 3,
+      },
+    ],
+  },
+  t_env_04: {
+    id: 't_env_04',
+    title: 'Biển cả',
+    type: 'Văn bản',
+    categoryId: 'env',
+    categoryName: 'Giáo dục về môi trường',
+    difficulty: null,
+    hasReadingQuiz: false,
+    hasIntegratedTask: true,
+    content: `Biển cả mênh mông, sóng vỗ rì rào vào bờ cát trắng. Biển không chỉ đẹp mà còn là nguồn sống của hàng triệu người. Từ biển, con người có thực phẩm, có con đường giao thương, và có nguồn tài nguyên quý giá.
+
+    Nhưng biển đang gặp nguy hiểm. Rác thải nhựa, ô nhiễm dầu, và đánh bắt quá mức đang hủy hoại môi trường biển. Nhiều loài sinh vật biển đang dần tuyệt chủng.
+
+    Chúng ta cần hành động ngay để cứu lấy đại dương xanh.`,
+    readingQuestions: [],
+    },
+
+    t_env_05: {
+    id: 't_env_05',
+    title: 'Núi non',
+    type: 'Văn bản',
+    categoryId: 'env',
+    categoryName: 'Giáo dục về môi trường',
+    difficulty: 'Trung bình',
+    hasReadingQuiz: true,
+    hasIntegratedTask: true,
+    content: `Núi non chập chùng xa xa, đỉnh núi cao vút lên tận trời xanh. Núi non là biểu tượng của sức mạnh và bền vững. Dù bão tố có dữ dội đến đâu, núi vẫn đứng vững vàng.
+
+    Trên núi có nhiều loài cây quý hiếm, nhiều loài động vật hoang dã. Núi là nguồn nước ngọt cho sông suối, là lá chắn bảo vệ vùng đất thấp khỏi bão lũ.
+
+    Núi non không chỉ đẹp mà còn có vai trò quan trọng trong hệ sinh thái.`,
+    readingQuestions: [
+        {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Núi non là biểu tượng của gì?',
+        options: ['Sự yếu đuối', 'Sức mạnh và bền vững', 'Sự thay đổi', 'Sự mong manh'],
+        correctAnswer: 'Sức mạnh và bền vững',
+        order: 1,
+        },
+        {
+        id: 'q2',
+        type: 'multiple-choice',
+        question: 'Vai trò nào KHÔNG phải của núi non?',
+        options: [
+            'Nguồn nước ngọt',
+            'Lá chắn bảo vệ',
+            'Tạo ra bão',
+            'Nơi sinh sống của động vật',
+        ],
+        correctAnswer: 'Tạo ra bão',
+        order: 2,
+        },
+        {
+        id: 'q3',
+        type: 'short-answer',
+        question: 'Tại sao núi non quan trọng trong hệ sinh thái?',
+        order: 3,
+        },
+    ],
+    },
+  t_env_06: {
+    id: 't_env_06',
+    title: 'Sông suối',
+    type: 'Văn bản',
+    categoryId: 'env',
+    categoryName: 'Giáo dục về môi trường',
+    difficulty: null,
+    hasReadingQuiz: true,
+    hasIntegratedTask: false,
+    content: `Sông suối uốn lượn qua núi đồi, mang theo nguồn nước trong lành nuôi sống muôn loài. Tiếng nước chảy róc rách như bài ca của thiên nhiên, êm dịu và bình yên.
+
+Bên bờ suối, cỏ cây xanh tươi, hoa nở rực rỡ. Những con cá nhỏ bơi lội tung tăng trong làn nước trong vắt. Sông suối là nguồn sống của làng mạc, là nơi con người lấy nước sinh hoạt, tưới tiêu cho đồng ruộng.
+
+Chúng ta cần giữ gìn sông suối sạch đẹp để mai sau con cháu vẫn được tận hưởng vẻ đẹp này.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Tiếng nước chảy được ví như gì?',
+        options: ['Tiếng hát', 'Bài ca của thiên nhiên', 'Tiếng nhạc', 'Tiếng cười'],
+        correctAnswer: 'Bài ca của thiên nhiên',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Tại sao chúng ta cần giữ gìn sông suối sạch đẹp?',
+        order: 2,
+      },
+    ],
+  },
+  t_env_07: {
+    id: 't_env_07',
+    title: 'Khí hậu',
+    type: 'Văn bản',
+    categoryId: 'env',
+    categoryName: 'Giáo dục về môi trường',
+    difficulty: 'Khó',
+    hasReadingQuiz: true,
+    hasIntegratedTask: true,
+    content: `Khí hậu của Trái Đất đang thay đổi một cách đáng báo động. Nhiệt độ trung bình tăng cao, băng tan ở hai cực, mực nước biển dâng lên. Đây là hậu quả của việc con người thải quá nhiều khí nhà kính vào bầu khí quyển.
+
+Biến đổi khí hậu gây ra nhiều hậu quả nghiêm trọng: hạn hán kéo dài, lũ lụt, bão tố dữ dội, và nhiều loài sinh vật đang đối mặt với nguy cơ tuyệt chủng.
+
+Mỗi người chúng ta đều có thể góp phần giảm biến đổi khí hậu bằng những hành động nhỏ: tiết kiệm điện, đi xe đạp thay vì xe máy, trồng cây xanh.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Nguyên nhân chính gây biến đổi khí hậu là gì?',
+        options: [
+          'Núi lửa phun trào',
+          'Thải quá nhiều khí nhà kính',
+          'Trái Đất già đi',
+          'Mặt trời nóng lên',
+        ],
+        correctAnswer: 'Thải quá nhiều khí nhà kính',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'multiple-choice',
+        question: 'Hậu quả nào KHÔNG phải do biến đổi khí hậu?',
+        options: [
+          'Hạn hán kéo dài',
+          'Lũ lụt',
+          'Động đất',
+          'Bão tố dữ dội',
+        ],
+        correctAnswer: 'Động đất',
+        order: 2,
+      },
+      {
+        id: 'q3',
+        type: 'short-answer',
+        question: 'Em có thể làm gì để giảm biến đổi khí hậu?',
+        order: 3,
+      },
+    ],
+  },
+  t_env_08: {
+    id: 't_env_08',
+    title: 'Sinh thái',
+    type: 'Văn bản',
+    categoryId: 'env',
+    categoryName: 'Giáo dục về môi trường',
+    difficulty: null,
+    hasReadingQuiz: false,
+    hasIntegratedTask: true,
+    content: `Hệ sinh thái là một mạng lưới phức tạp, nơi tất cả các sinh vật sống phụ thuộc lẫn nhau. Cây cối cung cấp oxy và thức ăn cho động vật. Động vật giúp thụ phấn cho cây, phân tán hạt giống. Vi khuẩn phân hủy chất hữu cơ, trả lại chất dinh dưỡng cho đất.
+
+    Khi một loài biến mất, toàn bộ hệ sinh thái có thể mất cân bằng. Con người cũng là một phần của hệ sinh thái, và chúng ta có trách nhiệm bảo vệ nó.
+
+    Bảo vệ hệ sinh thái là bảo vệ chính chúng ta.`,
+    readingQuestions: [],
+    },
+    t_peace_01: {
+  id: 't_peace_01',
+  title: 'Cầu vồng',
+  type: 'Sách được chọn',
+  categoryId: 'peace',
+  categoryName: 'Giáo dục về hòa bình và giải quyết xung đột',
+  difficulty: null,
+  hasReadingQuiz: false,
+  hasIntegratedTask: true,
+  content: `Sau cơn mưa, bầu trời xuất hiện một chiếc cầu vồng tuyệt đẹp với bảy màu sắc rực rỡ. Mỗi màu đều có vẻ đẹp riêng, nhưng khi kết hợp lại, chúng tạo nên một kỳ quan thiên nhiên tuyệt vời.
+
+Cầu vồng như một biểu tượng của sự hòa hợp và đoàn kết. Dù khác biệt về màu sắc, nhưng tất cả đều cùng tồn tại hòa bình, tạo nên vẻ đẹp chung.
+
+Chúng ta cũng vậy, mỗi người đều khác biệt, nhưng khi sống hòa bình cùng nhau, chúng ta sẽ tạo nên một thế giới đẹp đẽ hơn.`,
+  readingQuestions: [],
+},
+
+
+  t_peace_02: {
+    id: 't_peace_02',
+    title: 'Hòa bình',
+    type: 'Văn bản',
+    categoryId: 'peace',
+    categoryName: 'Giáo dục về hòa bình và giải quyết xung đột',
+    difficulty: 'Trung bình',
+    hasReadingQuiz: true,
+    hasIntegratedTask: true,
+    content: `Hòa bình không chỉ là không có chiến tranh. Hòa bình là khi mọi người sống với nhau trong sự tôn trọng, hiểu biết và yêu thương. Hòa bình bắt đầu từ những việc nhỏ nhất: một nụ cười, một lời chào, một cử chỉ quan tâm.
+
+Để có hòa bình, chúng ta cần học cách lắng nghe, chia sẻ và thấu hiểu. Chúng ta cần đặt mình vào vị trí của người khác để hiểu họ hơn.
+
+Hòa bình là trách nhiệm của tất cả chúng ta.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Hòa bình bắt đầu từ đâu?',
+        options: [
+          'Từ chính phủ',
+          'Từ những việc nhỏ nhất',
+          'Từ chiến tranh',
+          'Từ trường học',
+        ],
+        correctAnswer: 'Từ những việc nhỏ nhất',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Để có hòa bình, chúng ta cần làm gì?',
+        order: 2,
+      },
+    ],
+  },
+  t_peace_03: {
+    id: 't_peace_03',
+    title: 'Hợp tác',
+    type: 'Văn bản',
+    categoryId: 'peace',
+    categoryName: 'Giáo dục về hòa bình và giải quyết xung đột',
+    difficulty: null,
+    hasReadingQuiz: true,
+    hasIntegratedTask: false,
+    content: `Trong một đàn kiến, mỗi con kiến đều có nhiệm vụ riêng. Có con đi tìm thức ăn, có con bảo vệ tổ, có con chăm sóc trứng. Nhờ hợp tác với nhau, đàn kiến có thể xây dựng những tổ kiến phức tạp và sinh tồn trong môi trường khắc nghiệt.
+
+Con người cũng vậy. Khi chúng ta hợp tác, chúng ta có thể làm được những việc to lớn mà một mình không thể làm được. Hợp tác giúp chúng ta học hỏi lẫn nhau, bổ sung cho nhau, và cùng nhau tiến bộ.
+
+Hãy học cách hợp tác từ những sinh vật nhỏ bé như kiến.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Bài văn lấy ví dụ về con gì?',
+        options: ['Ong', 'Kiến', 'Ong bầu', 'Bướm'],
+        correctAnswer: 'Kiến',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Lợi ích của hợp tác là gì?',
+        order: 2,
+      },
+    ],
+  },
+  t_peace_04: {
+    id: 't_peace_04',
+    title: 'Đoàn kết',
+    type: 'Văn bản',
+    categoryId: 'peace',
+    categoryName: 'Giáo dục về hòa bình và giải quyết xung đột',
+    difficulty: 'Dễ',
+    hasReadingQuiz: true,
+    hasIntegratedTask: true,
+    content: `Có một câu chuyện về bó đũa khó gãy. Một cây đũa thì dễ gãy, nhưng khi bó lại thành một bó, dù có cố gắng đến mấy cũng không thể bẻ gãy.
+
+Đoàn kết cũng vậy. Khi chúng ta đứng một mình, chúng ta yếu đuối. Nhưng khi chúng ta đoàn kết với nhau, chúng ta trở nên mạnh mẽ không gì có thể đánh bại.
+
+Đoàn kết là sức mạnh, là chìa khóa để vượt qua mọi khó khăn.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Câu chuyện trong bài nói về gì?',
+        options: ['Bó hoa', 'Bó đũa', 'Bó rơm', 'Bó cỏ'],
+        correctAnswer: 'Bó đũa',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Đoàn kết mang lại điều gì?',
+        order: 2,
+      },
+    ],
+  },
+  t_peace_05: {
+    id: 't_peace_05',
+    title: 'Giải quyết xung đột',
+    type: 'Văn bản',
+    categoryId: 'peace',
+    categoryName: 'Giáo dục về hòa bình và giải quyết xung đột',
+    difficulty: 'Khó',
+    hasReadingQuiz: true,
+    hasIntegratedTask: true,
+    content: `Xung đột là điều không thể tránh khỏi trong cuộc sống. Khi nhiều người sống cùng nhau, sẽ có lúc ý kiến khác nhau, sẽ có lúc mâu thuẫn xảy ra. Điều quan trọng không phải là tránh xung đột, mà là biết cách giải quyết xung đột một cách hòa bình.
+
+Để giải quyết xung đột, trước tiên chúng ta cần bình tĩnh, lắng nghe quan điểm của người khác. Sau đó, chúng ta cần tìm điểm chung, thỏa hiệp và tìm giải pháp cùng có lợi.
+
+Giải quyết xung đột tốt giúp mối quan hệ trở nên bền chặt hơn.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Điều quan trọng với xung đột là gì?',
+        options: [
+          'Tránh xung đột',
+          'Biết cách giải quyết xung đột',
+          'Gây thêm xung đột',
+          'Không quan tâm',
+        ],
+        correctAnswer: 'Biết cách giải quyết xung đột',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Để giải quyết xung đột, chúng ta cần làm gì?',
+        order: 2,
+      },
+    ],
+  },
+  t_peace_06: {
+  id: 't_peace_06',
+  title: 'Văn hóa hòa bình',
+  type: 'Sách được chọn',
+  categoryId: 'peace',
+  categoryName: 'Giáo dục về hòa bình và giải quyết xung đột',
+  difficulty: null,
+  hasReadingQuiz: false,
+  hasIntegratedTask: true,
+  content: `Văn hóa hòa bình là khi mọi người tôn trọng sự khác biệt, giải quyết mâu thuẫn bằng đối thoại thay vì bạo lực. Đó là khi trẻ em được dạy về lòng kh관용, sự đồng cảm và trách nhiệm với cộng đồng.
+
+Trong một xã hội có văn hóa hòa bình, người ta không chỉ tránh xung đột mà còn chủ động xây dựng môi trường hòa bình: tổ chức các hoạt động gắn kết cộng đồng, lắng nghe và tôn trọng ý kiến người khác.
+
+Xây dựng văn hóa hòa bình là trách nhiệm của tất cả chúng ta.`,
+  readingQuestions: [],
+},
+
+t_rights_01: {
+id: 't_rights_01',
+title: 'Quyền được sống',
+type: 'Sách được chọn',
+categoryId: 'rights',
+categoryName: 'Giáo dục về nhân quyền',
+difficulty: null,
+hasReadingQuiz: true,
+hasIntegratedTask: true,
+content: `Mỗi người sinh ra đều có quyền được sống, được tự do và được hạnh phúc. Đây là những quyền cơ bản nhất của con người, không ai có thể tước đoạt.
+
+Quyền được sống nghĩa là được bảo vệ an toàn, được chăm sóc sức khỏe, được ăn uống đầy đủ. Mọi đứa trẻ đều xứng đáng có một tuổi thơ an toàn và hạnh phúc.
+
+Hãy tôn trọng và bảo vệ quyền sống của nhau.`,
+readingQuestions: [
+    {
+    id: 'q1',
+    type: 'multiple-choice',
+    question: 'Quyền cơ bản nhất của con người là gì?',
+    options: [
+        'Quyền được giàu có',
+        'Quyền được sống, tự do và hạnh phúc',
+        'Quyền được nổi tiếng',
+        'Quyền được quyền lực',
+    ],
+    correctAnswer: 'Quyền được sống, tự do và hạnh phúc',
+    order: 1,
+    },
+    {
+    id: 'q2',
+    type: 'short-answer',
+    question: 'Quyền được sống bao gồm những gì?',
+    order: 2,
+    },
+],
+},
+  t_rights_02: {
+    id: 't_rights_02',
+    title: 'Bình đẳng',
+    type: 'Văn bản',
+    categoryId: 'rights',
+    categoryName: 'Giáo dục về nhân quyền',
+    difficulty: 'Khó',
+    hasReadingQuiz: true,
+    hasIntegratedTask: false,
+    content: `Bình đẳng không có nghĩa là tất cả mọi người giống nhau. Bình đẳng là mọi người đều được đối xử công bằng, đều có cơ hội như nhau để phát triển.
+
+Dù bạn là nam hay nữ, dù bạn sống ở thành phố hay nông thôn, dù gia đình bạn giàu hay nghèo, bạn đều có quyền được học hành, được theo đuổi ước mơ, và được tôn trọng.
+
+Xã hội bình đẳng là xã hội phát triển và văn minh.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Bình đẳng có nghĩa là gì?',
+        options: [
+          'Mọi người giống nhau',
+          'Mọi người được đối xử công bằng',
+          'Mọi người giàu như nhau',
+          'Mọi người sống cùng nơi',
+        ],
+        correctAnswer: 'Mọi người được đối xử công bằng',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Tại sao xã hội bình đẳng là xã hội phát triển?',
+        order: 2,
+      },
+    ],
+  },
+  t_rights_03: {
+    id: 't_rights_03',
+    title: 'Tự do',
+    type: 'Văn bản',
+    categoryId: 'rights',
+    categoryName: 'Giáo dục về nhân quyền',
+    difficulty: 'Trung bình',
+    hasReadingQuiz: true,
+    hasIntegratedTask: true,
+    content: `Tự do là quyền được sống theo cách riêng của mình, được suy nghĩ, được nói lên ý kiến. Nhưng tự do không có nghĩa là được làm bất cứ điều gì mình muốn.
+
+Tự do đi kèm với trách nhiệm. Tự do của bạn kết thúc ở nơi tự do của người khác bắt đầu. Bạn có quyền tự do, nhưng không có quyền xâm phạm tự do của người khác.
+
+Biết cân bằng giữa tự do và trách nhiệm là dấu hiệu của một con người trưởng thành.`,
+    readingQuestions: [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Tự do đi kèm với điều gì?',
+        options: ['Quyền lực', 'Trách nhiệm', 'Tiền bạc', 'Danh vọng'],
+        correctAnswer: 'Trách nhiệm',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Tự do của bạn kết thúc ở đâu?',
+        order: 2,
+      },
+    ],
+  },
+  t_rights_04: {
+    id: 't_rights_04',
+    title: 'Nhân quyền phổ quát',
+    type: 'Sách được chọn',
+    categoryId: 'rights',
+    categoryName: 'Giáo dục về nhân quyền',
+    difficulty: null,
+    hasReadingQuiz: false,
+    hasIntegratedTask: true,
+    content: `Tuyên ngôn Nhân quyền Phổ quát là văn bản lịch sử, khẳng định rằng tất cả mọi người sinh ra đều tự do và bình đẳng về nhân phẩm và quyền lợi. Không phân biệt chủng tộc, màu da, giới tính, ngôn ngữ, tôn giáo, hay bất kỳ điều kiện nào khác.
+
+    Nhân quyền bao gồm nhiều quyền: quyền được sống, quyền tự do, quyền được học hành, quyền được làm việc, quyền được nghỉ ngơi. Đây là những quyền mà mỗi người đều xứng đáng có được.
+
+    Bảo vệ nhân quyền là bảo vệ phẩm giá con người.`,
+    readingQuestions: [],
+    },
+}
+
+export const fetchTextDetail = async (textId: string): Promise<TextDetail> => {
+  console.log('📞 fetchTextDetail called', { textId, useMock })
+  
+  if (useMock) {
+    console.log('✅ Using mock data for text detail')
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    
+    const textDetail = mockTextDetails[textId]
+    
+    if (!textDetail) {
+      console.error('❌ No reading comprehension data for:', textId)
+      throw new Error(`Văn bản "${textId}" không có bài tập đọc hiểu`)
+    }
+    
+    console.log('✅ Text detail loaded:', textDetail)
+    return textDetail
+  }
+
+  const response = await fetch(`${BASE_URL}/api/texts/${textId}`)
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch text detail')
+  }
+  
+  return response.json()
+}
+
+export const fetchReadingQuestions = async (textId: string): Promise<Question[]> => {
+  console.log('📞 fetchReadingQuestions called', { textId, useMock })
+  
+  if (useMock) {
+    console.log('✅ Using mock data for reading questions')
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    
+    const textDetail = mockTextDetails[textId]
+    return textDetail?.readingQuestions || []
+  }
+
+  const response = await fetch(`${BASE_URL}/api/texts/${textId}/reading-questions`)
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch reading questions')
+  }
+  
+  return response.json()
+}
+
+export const submitAnswer = async (data: SubmitAnswerRequest): Promise<SubmitAnswerResponse> => {
+  console.log('📞 submitAnswer called', { data, useMock })
+  
+  if (useMock) {
+    console.log('✅ Using mock data for submit answer')
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    
+    const textDetail = mockTextDetails[data.textId]
+    const question = textDetail?.readingQuestions?.find(q => q.id === data.questionId)
+    
+    if (question?.type === 'multiple-choice') {
+      const isCorrect = data.answer === question.correctAnswer
+      return {
+        isCorrect,
+        correctAnswer: question.correctAnswer,
+        feedback: isCorrect ? 'Chính xác! Bạn làm rất tốt.' : 'Chưa đúng, hãy thử lại nhé!',
+      }
+    }
+    
+    return {
+      isCorrect: true,
+      feedback: 'Cảm ơn bạn đã trả lời. Giáo viên sẽ chấm bài của bạn.',
+    }
+  }
+
+  const response = await fetch(`${BASE_URL}/api/texts/${data.textId}/submit-answer`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+  
+  if (!response.ok) {
+    throw new Error('Failed to submit answer')
+  }
+  
+  return response.json()
+}
+
+export const submitReadingQuiz = async (
+  textId: string,
+  answers: Record<string, string>
+): Promise<{ score: number; totalQuestions: number; feedback: string }> => {
+  console.log('📞 submitReadingQuiz called', { textId, answers, useMock })
+  
+  if (useMock) {
+    console.log('✅ Using mock data for submit quiz')
+    await new Promise((resolve) => setTimeout(resolve, 800))
+    
+    const textDetail = mockTextDetails[textId]
+    const questions = textDetail?.readingQuestions || []
+    
+    let correctCount = 0
+    questions.forEach((q) => {
+      if (q.type === 'multiple-choice' && answers[q.id] === q.correctAnswer) {
+        correctCount++
+      }
+    })
+    
+    const mcQuestions = questions.filter(q => q.type === 'multiple-choice')
+    const score = mcQuestions.length > 0 ? Math.round((correctCount / mcQuestions.length) * 100) : 0
+    
+    return {
+      score,
+      totalQuestions: questions.length,
+      feedback: score >= 70 
+        ? 'Xuất sắc! Bạn đã hiểu bài rất tốt.' 
+        : score >= 50 
+        ? 'Khá tốt! Hãy đọc lại bài để hiểu sâu hơn nhé.' 
+        : 'Hãy đọc kỹ bài và thử lại nhé!',
+    }
+  }
+
+  const response = await fetch(`${BASE_URL}/api/texts/${textId}/submit-quiz`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ answers }),
+  })
+  
+  if (!response.ok) {
+    throw new Error('Failed to submit quiz')
+  }
+  
+  return response.json()
+}

@@ -20,6 +20,7 @@ import TeacherClassDetail from './pages/teacher/TeacherClassDetail'
 import CreateAssignment from './pages/teacher/CreateAssignment'
 import ReviewSubmission from './pages/teacher/ReviewSubmission'
 import TeacherNotifications from './pages/teacher/TeacherNotifications'
+import LibraryShelf from './pages/library/LibraryShelf'
 
 function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -41,6 +42,8 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/library" element={<LibraryList />} />
+            <Route path="/library/:id" element={<LibraryDetail />} />
+            <Route path="/library-shelf" element={<LibraryShelf />} />
             <Route path="/library/:id" element={<LibraryDetail />} />
             <Route path="/community" element={<CommunityList />} />
             <Route path="/community/:communityKey" element={<CommunityDetail />} />

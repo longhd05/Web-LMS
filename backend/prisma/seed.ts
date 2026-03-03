@@ -126,23 +126,35 @@ const rubrics = [
   },
 ];
 
-const demoUsers = [
-  { name: 'Giáo viên Demo', email: 'teacher@demo.local', password: 'teacher123', role: 'TEACHER' },
-  { name: 'Học sinh Demo', email: 'student@demo.local', password: 'student123', role: 'STUDENT' },
+const users = [
+  {
+    name: 'Học Sinh Mẫu',
+    email: 'student@test.com',
+    password: '123456',
+    role: 'STUDENT',
+  },
+  {
+    name: 'Giáo Viên Mẫu',
+    email: 'teacher@test.com',
+    password: '123456',
+    role: 'TEACHER',
+  },
 ];
 
 async function main() {
   console.log('🌱 Starting seed...');
 
-  // Seed demo users
-  for (const u of demoUsers) {
-    const existing = await prisma.user.findUnique({ where: { email: u.email } });
+  for (const userData of users) {
+    const existing = await prisma.user.findUnique({ where: { email: userData.email } });
     if (!existing) {
-      const passwordHash = await bcrypt.hash(u.password, 12);
-      await prisma.user.create({ data: { name: u.name, email: u.email, passwordHash, role: u.role } });
-      console.log(`✅ Created demo user: ${u.email} (${u.role})`);
-    } else {
-      console.log(`ℹ️  Demo user already exists: ${u.email}`);
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      await prisma.user.create({
+        data: {
+          ...userData,
+          password: hashedPassword,
+        },
+      });
+      console.log(`✅ Created user: ${userData.email}`);
     }
   }
 
@@ -162,10 +174,9 @@ async function main() {
     }
   }
 
-  const userCount = await prisma.user.count();
   const itemCount = await prisma.libraryItem.count();
   const rubricCount = await prisma.rubric.count();
-  console.log(`✅ Seed complete: ${userCount} users, ${itemCount} library items, ${rubricCount} rubrics`);
+  console.log(`✅ Seed complete: ${itemCount} library items, ${rubricCount} rubrics`);
 }
 
 main()
