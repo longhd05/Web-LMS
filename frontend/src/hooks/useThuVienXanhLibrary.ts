@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { fetchCategories, fetchTextsByCategory } from '../api/libraryShelf'
-import { CategoryWithTexts } from '../types/libraryShelf'
+import { fetchThuVienXanhCategories, fetchThuVienXanhTextsByCategory } from '../api/thuVienXanhLibrary'
+import { type ThuVienXanhCategoryWithTexts } from '../types/thuVienXanhLibrary'
 
-export const useLibraryShelf = (searchQuery: string) => {
-  const [categories, setCategories] = useState<CategoryWithTexts[]>([])
+export const useThuVienXanhLibrary = (searchQuery: string) => {
+  const [categories, setCategories] = useState<ThuVienXanhCategoryWithTexts[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -12,19 +12,18 @@ export const useLibraryShelf = (searchQuery: string) => {
       setLoading(true)
       setError('')
       try {
-        const cats = await fetchCategories(searchQuery)
-        const catsWithTexts: CategoryWithTexts[] = cats.map((c) => ({
-          ...c,
+        const cats = await fetchThuVienXanhCategories(searchQuery)
+        const catsWithTexts: ThuVienXanhCategoryWithTexts[] = cats.map((category) => ({
+          ...category,
           texts: [],
           loading: true,
           error: null,
         }))
         setCategories(catsWithTexts)
 
-        // Load texts for each category
-        cats.forEach(async (cat, idx) => {
+        cats.forEach(async (category, idx) => {
           try {
-            const texts = await fetchTextsByCategory(cat.id, searchQuery, cat.textCount)
+            const texts = await fetchThuVienXanhTextsByCategory(category.id, searchQuery, category.textCount)
             setCategories((prev) => {
               const updated = [...prev]
               updated[idx] = { ...updated[idx], texts, loading: false }
@@ -51,7 +50,7 @@ export const useLibraryShelf = (searchQuery: string) => {
 
     const timer = setTimeout(() => {
       loadData()
-    }, 300) // debounce
+    }, 300)
 
     return () => clearTimeout(timer)
   }, [searchQuery])

@@ -1,11 +1,11 @@
-export interface Category {
+export interface ThuVienXanhCategory {
   id: string
   name: string
   color: string
   textCount: number
 }
 
-export interface TextItem {
+export interface ThuVienXanhTextItem {
   id: string
   title: string
   type: string
@@ -16,8 +16,8 @@ export interface TextItem {
   hasIntegratedTask: boolean
 }
 
-export interface CategoryWithTexts extends Category {
-  texts: TextItem[]
+export interface ThuVienXanhCategoryWithTexts extends ThuVienXanhCategory {
+  texts: ThuVienXanhTextItem[]
   loading: boolean
   error: string | null
 }

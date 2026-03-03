@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Header from './components/Header'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -20,12 +20,17 @@ import TeacherClassDetail from './pages/teacher/TeacherClassDetail'
 import CreateAssignment from './pages/teacher/CreateAssignment'
 import ReviewSubmission from './pages/teacher/ReviewSubmission'
 import TeacherNotifications from './pages/teacher/TeacherNotifications'
-import LibraryShelf from './pages/library/LibraryShelf'
+import ThuVienXanhLibraryPage from './pages/thu-vien-xanh/ThuVienXanhLibraryPage'
+import DocHieuFullscreenModal from './pages/thu-vien-xanh/DocHieuFullscreenModal'
+import TichHopFullscreenModal from './pages/thu-vien-xanh/TichHopFullscreenModal'
 
 function Layout({ children }: { children: React.ReactNode }) {
+  const location = useLocation()
+  const isThuVienXanh = location.pathname.startsWith('/thu-vien-xanh')
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className={isThuVienXanh ? 'min-h-screen' : 'min-h-screen bg-gray-50'}>
+      {!isThuVienXanh && <Header />}
       <main>{children}</main>
     </div>
   )
@@ -43,7 +48,9 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/library" element={<LibraryList />} />
             <Route path="/library/:id" element={<LibraryDetail />} />
-            <Route path="/library-shelf" element={<LibraryShelf />} />
+            <Route path="/thu-vien-xanh" element={<ThuVienXanhLibraryPage />} />
+            <Route path="/thu-vien-xanh/doc-hieu" element={<DocHieuFullscreenModal />} />
+            <Route path="/thu-vien-xanh/tich-hop" element={<TichHopFullscreenModal />} />
             <Route path="/library/:id" element={<LibraryDetail />} />
             <Route path="/community" element={<CommunityList />} />
             <Route path="/community/:communityKey" element={<CommunityDetail />} />
