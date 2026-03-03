@@ -1,17 +1,12 @@
 import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import TopNavBar, { type ThuVienXanhSearchResult } from '../../components/thu-vien-xanh/TopNavBar'
 import LibraryContent from '../../components/thu-vien-xanh/LibraryContent'
 import { useThuVienXanhLibrary } from '../../hooks/useThuVienXanhLibrary'
 import { type LibraryItem, type ThuVienXanhMode } from '../../types/thuVienXanh'
 
 export default function ThuVienXanhLibraryPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const modeParam = searchParams.get('mode')
-  const initialMode: ThuVienXanhMode = modeParam === 'tich-hop' ? 'tich-hop' : 'doc-hieu'
-
   const [searchValue, setSearchValue] = useState('')
-  const [mode, setMode] = useState<ThuVienXanhMode>(initialMode)
   const navigate = useNavigate()
   const { categories: shelfCategories, loading } = useThuVienXanhLibrary(searchValue)
 
@@ -29,10 +24,10 @@ export default function ThuVienXanhLibraryPage() {
             hasDocHieu: text.hasReadingQuiz,
             hasTichHop: text.hasIntegratedTask,
           }))
-          .filter((item) => (mode === 'doc-hieu' ? item.hasDocHieu : item.hasTichHop)),
+          .filter((item) => item.hasDocHieu || item.hasTichHop),
       }))
       .filter((category) => category.items.length > 0)
-  }, [shelfCategories, mode])
+  }, [shelfCategories])
 
   const searchResults = useMemo<ThuVienXanhSearchResult[]>(() => {
     if (!searchValue.trim()) return []
@@ -58,20 +53,12 @@ export default function ThuVienXanhLibraryPage() {
   }, [searchValue, shelfCategories])
 
   const handleOpenItem = (item: LibraryItem) => {
+    const preferredMode: ThuVienXanhMode = item.hasDocHieu ? 'doc-hieu' : 'tich-hop'
     const params = new URLSearchParams({ itemId: item.id })
     if (item.coverUrl) {
       params.set('imageUrl', item.coverUrl)
     }
-    navigate(`/thu-vien-xanh/${mode}?${params.toString()}`)
-  }
-
-  const handleModeChange = (nextMode: ThuVienXanhMode) => {
-    setMode(nextMode)
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous)
-      next.set('mode', nextMode)
-      return next
-    })
+    navigate(`/thu-vien-xanh/${preferredMode}?${params.toString()}`)
   }
 
   const handleSearchSubmit = () => {
@@ -104,7 +91,7 @@ export default function ThuVienXanhLibraryPage() {
         onSelectSearchResult={handleSelectSearchResult}
         loadingResults={loading}
       />
-      <LibraryContent categories={categories} mode={mode} onModeChange={handleModeChange} onOpenItem={handleOpenItem} />
+      <LibraryContent categories={categories} onOpenItem={handleOpenItem} />
     </div>
   )
 }

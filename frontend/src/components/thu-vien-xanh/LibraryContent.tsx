@@ -1,51 +1,28 @@
-import { type LibraryCategory, type LibraryItem, type ThuVienXanhMode } from '../../types/thuVienXanh'
+import { type LibraryCategory, type LibraryItem } from '../../types/thuVienXanh'
 
 interface LibraryContentProps {
   categories: LibraryCategory[]
-  mode: ThuVienXanhMode
-  onModeChange: (mode: ThuVienXanhMode) => void
   onOpenItem: (item: LibraryItem) => void
 }
 
-export default function LibraryContent({ categories, mode, onModeChange, onOpenItem }: LibraryContentProps) {
+export default function LibraryContent({ categories, onOpenItem }: LibraryContentProps) {
   const isEmpty = categories.length === 0
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
       <div className="bg-cyan-50/90 rounded-[28px] p-6 sm:p-8 border border-cyan-200 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide text-blue-950">
-            THẾ GIỚI KHOA HỌC VIỄN TƯỞNG
-          </h1>
-
-          <div className="inline-flex bg-white rounded-full p-1 border border-cyan-300 self-start">
-            <button
-              onClick={() => onModeChange('doc-hieu')}
-              className={`px-5 py-2.5 rounded-full text-sm font-bold transition ${
-                mode === 'doc-hieu' ? 'bg-teal-600 text-white' : 'text-slate-700'
-              }`}
-            >
-              Đọc hiểu
-            </button>
-            <button
-              onClick={() => onModeChange('tich-hop')}
-              className={`px-5 py-2.5 rounded-full text-sm font-bold transition ${
-                mode === 'tich-hop' ? 'bg-teal-600 text-white' : 'text-slate-700'
-              }`}
-            >
-              Tích hợp
-            </button>
-          </div>
-        </div>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide text-blue-950 text-center">
+          THẾ GIỚI KHOA HỌC VIỄN TƯỞNG
+        </h1>
 
         {isEmpty ? (
           <div className="mt-10 rounded-2xl bg-white p-8 text-center text-slate-600 border border-cyan-200">
             Không có văn bản phù hợp với từ khóa tìm kiếm.
           </div>
         ) : (
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             {categories.map((category) => (
-              <article key={category.id} className="rounded-3xl bg-white/90 border border-cyan-200 p-5 sm:p-6">
+              <article key={category.id} className="h-full rounded-3xl bg-white/90 border border-cyan-200 p-5 sm:p-6">
                 <h2 className="text-lg sm:text-xl font-extrabold text-blue-950">{category.title}</h2>
                 <ul className="mt-4 space-y-3">
                   {category.items.map((item) => (
