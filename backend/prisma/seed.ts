@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -125,8 +126,25 @@ const rubrics = [
   },
 ];
 
+const demoUsers = [
+  { name: 'Giáo viên Demo', email: 'teacher@demo.local', password: 'teacher123', role: 'TEACHER' },
+  { name: 'Học sinh Demo', email: 'student@demo.local', password: 'student123', role: 'STUDENT' },
+];
+
 async function main() {
   console.log('🌱 Starting seed...');
+
+  // Seed demo users
+  for (const u of demoUsers) {
+    const existing = await prisma.user.findUnique({ where: { email: u.email } });
+    if (!existing) {
+      const passwordHash = await bcrypt.hash(u.password, 12);
+      await prisma.user.create({ data: { name: u.name, email: u.email, passwordHash, role: u.role } });
+      console.log(`✅ Created demo user: ${u.email} (${u.role})`);
+    } else {
+      console.log(`ℹ️  Demo user already exists: ${u.email}`);
+    }
+  }
 
   // Seed library items
   for (const item of libraryItems) {
@@ -144,9 +162,10 @@ async function main() {
     }
   }
 
+  const userCount = await prisma.user.count();
   const itemCount = await prisma.libraryItem.count();
   const rubricCount = await prisma.rubric.count();
-  console.log(`✅ Seed complete: ${itemCount} library items, ${rubricCount} rubrics`);
+  console.log(`✅ Seed complete: ${userCount} users, ${itemCount} library items, ${rubricCount} rubrics`);
 }
 
 main()
