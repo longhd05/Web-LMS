@@ -1,13 +1,10 @@
-import { Category, TextItem } from '../types/libraryShelf'
+import { type ThuVienXanhCategory, type ThuVienXanhTextItem } from '../types/thuVienXanhLibrary'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 const useMock = !BASE_URL
 
-console.log('🔍 LibraryShelf API Config:', { BASE_URL, useMock })
-
-// Helper function
-function normalizeVietnamese(str: string): string {
-  return str
+function normalizeVietnamese(value: string): string {
+  return value
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -19,8 +16,7 @@ function vietnameseIncludes(text: string, search: string): boolean {
   return normalizeVietnamese(text).includes(normalizeVietnamese(search))
 }
 
-// Mock texts data
-const mockTextsByCategory: Record<string, TextItem[]> = {
+const mockTextsByCategory: Record<string, ThuVienXanhTextItem[]> = {
   env: [
     {
       id: 't_env_01',
@@ -209,63 +205,64 @@ const mockTextsByCategory: Record<string, TextItem[]> = {
   ],
 }
 
-const mockCategories: Category[] = [
+const mockCategories: ThuVienXanhCategory[] = [
   {
     id: 'env',
     name: 'Giáo dục về môi trường',
     color: '#60d394',
-    textCount: mockTextsByCategory['env']?.length || 0,
+    textCount: mockTextsByCategory.env?.length || 0,
   },
   {
     id: 'peace',
     name: 'Giáo dục về hòa bình và giải quyết xung đột',
     color: '#73a9ff',
-    textCount: mockTextsByCategory['peace']?.length || 0,
+    textCount: mockTextsByCategory.peace?.length || 0,
   },
   {
     id: 'rights',
     name: 'Giáo dục về nhân quyền',
     color: '#2f6f7e',
-    textCount: mockTextsByCategory['rights']?.length || 0,
+    textCount: mockTextsByCategory.rights?.length || 0,
   },
 ]
 
-export const fetchCategories = async (q?: string): Promise<Category[]> => {
-  console.log('📞 fetchCategories called', { q, useMock })
-  
+export const fetchThuVienXanhCategories = async (query?: string): Promise<ThuVienXanhCategory[]> => {
   if (useMock) {
-    console.log('✅ Using mock data for categories')
     await new Promise((resolve) => setTimeout(resolve, 200))
-    
-    // LUÔN trả về tất cả categories
     return mockCategories
   }
 
-  throw new Error('Real API not implemented yet')
+  const response = await fetch(`${BASE_URL}/api/thu-vien-xanh/categories${query ? `?q=${encodeURIComponent(query)}` : ''}`)
+  if (!response.ok) {
+    throw new Error('Không thể tải danh mục thư viện xanh')
+  }
+  return response.json()
 }
 
-export const fetchTextsByCategory = async (
+export const fetchThuVienXanhTextsByCategory = async (
   categoryId: string,
-  q?: string,
-  limit?: number
-): Promise<TextItem[]> => {
-  console.log('📞 fetchTextsByCategory called', { categoryId, q, limit, useMock })
-  
+  query?: string,
+  limit?: number,
+): Promise<ThuVienXanhTextItem[]> => {
   if (useMock) {
-    console.log('✅ Using mock data for texts')
     await new Promise((resolve) => setTimeout(resolve, 200))
-    
     const texts = mockTextsByCategory[categoryId] || []
-    
-    // 👇 BỎ filter - trả về TẤT CẢ texts
-    let result = texts
-    
-    if (limit) {
-      result = result.slice(0, limit)
-    }
-    
-    return result
+    const filtered = query
+      ? texts.filter((item) => vietnameseIncludes(item.title, query))
+      : texts
+    return limit ? filtered.slice(0, limit) : filtered
   }
 
-  throw new Error('Real API not implemented yet')
+  const search = new URLSearchParams()
+  if (query) search.set('q', query)
+  if (typeof limit === 'number') search.set('limit', String(limit))
+  const queryString = search.toString()
+
+  const response = await fetch(
+    `${BASE_URL}/api/thu-vien-xanh/categories/${categoryId}/texts${queryString ? `?${queryString}` : ''}`,
+  )
+  if (!response.ok) {
+    throw new Error('Không thể tải danh sách văn bản thư viện xanh')
+  }
+  return response.json()
 }
