@@ -60,7 +60,7 @@ export default function TopNavBar({
       <div className="max-w-7xl mx-auto flex items-center gap-4">
         <Link to="/" className="min-w-0 flex items-center gap-3 text-white hover:opacity-90 transition-opacity">
           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-extrabold">TVX</div>
-          <p className="text-sm sm:text-base md:text-lg font-black tracking-wide">THẾ GIỚI KHOA HỌC VIỄN TƯỞNG</p>
+          <p className="text-sm sm:text-base md:text-lg font-black tracking-wide">THƯ VIỆN KHOA HỌC VIỄN TƯỞNG</p>
         </Link>
 
         <form className="flex-1 flex justify-center" onSubmit={handleSubmit}>

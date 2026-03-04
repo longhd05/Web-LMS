@@ -1,4 +1,4 @@
-import { type ChangeEvent } from 'react'
+import { type ChangeEvent, type DragEvent } from 'react'
 import { type TichHopContent, type ThuVienXanhUserRole } from '../../types/thuVienXanh'
 
 interface TichHopBodyProps {
@@ -24,6 +24,8 @@ export default function TichHopBody({
   onChangeFiles,
   onSubmit,
 }: TichHopBodyProps) {
+  const dropzoneInputId = 'tich-hop-dropzone-file'
+
   const leftPanel = (
     <div>
       <p className="font-bold text-blue-900">Ngữ liệu</p>
@@ -47,6 +49,20 @@ export default function TichHopBody({
     onChangeFiles(files.slice(0, 5))
   }
 
+  const handleDragOver = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault()
+  }
+
+  const handleDragLeave = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault()
+  }
+
+  const handleDrop = (event: DragEvent<HTMLLabelElement>) => {
+    event.preventDefault()
+    const files = Array.from(event.dataTransfer.files || [])
+    onChangeFiles(files.slice(0, 5))
+  }
+
   const showUpload = userRole !== 'free_student'
   const acceptValue = (allowedFileTypes || ['pdf', 'doc', 'docx', 'png', 'jpg'])
     .map((extension) => `.${extension}`)
@@ -63,13 +79,47 @@ export default function TichHopBody({
       {showUpload && (
         <section>
           <label className="block font-semibold text-slate-800 mb-2">Tải file bài làm</label>
-          <input
-            type="file"
-            multiple
-            accept={acceptValue}
-            onChange={handleFileChange}
-            className="block w-full rounded-xl border border-cyan-200 bg-white px-3 py-2 text-slate-700"
-          />
+          <div className="flex items-center justify-center w-full">
+            <label
+              htmlFor={dropzoneInputId}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className="flex flex-col items-center justify-center w-full h-64 rounded-2xl border border-dashed cursor-pointer transition-colors border-cyan-300 bg-white/80 text-slate-600 hover:bg-slate-50"
+            >
+              <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                <svg
+                  className="w-8 h-8 mb-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2"
+                  />
+                </svg>
+                <p className="mb-2 text-sm">
+                  <span className="font-semibold">Click để tải file</span> hoặc kéo thả vào đây
+                </p>
+                <p className="text-xs">Tối đa 5 file • Định dạng: {acceptValue.replace(/,/g, ', ')} • Mỗi file tối đa {fileSizeLabel}MB</p>
+              </div>
+              <input
+                id={dropzoneInputId}
+                type="file"
+                multiple
+                accept={acceptValue}
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+          </div>
           <p className="mt-1 text-xs text-slate-500">Tối đa 5 file, mỗi file tối đa {fileSizeLabel}MB</p>
           {selectedFiles.length > 0 && (
             <ul className="mt-2 text-sm text-slate-600 space-y-1">

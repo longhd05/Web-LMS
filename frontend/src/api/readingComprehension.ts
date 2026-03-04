@@ -594,14 +594,38 @@ export const fetchTextDetail = async (textId: string): Promise<TextDetail> => {
     await new Promise((resolve) => setTimeout(resolve, 300))
     
     const textDetail = mockTextDetails[textId]
-    
-    if (!textDetail) {
-      console.error('❌ No reading comprehension data for:', textId)
-      throw new Error(`Văn bản "${textId}" không có bài tập đọc hiểu`)
+    const fallbackDetail: TextDetail = {
+      id: textId,
+      title: `Văn bản mẫu ${textId}`,
+      type: 'Văn bản',
+      categoryId: 'env',
+      categoryName: 'Thư viện xanh',
+      difficulty: 'Trung bình',
+      hasReadingQuiz: true,
+      hasIntegratedTask: false,
+      content: `Đây là ngữ liệu mẫu cho ${textId}. Nội dung này được tạo tự động để hỗ trợ hiển thị khi bạn thêm nhiều sách minh họa.`,
+      readingQuestions: [
+        {
+          id: 'q1',
+          type: 'multiple-choice',
+          question: 'Ý chính của đoạn ngữ liệu mẫu là gì?',
+          options: ['Mô tả dữ liệu minh họa', 'Phân tích toán học', 'Giải bài tập vật lý', 'Viết thơ'],
+          correctAnswer: 'Mô tả dữ liệu minh họa',
+          order: 1,
+        },
+        {
+          id: 'q2',
+          type: 'short-answer',
+          question: 'Em rút ra điều gì từ đoạn ngữ liệu mẫu?',
+          order: 2,
+        },
+      ],
     }
+
+    const resolvedDetail = textDetail || fallbackDetail
     
-    console.log('✅ Text detail loaded:', textDetail)
-    return textDetail
+    console.log('✅ Text detail loaded:', resolvedDetail)
+    return resolvedDetail
   }
 
   const response = await fetch(`${BASE_URL}/api/texts/${textId}`)
@@ -621,7 +645,25 @@ export const fetchReadingQuestions = async (textId: string): Promise<Question[]>
     await new Promise((resolve) => setTimeout(resolve, 200))
     
     const textDetail = mockTextDetails[textId]
-    return textDetail?.readingQuestions || []
+    if (textDetail?.readingQuestions) {
+      return textDetail.readingQuestions
+    }
+    return [
+      {
+        id: 'q1',
+        type: 'multiple-choice',
+        question: 'Ý chính của đoạn ngữ liệu mẫu là gì?',
+        options: ['Mô tả dữ liệu minh họa', 'Phân tích toán học', 'Giải bài tập vật lý', 'Viết thơ'],
+        correctAnswer: 'Mô tả dữ liệu minh họa',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer',
+        question: 'Em rút ra điều gì từ đoạn ngữ liệu mẫu?',
+        order: 2,
+      },
+    ]
   }
 
   const response = await fetch(`${BASE_URL}/api/texts/${textId}/reading-questions`)
@@ -684,7 +726,22 @@ export const submitReadingQuiz = async (
     await new Promise((resolve) => setTimeout(resolve, 800))
     
     const textDetail = mockTextDetails[textId]
-    const questions = textDetail?.readingQuestions || []
+    const questions = textDetail?.readingQuestions || [
+      {
+        id: 'q1',
+        type: 'multiple-choice' as const,
+        question: 'Ý chính của đoạn ngữ liệu mẫu là gì?',
+        options: ['Mô tả dữ liệu minh họa', 'Phân tích toán học', 'Giải bài tập vật lý', 'Viết thơ'],
+        correctAnswer: 'Mô tả dữ liệu minh họa',
+        order: 1,
+      },
+      {
+        id: 'q2',
+        type: 'short-answer' as const,
+        question: 'Em rút ra điều gì từ đoạn ngữ liệu mẫu?',
+        order: 2,
+      },
+    ]
     
     let correctCount = 0
     questions.forEach((q) => {
