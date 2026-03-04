@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 
 // Pages
 import Landing from './pages/Landing'
+import HomePage from './pages/HomePage'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import LibraryList from './pages/library/LibraryList'
@@ -28,10 +29,11 @@ import { CongDongTrachNhiemPage, HiepSiXanhPage, SuGiaHoaBinhPage } from './page
 function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const isThuVienXanh = location.pathname.startsWith('/thu-vien-xanh')
+  const isHomePage = location.pathname === '/trang-chu'
 
   return (
     <div className={isThuVienXanh ? 'min-h-screen' : 'min-h-screen bg-gray-50'}>
-      {!isThuVienXanh && <Header />}
+      {!isThuVienXanh && !isHomePage && <Header />}
       <main>{children}</main>
     </div>
   )
@@ -45,6 +47,7 @@ export default function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Landing />} />
+            <Route path="/trang-chu" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/library" element={<LibraryList />} />
