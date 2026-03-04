@@ -1,13 +1,17 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+body {
+  font-family: 'Segoe UI', 'Noto Sans', Arial, Helvetica, sans-serif;
+}
+
 .tvx-scroll-hidden {
-	scrollbar-width: none;
-	-ms-overflow-style: none;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .tvx-scroll-hidden::-webkit-scrollbar {
-	width: 0;
-	height: 0;
+  width: 0;
+  height: 0;
 }

@@ -1,5 +1,5 @@
-import { useState, useEffect, FormEvent } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+﻿import { FormEvent, useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import api from '../../api/axios'
 
 interface Submission {
@@ -36,19 +36,17 @@ interface ReadingQuestion {
 
 const communities = [
   { key: 'hieu-si-xanh', name: 'Hiệp sĩ xanh' },
-  { key: 'su-gia-hoa-binh', name: 'Sứ giả hòa bình' },
-  { key: 'an-toan-cong-nghe', name: 'An toàn công nghệ' },
+  { key: 'su-gia-hoa-binh', name: 'Sứ giả hòa bình và hòa giải' },
+  { key: 'none', name: 'Không duyệt' },
 ]
 
 export default function ReviewSubmission() {
   const { submissionId } = useParams<{ submissionId: string }>()
-  const navigate = useNavigate()
 
   const [submission, setSubmission] = useState<Submission | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Review form state
   const [comment, setComment] = useState('')
   const [resultStatus, setResultStatus] = useState<'PASSED' | 'FAILED'>('PASSED')
   const [perQuestionMarks, setPerQuestionMarks] = useState<Record<number, boolean>>({})
@@ -56,11 +54,9 @@ export default function ReviewSubmission() {
   const [reviewError, setReviewError] = useState('')
   const [reviewSuccess, setReviewSuccess] = useState(false)
 
-  // Publish state
   const [selectedCommunity, setSelectedCommunity] = useState(communities[0].key)
   const [publishing, setPublishing] = useState(false)
   const [publishError, setPublishError] = useState('')
-  const [publishSuccess, setPublishSuccess] = useState(false)
 
   const fetchSubmission = async () => {
     try {
@@ -73,7 +69,9 @@ export default function ReviewSubmission() {
         if (data.review.perQuestionMarksJson) {
           try {
             setPerQuestionMarks(JSON.parse(data.review.perQuestionMarksJson))
-          } catch { /* noop */ }
+          } catch {
+            // noop
+          }
         }
       }
     } catch {
@@ -83,7 +81,9 @@ export default function ReviewSubmission() {
     }
   }
 
-  useEffect(() => { fetchSubmission() }, [submissionId])
+  useEffect(() => {
+    fetchSubmission()
+  }, [submissionId])
 
   const readingQuestions: ReadingQuestion[] = (() => {
     if (!submission?.assignment.libraryItem.readingQuestionsJson) return []
@@ -111,9 +111,7 @@ export default function ReviewSubmission() {
       await api.post(`/submissions/${submissionId}/review`, {
         comment,
         resultStatus,
-        perQuestionMarksJson: Object.keys(perQuestionMarks).length > 0
-          ? JSON.stringify(perQuestionMarks)
-          : undefined,
+        perQuestionMarksJson: Object.keys(perQuestionMarks).length > 0 ? JSON.stringify(perQuestionMarks) : undefined,
       })
       setReviewSuccess(true)
       await fetchSubmission()
@@ -126,256 +124,150 @@ export default function ReviewSubmission() {
   }
 
   const handlePublish = async () => {
+    if (selectedCommunity === 'none') return
     setPublishing(true)
     setPublishError('')
     try {
       await api.post(`/submissions/${submissionId}/publish`, { communityKey: selectedCommunity })
-      setPublishSuccess(true)
       await fetchSubmission()
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      setPublishError(msg ?? 'Đăng lên cộng đồng thất bại.')
+      setPublishError(msg ?? 'Đăng cộng đồng thất bại.')
     } finally {
       setPublishing(false)
     }
   }
 
   if (loading) {
-    return <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600" /></div>
+    return (
+      <div className="flex justify-center py-20">
+        <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-[#1f3f8f]" />
+      </div>
+    )
   }
 
   if (error || !submission) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+      <div className="mx-auto max-w-4xl px-4 py-12 text-center">
         <p className="text-red-600">{error || 'Không tìm thấy bài nộp.'}</p>
       </div>
     )
   }
 
-  const isApproved = submission.status === 'APPROVED'
-  const alreadyPublished = !!submission.communityPost
-
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-        <Link to="/teacher/dashboard" className="hover:text-green-600">Lớp học</Link>
-        <span>/</span>
-        <Link to={`/teacher/class/${submission.assignment.class.id}`} className="hover:text-green-600">
-          {submission.assignment.class.name}
-        </Link>
-        <span>/</span>
-        <span className="text-gray-800">Chấm bài</span>
-      </nav>
+    <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-6xl">
+        <nav className="mb-6 flex items-center gap-2 text-sm text-gray-600">
+          <Link to="/teacher/dashboard" className="hover:underline">Lớp học</Link>
+          <span>/</span>
+          <Link to={`/teacher/class/${submission.assignment.class.id}`} className="hover:underline">
+            {submission.assignment.class.name}
+          </Link>
+          <span>/</span>
+          <span>Chấm bài</span>
+        </nav>
 
-      {/* Header */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">{submission.assignment.libraryItem.title}</h1>
-            <p className="text-gray-600">Học sinh: <strong>{submission.student.name}</strong> ({submission.student.email})</p>
-          </div>
-          <span className={`text-sm px-3 py-1.5 rounded-full font-medium ${
-            submission.assignment.type === 'READING' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-          }`}>
-            {submission.assignment.type === 'READING' ? '📖 Đọc hiểu' : '🔗 Tích hợp'}
-          </span>
-        </div>
-      </div>
+        <div className="mx-auto max-w-4xl rounded-[28px] border-2 border-[#8bee9f] bg-gradient-to-b from-white to-[#dff2ea] p-6 shadow-[0_0_0_2px_rgba(63,98,170,0.7)] sm:p-8">
+          <h1 className="mb-5 text-3xl font-black text-[#1f3f8f] sm:text-4xl">{submission.student.name}</h1>
 
-      {/* Student answers */}
-      {submission.assignment.type === 'READING' && readingQuestions.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-5">Câu trả lời của học sinh</h2>
-          <div className="space-y-5">
-            {readingQuestions.map((q, idx) => {
-              const studentAns = studentAnswers[idx]
-              const isCorrect = perQuestionMarks[idx]
-
-              return (
-                <div key={idx} className="border border-gray-100 rounded-xl p-5">
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <p className="font-medium text-gray-800">Câu {idx + 1}: {q.question}</p>
-                    <button
-                      type="button"
-                      onClick={() => setPerQuestionMarks((prev) => ({ ...prev, [idx]: !prev[idx] }))}
-                      className={`flex-shrink-0 px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                        isCorrect
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                          : 'bg-red-100 text-red-700 hover:bg-red-200'
-                      }`}
-                    >
-                      {isCorrect ? '✓ Đúng' : '✗ Sai'}
-                    </button>
-                  </div>
-                  <div className="space-y-1.5">
-                    {q.options.map((opt, optIdx) => (
-                      <div
-                        key={optIdx}
-                        className={`px-4 py-2 rounded-lg text-sm ${
-                          optIdx === studentAns
-                            ? isCorrect
-                              ? 'bg-green-100 text-green-800 font-medium'
-                              : 'bg-red-100 text-red-800 font-medium'
-                            : 'text-gray-600'
-                        }`}
-                      >
-                        {optIdx === studentAns && (
-                          <span className="mr-2">{isCorrect ? '✓' : '✗'}</span>
-                        )}
-                        {opt}
-                      </div>
-                    ))}
-                  </div>
-                  {studentAns === undefined && (
-                    <p className="text-xs text-gray-400 mt-2">Học sinh chưa trả lời câu này.</p>
-                  )}
+          {submission.assignment.type === 'READING' ? (
+            <div className="mb-7 space-y-5 text-[#1f3f8f]">
+              {readingQuestions.map((q, idx) => (
+                <div key={idx} className="text-base font-semibold leading-relaxed sm:text-lg">
+                  <p>Câu {idx + 1}: {q.question}</p>
+                  <p className="pl-4 sm:pl-8">
+                    {'→ '}Đáp án của học sinh: {studentAnswers[idx] !== undefined ? q.options[studentAnswers[idx]] : '(chưa trả lời)'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setPerQuestionMarks((prev) => ({ ...prev, [idx]: !prev[idx] }))}
+                    className={`mt-2 rounded-full px-4 py-1 text-sm font-bold ${perQuestionMarks[idx] ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                  >
+                    {perQuestionMarks[idx] ? '✓ Đúng' : '✗ Sai'}
+                  </button>
                 </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Integration file */}
-      {submission.assignment.type === 'INTEGRATION' && (
-        <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">File bài nộp</h2>
-          {submission.integrationFile ? (
-            <a
-              href={`http://localhost:3000${submission.integrationFile.url}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-5 py-3 rounded-xl font-medium hover:bg-indigo-100 transition-colors"
-            >
-              📎 Tải xuống: {submission.integrationFile.filename}
-            </a>
-          ) : (
-            <p className="text-gray-500">Không có file bài nộp.</p>
-          )}
-        </div>
-      )}
-
-      {/* Review form */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Chấm điểm</h2>
-
-        {reviewSuccess && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
-            ✅ Đã chấm điểm thành công!
-          </div>
-        )}
-
-        {reviewError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{reviewError}</div>
-        )}
-
-        <form onSubmit={handleReview} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Kết quả</label>
-            <div className="grid grid-cols-2 gap-3">
-              <label className={`flex items-center gap-3 border-2 rounded-xl px-4 py-3 cursor-pointer ${
-                resultStatus === 'PASSED' ? 'border-green-500 bg-green-50' : 'border-gray-200'
-              }`}>
-                <input
-                  type="radio"
-                  value="PASSED"
-                  checked={resultStatus === 'PASSED'}
-                  onChange={() => setResultStatus('PASSED')}
-                  className="text-green-600"
-                />
-                <span className="font-medium text-gray-900">✅ Đạt</span>
-              </label>
-              <label className={`flex items-center gap-3 border-2 rounded-xl px-4 py-3 cursor-pointer ${
-                resultStatus === 'FAILED' ? 'border-red-400 bg-red-50' : 'border-gray-200'
-              }`}>
-                <input
-                  type="radio"
-                  value="FAILED"
-                  checked={resultStatus === 'FAILED'}
-                  onChange={() => setResultStatus('FAILED')}
-                  className="text-red-500"
-                />
-                <span className="font-medium text-gray-900">❌ Chưa đạt</span>
-              </label>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="mb-7 text-[#1f3f8f]">
+              <p className="text-xl font-semibold sm:text-2xl">{submission.assignment.libraryItem.title}</p>
+              <p className="mt-1 text-base sm:text-lg">{'→ '}File mà học sinh tải lên (Word / Hình ảnh / Video)</p>
+              {submission.integrationFile && (
+                <a
+                  href={`http://localhost:3000${submission.integrationFile.url}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex rounded-xl bg-[#cbeff2] px-4 py-2 text-base font-bold text-[#1f3f8f] sm:text-lg"
+                >
+                  Tải file: {submission.integrationFile.filename}
+                </a>
+              )}
+            </div>
+          )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Nhận xét (không bắt buộc)</label>
+          {reviewError && <p className="mb-3 text-red-600">{reviewError}</p>}
+          {reviewSuccess && <p className="mb-3 text-green-700">Đã lưu kết quả chấm.</p>}
+
+          <form onSubmit={handleReview} className="space-y-5">
+            {submission.assignment.type === 'INTEGRATION' && (
+              <div className="grid gap-2 sm:grid-cols-[120px,1fr] sm:items-center">
+                <label className="text-lg font-bold text-[#1f3f8f]">Duyệt:</label>
+                <select
+                  value={selectedCommunity}
+                  onChange={(e) => setSelectedCommunity(e.target.value)}
+                  className="h-12 rounded-xl border-2 border-[#7da3df] bg-[#cbeff2] px-4 text-base font-semibold text-[#1f3f8f] sm:text-lg"
+                >
+                  {communities.map((c) => (
+                    <option key={c.key} value={c.key}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              rows={4}
-              placeholder="Viết nhận xét cho học sinh..."
-              className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+              rows={5}
+              placeholder="Thêm nhận xét của giáo viên"
+              className="w-full rounded-xl bg-[#cbeff2] px-5 py-4 text-base text-[#1f3f8f] placeholder:text-[#5f82ba] sm:text-lg"
             />
-          </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors disabled:opacity-60"
-          >
-            {submitting ? 'Đang lưu...' : 'Lưu kết quả chấm'}
-          </button>
-        </form>
-      </div>
-
-      {/* Publish to community (only if APPROVED integration) */}
-      {isApproved && (
-        <div className="bg-white rounded-2xl border border-indigo-200 p-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">🌐 Đăng lên cộng đồng</h2>
-          <p className="text-gray-500 text-sm mb-5">
-            Chia sẻ bài làm xuất sắc của học sinh lên một trong ba cộng đồng.
-          </p>
-
-          {alreadyPublished ? (
-            <div className="bg-indigo-50 border border-indigo-200 text-indigo-700 px-4 py-3 rounded-lg">
-              ✅ Bài này đã được đăng lên cộng đồng.
+            <div className="grid grid-cols-2 gap-4">
+              <label className="flex items-center gap-2 rounded-xl bg-white p-3 text-base font-bold text-[#1f3f8f]">
+                <input type="radio" checked={resultStatus === 'PASSED'} onChange={() => setResultStatus('PASSED')} />
+                Đạt
+              </label>
+              <label className="flex items-center gap-2 rounded-xl bg-white p-3 text-base font-bold text-[#1f3f8f]">
+                <input type="radio" checked={resultStatus === 'FAILED'} onChange={() => setResultStatus('FAILED')} />
+                Chưa đạt
+              </label>
             </div>
-          ) : (
-            <>
-              {publishSuccess && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
-                  ✅ Đã đăng lên cộng đồng thành công!
-                </div>
-              )}
-              {publishError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{publishError}</div>
-              )}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Chọn cộng đồng</label>
-                  <div className="space-y-2">
-                    {communities.map((c) => (
-                      <label key={c.key} className={`flex items-center gap-3 border-2 rounded-xl px-4 py-3 cursor-pointer ${
-                        selectedCommunity === c.key ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'
-                      }`}>
-                        <input
-                          type="radio"
-                          value={c.key}
-                          checked={selectedCommunity === c.key}
-                          onChange={() => setSelectedCommunity(c.key)}
-                          className="text-indigo-600"
-                        />
-                        <span className="font-medium text-gray-900">{c.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="ml-auto block w-full max-w-[260px] rounded-[20px] border-2 border-[#1f3f8f] bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] py-3 text-lg font-bold uppercase text-white disabled:opacity-60"
+            >
+              {submitting ? 'Đang lưu...' : 'Lưu kết quả'}
+            </button>
+          </form>
+
+          {submission.assignment.type === 'INTEGRATION' && selectedCommunity !== 'none' && (
+            <div className="mt-5">
+              {publishError && <p className="mb-2 text-red-600">{publishError}</p>}
+              {!submission.communityPost && (
                 <button
                   onClick={handlePublish}
                   disabled={publishing}
-                  className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-60"
+                  className="rounded-xl bg-[#1f3f8f] px-4 py-2 text-base font-semibold text-white disabled:opacity-60"
                 >
                   {publishing ? 'Đang đăng...' : 'Đăng lên cộng đồng'}
                 </button>
-              </div>
-            </>
+              )}
+            </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

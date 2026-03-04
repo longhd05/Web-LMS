@@ -45,7 +45,7 @@ export default function LibraryContent({ categories, mode, onModeChange, onOpenI
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {categories.map((category) => {
+          {filteredCategories.map((category) => {
             const isExpanded = !!expandedCategories[category.id]
             const hasMoreThanTen = category.items.length > 10
             const visibleItems = isExpanded ? category.items : category.items.slice(0, 10)
