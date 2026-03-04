@@ -3,22 +3,14 @@ import { type LibraryCategory, type LibraryItem, type ThuVienXanhMode } from '..
 
 interface LibraryContentProps {
   categories: LibraryCategory[]
+  mode: ThuVienXanhMode
+  onModeChange: (mode: ThuVienXanhMode) => void
   onOpenItem: (item: LibraryItem) => void
 }
 
-export default function LibraryContent({ categories, onOpenItem }: LibraryContentProps) {
-  const [mode, setMode] = useState<ThuVienXanhMode>('doc-hieu')
+export default function LibraryContent({ categories, mode, onModeChange, onOpenItem }: LibraryContentProps) {
+  const isEmpty = categories.length === 0
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({})
-  const onModeChange = (nextMode: ThuVienXanhMode) => setMode(nextMode)
-
-  const filteredCategories = categories
-    .map((category) => ({
-      ...category,
-      items: category.items.filter((item) => (mode === 'doc-hieu' ? item.hasDocHieu : item.hasTichHop)),
-    }))
-    .filter((category) => category.items.length > 0)
-
-  const isEmpty = filteredCategories.length === 0
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
