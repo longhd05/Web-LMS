@@ -115,23 +115,38 @@ export default function TeacherDashboard() {
                 key={cls.id}
                 type="button"
                 onClick={() => navigate(`/teacher/class/${cls.id}`)}
-                className="group rounded-[26px] border-2 border-[#8aeea0] bg-gradient-to-b from-white to-[#dff4ee] p-6 text-left shadow-[0_0_0_2px_rgba(62,97,170,0.5),0_8px_16px_rgba(44,96,162,0.2)] transition-transform hover:-translate-y-0.5"
+                className="group rounded-[26px] border-2 border-transparent p-6 text-left shadow-[0_8px_16px_rgba(44,96,162,0.24),0_0_10px_rgba(83,145,220,0.28)] transition-transform hover:-translate-y-0.5"
+                style={{
+                  background:'linear-gradient(#f9ffff, #dbf2ea) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                }}
               >
                 <div className="mb-4 flex items-start justify-between gap-2">
                   <h3 className="line-clamp-2 text-3xl font-extrabold uppercase leading-tight text-[#1f3f8f]">{cls.name}</h3>
                   <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#1f3f8f] text-[#13a0b4]">
-                    <svg className="h-4 w-4 translate-x-[1px]" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z" />
+                    <svg className="h-8 w-8 translate-x-[1px]" viewBox="0 0 28 25" fill="currentColor">
+                      <path d="M8.8 6.8c0-.86.94-1.4 1.7-.95l7.9 4.73c.73.44.73 1.49 0 1.93l-7.9 4.73c-.76.46-1.7-.08-1.7-.95z" />
                     </svg>
                   </div>
                 </div>
 
-                <div className="mb-2 flex h-10 max-w-[180px] items-center overflow-hidden rounded-full border-2 border-[#88e79c] bg-[#f6ffff]">
+                <div
+                  className="mb-2 flex h-10 max-w-[180px] items-center overflow-hidden rounded-full border-2 border-transparent"
+                  style={{
+                    background:
+                      'linear-gradient(#f6ffff, #f6ffff) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                  }}
+                >
                   <span className="h-full rounded-full border-r border-[#55bccf] bg-gradient-to-b from-[#1f3f8f] to-[#159eb3] px-4 py-1.5 text-sm font-extrabold uppercase text-white">Mã</span>
                   <span className="px-3 text-lg font-extrabold uppercase text-[#1f3f8f]">{cls.code}</span>
                 </div>
 
-                <div className="flex h-10 max-w-[180px] items-center overflow-hidden rounded-full border-2 border-[#88e79c] bg-[#f6ffff]">
+                <div
+                  className="flex h-10 max-w-[180px] items-center overflow-hidden rounded-full border-2 border-transparent"
+                  style={{
+                    background:
+                      'linear-gradient(#f6ffff, #f6ffff) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                  }}
+                >
                   <span className="h-full rounded-full border-r border-[#55bccf] bg-gradient-to-b from-[#1f3f8f] to-[#159eb3] px-4 py-1.5 text-sm font-extrabold text-white">
                     {String(cls._count.memberships).padStart(2, '0')}
                   </span>

@@ -8,9 +8,11 @@ export default function Header() {
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [teacherSearch, setTeacherSearch] = useState('')
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
+  const MAX_TEACHER_SEARCH_LENGTH = 120
 
-  const isTeacher = user?.role === 'TEACHER'
+  const isTeacher = (user?.role ?? '').toUpperCase() === 'TEACHER'
 
   const handleLogout = async () => {
     await logout()
@@ -33,14 +35,24 @@ export default function Header() {
     }
   }, [profileOpen])
 
+  useEffect(() => {
+    setProfileOpen(false)
+  }, [user?.id])
+
   return (
     <header
       className={
         isTeacher
-          ? 'sticky top-0 z-40 border-b-4 border-cyan-500 bg-gradient-to-r from-[#153D86] via-[#1A468E] to-[#0F7896] shadow-sm'
+          ? 'relative sticky top-0 z-0 bg-[linear-gradient(180deg,#153177_0%,#1f849a_100%)] shadow-sm'
           : 'sticky top-0 z-40 border-b border-gray-200 bg-white shadow-sm'
       }
     >
+      {isTeacher && (
+        <>
+          <div className="absolute left-0 right-0 top-1 h-[2px] bg-[#1297b0]" />
+          <div className="absolute left-0 right-0 bottom-1 h-[2px] bg-[#1297b0]" />
+        </>
+      )}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2">
@@ -70,7 +82,14 @@ export default function Header() {
                 <svg className="h-5 w-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <span className="truncate text-sm italic">Nhập tên văn bản + Đăng bài tập (VD: "Bạch tuộc" - Đọc hiểu...)</span>
+                <input
+                  type="text"
+                  value={teacherSearch}
+                  onChange={(e) => setTeacherSearch(e.target.value)}
+                  maxLength={MAX_TEACHER_SEARCH_LENGTH}
+                  placeholder='Nhập tên văn bản + Đăng bài tập (VD: "Bạch tuộc" - Đọc hiểu...)'
+                  className="w-full bg-transparent text-sm italic text-gray-600 placeholder:text-gray-400 focus:outline-none"
+                />
               </div>
             </div>
           )}
@@ -85,7 +104,7 @@ export default function Header() {
                   <Link to="/student/submissions" className="font-medium text-gray-600 transition-colors hover:text-green-600">Bài đã nộp</Link>
                 </>
               )}
-              {user?.role === 'TEACHER' && (
+              {isTeacher && (
                 <Link to="/teacher/dashboard" className="font-medium text-gray-600 transition-colors hover:text-green-600">Lớp học</Link>
               )}
             </nav>
@@ -147,7 +166,7 @@ export default function Header() {
                 <Link to="/student/submissions" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Bài đã nộp</Link>
               </>
             )}
-            {user?.role === 'TEACHER' && (
+            {isTeacher && (
               <Link to="/teacher/dashboard" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
             )}
             {!user && (
@@ -162,4 +181,7 @@ export default function Header() {
     </header>
   )
 }
+
+
+
 

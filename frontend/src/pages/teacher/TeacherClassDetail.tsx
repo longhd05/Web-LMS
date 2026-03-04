@@ -2,6 +2,8 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import api from '../../api/axios'
+import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
+import suGiaHoaBinhImg from '../../img/1x/home-su-gia-hoa-binh.png'
 
 interface Assignment {
   id: string
@@ -35,21 +37,42 @@ interface ClassDetail {
   assignments: Assignment[]
 }
 
-type MainTab = 'assignments' | 'students' | 'criteria' | 'pending'
+const MOCK_STUDENTS_COUNT = 10
+const ENABLE_MOCK_STUDENTS = true
+type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | null
+
+function buildMockStudents(count: number) {
+  return Array.from({ length: count }).map((_, index) => {
+    const no = String(index + 1).padStart(2, '0')
+    return {
+      id: `mock-student-${no}`,
+      name: `Học sinh ${no}`,
+      email: `hocsinh${no}@example.com`,
+    }
+  })
+}
+
+const MOCK_ATTENDANCE: Record<number, Record<number, AttendanceStatus>> = {
+  1: { 1: 'PRESENT', 2: 'PRESENT', 3: 'PRESENT', 4: 'ABSENT', 5: 'ABSENT', 6: 'PRESENT', 7: 'LATE', 8: 'PRESENT', 9: 'ABSENT', 10: 'PRESENT' },
+  2: { 1: 'ABSENT' },
+  3: { 1: 'LATE' },
+}
+
+function getAttendanceStatus(rowNumber: number, sessionNumber: number): AttendanceStatus {
+  return MOCK_ATTENDANCE[rowNumber]?.[sessionNumber] ?? null
+}
+
+type MainTab = 'assignments' | 'students' | 'criteria' | 'pending' | 'community'
 type TaskType = 'READING' | 'INTEGRATION'
-type IconButtonItem = { key: MainTab | 'community'; label: string; icon: ReactNode }
+type IconButtonItem = { key: MainTab; label: string; icon: ReactNode }
 
 const iconButtons: IconButtonItem[] = [
   { key: 'assignments', label: 'Bài tập', icon: <BookOpen className="h-8 w-8" /> },
   { key: 'students', label: 'Danh sách', icon: <ListChecks className="h-8 w-8" /> },
-  { key: 'pending', label: 'Bài chờ duyệt', icon: <CheckSquare className="h-8 w-8" /> },
-  { key: 'criteria', label: 'Tiêu chí', icon: <Clock3 className="h-8 w-8" /> },
+  { key: 'criteria', label: 'Bài chờ duyệt', icon: <Clock3 className="h-8 w-8" /> },
+  { key: 'pending', label: 'Tiêu chí', icon: <CheckSquare className="h-8 w-8" /> },
   { key: 'community', label: 'Cộng đồng', icon: <Leaf className="h-8 w-8" /> },
 ]
-
-function isMainTab(key: IconButtonItem['key']): key is MainTab {
-  return key !== 'community'
-}
 
 function parseClassAndSchool(input: string): { className: string; schoolName: string } | null {
   const normalized = input.trim().replace(/\s+/g, ' ')
@@ -127,8 +150,11 @@ export default function TeacherClassDetail() {
       </div>
     )
   }
-
-  const students = cls.memberships.map((m) => m.student)
+// const students = cls.memberships.map((m) => m.student)
+  const students =
+    ENABLE_MOCK_STUDENTS && cls.memberships.length === 0
+      ? buildMockStudents(MOCK_STUDENTS_COUNT)
+      : cls.memberships.map((m) => m.student)
   const parsedClass = parseClassAndSchool(cls.name)
   const classLabel = parsedClass?.className ?? cls.name
   const schoolLabel = parsedClass?.schoolName ?? 'Chưa có'
@@ -144,7 +170,13 @@ export default function TeacherClassDetail() {
             <div className="flex items-center gap-10">
 
               {/* LỚP */}
-              <div className="flex h-[40px] w-[260px] items-center rounded-full border-2 border-[#7de69d] bg-[#f3fffb] px-2 shadow-[inset_0_0_0_2px_#bdf5cd]">
+              <div
+                className="flex h-[40px] w-[260px] items-center rounded-full border-2 border-transparent px-2"
+                style={{
+                  background:
+                    'linear-gradient(#f3fffb, #f3fffb) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                }}
+              >
                 <span className="flex h-[30px] items-center rounded-full bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-4 text-[14px] font-black uppercase text-white">
                   Lớp
                 </span>
@@ -154,7 +186,13 @@ export default function TeacherClassDetail() {
               </div>
 
               {/* TRƯỜNG */}
-              <div className="flex h-[40px] w-[520px] items-center rounded-full border-2 border-[#7de69d] bg-[#f3fffb] px-2 shadow-[inset_0_0_0_2px_#bdf5cd]">
+              <div
+                className="flex h-[40px] w-[520px] items-center rounded-full border-2 border-transparent px-2"
+                style={{
+                  background:
+                    'linear-gradient(#f3fffb, #f3fffb) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                }}
+              >
                 <span className="flex h-[30px] items-center rounded-full bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-4 text-[14px] font-black uppercase text-white">
                   Trường
                 </span>
@@ -168,31 +206,25 @@ export default function TeacherClassDetail() {
             {/* RIGHT: ICON */}
             <div className="flex items-center gap-1 text-[#1f3f8f]">
               {iconButtons.map((item, index) => {
-                const isActive = item.key !== "community" && activeTab === item.key
+                const isActive = activeTab === item.key
 
                 return (
                   <div key={item.key} className="relative flex items-center gap-1">
                     <button
-                      onClick={() => {
-                        if (!isMainTab(item.key)) {
-                          navigate("/community")
-                          return
-                        }
-                        setActiveTab(item.key)
-                      }}
+                      onClick={() => setActiveTab(item.key)}
                       className={`group p-1 sm:p-2 transition-opacity ${
                         isActive ? "opacity-100" : "opacity-80 hover:opacity-100"
                       }`}
                       aria-label={item.label}
-                      title={item.label} // fallback cho mobile/không hover
                     >
                       <span className="text-[#1f3f8f] [&_svg]:h-8 [&_svg]:w-8 sm:[&_svg]:h-9 sm:[&_svg]:w-9">
                         {item.icon}
                       </span>
 
                       {/* Tooltip: chỉ hiện từ sm trở lên */}
-                      <span className="pointer-events-none absolute -top-10 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-3 py-1 text-xs font-bold text-[#1f3f8f] shadow-md opacity-0 transition-opacity duration-200 sm:block sm:group-hover:opacity-100">
+                      <span className="pointer-events-none absolute -top-10 left-1/2 z-1 hidden -translate-x-1/2 whitespace-nowrap rounded-full border border-[#9dc7de] bg-[#f4f8fc] px-4 py-1.5 text-sm font-extrabold text-[#1f3f8f] shadow-[0_2px_8px_rgba(31,63,143,0.18)] sm:group-hover:block">
                         {item.label}
+                        <span className="absolute -bottom-[6px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-[#9dc7de] bg-[#f4f8fc]"/>
                       </span>
                     </button>
 
@@ -207,7 +239,13 @@ export default function TeacherClassDetail() {
           </div>
 
           {/* ROW 2: MÃ */}
-          <div className="flex h-[40px] w-[260px] items-center rounded-full border-2 border-[#7de69d] bg-[#f3fffb] px-2 shadow-[inset_0_0_0_2px_#bdf5cd]">
+          <div
+            className="flex h-[40px] w-[260px] items-center rounded-full border-2 border-transparent px-2"
+            style={{
+              background:
+                'linear-gradient(#f3fffb, #f3fffb) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+            }}
+          >
             <span className="flex h-[30px] items-center rounded-full bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-4 text-[14px] font-black uppercase text-white">
               Mã
             </span>
@@ -248,43 +286,65 @@ export default function TeacherClassDetail() {
         )}
 
         {activeTab === 'students' && (
-          <div className="overflow-hidden rounded-[20px] border border-[#7ea2e0] bg-white">
-            <h2 className="py-4 text-center text-3xl font-black uppercase text-[#1f3f8f]">Danh sách học sinh</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[920px] border-collapse text-center text-[#1f3f8f]">
-                <thead>
-                  <tr className="bg-[#cbeff2] text-lg font-bold">
-                    <th className="border border-[#7ea2e0] px-3 py-2">STT</th>
-                    <th className="border border-[#7ea2e0] px-3 py-2">Họ và tên</th>
-                    {Array.from({ length: 10 }).map((_, i) => (
-                      <th key={i} className="border border-[#7ea2e0] px-3 py-2">{i + 1}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
+          <div className="overflow-hidden">
+            <h2 className="pb-5 text-center text-3xl font-black uppercase text-[#1f3f8f]">Danh sách học sinh</h2>
+            <div className="rounded-[20px] bg-white">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[920px] border-separate border-spacing-0 text-center text-[#1f3f8f]">
+                  <thead>
+                    <tr className="text-lg font-bold">
+                      <th className="rounded-tl-[20px] border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2">STT</th>
+                      <th className="border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2">Họ và tên</th>
+                      {Array.from({ length: 10 }).map((_, i) => (
+                        <th key={i} className={`${i === 9 ? 'rounded-tr-[20px] ' : ''}border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2`}>{i + 1}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
                   {Array.from({ length: Math.max(10, students.length) }).map((_, rowIdx) => {
-                    const student = students[rowIdx]
-                    return (
-                      <tr key={rowIdx} className="text-sm font-semibold">
-                        <td className="border border-[#7ea2e0] px-2 py-2">{rowIdx + 1}</td>
-                        <td className="border border-[#7ea2e0] px-3 py-2 text-left">{student?.name ?? ''}</td>
-                        {Array.from({ length: 10 }).map((__, colIdx) => {
-                          const assignment = cls.assignments[colIdx]
-                          const sub = assignment ? submissions.find((s) => s.assignment.id === assignment.id && s.student.id === student?.id) : undefined
-                          return (
-                            <td key={colIdx} className="border border-[#7ea2e0] px-2 py-2">
-                              {!sub && <span className="text-gray-300">•</span>}
-                              {sub && !sub.review && <span className="inline-block h-2.5 w-2.5 rounded-full bg-yellow-400" />}
-                              {sub?.review?.resultStatus === 'PASSED' && <BadgeCheck className="mx-auto h-4 w-4 text-green-600" />}
-                              {sub?.review?.resultStatus === 'FAILED' && <span className="text-red-500">✕</span>}
-                            </td>
-                          )
-                        })}
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+                      const student = students[rowIdx]
+                      const isLastRow = rowIdx === Math.max(10, students.length) - 1
+                      return (
+                        <tr key={rowIdx} className="text-sm font-semibold">
+                          <td className={`${isLastRow ? 'rounded-bl-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>{rowIdx + 1}</td>
+                          <td className="border border-[#7ea2e0] px-3 py-2 text-left">{student?.name ?? ''}</td>
+                          {Array.from({ length: 10 }).map((__, colIdx) => {
+                            const status = getAttendanceStatus(rowIdx + 1, colIdx + 1)
+                            return (
+                              <td key={colIdx} className={`${isLastRow && colIdx === 9 ? 'rounded-br-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>
+                                {!status && <span className="text-gray-300">•</span>}
+                                {status === 'PRESENT' && (
+                                  <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#7bd85e] text-[11px] font-black leading-none text-white">✓</span>
+                                )}
+                                {status === 'ABSENT' && (
+                                  <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#ef4444] text-[11px] font-black leading-none text-white">✕</span>
+                                )}
+                                {status === 'LATE' && <span className="mx-auto inline-block h-3.5 w-3.5 rounded-full border-2 border-[#e6d335] bg-[#fff9cf]" />}
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'community' && (
+          <div className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-14 px-64">
+            <div className="flex items-center justify-center">
+              <Link to="/cong-dong/su-gia-hoa-binh">
+                <img src={suGiaHoaBinhImg} alt="Sư giả hòa bình" className="h-[350px] w-[350px] object-contain" />
+              </Link>
+            </div>
+
+            <div className="flex items-center justify-center">
+              <Link to="/cong-dong/hiep-si-xanh">
+                <img src={hiepSiXanhImg} alt="Hiệp sĩ xanh" className="h-[370px] w-[370px] object-contain" />
+              </Link>
             </div>
           </div>
         )}
@@ -351,3 +411,4 @@ export default function TeacherClassDetail() {
     </div>
   )
 }
+

@@ -7,8 +7,18 @@ interface LibraryContentProps {
 }
 
 export default function LibraryContent({ categories, onOpenItem }: LibraryContentProps) {
-  const isEmpty = categories.length === 0
+  const [mode, setMode] = useState<ThuVienXanhMode>('doc-hieu')
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({})
+  const onModeChange = (nextMode: ThuVienXanhMode) => setMode(nextMode)
+
+  const filteredCategories = categories
+    .map((category) => ({
+      ...category,
+      items: category.items.filter((item) => (mode === 'doc-hieu' ? item.hasDocHieu : item.hasTichHop)),
+    }))
+    .filter((category) => category.items.length > 0)
+
+  const isEmpty = filteredCategories.length === 0
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
@@ -43,7 +53,7 @@ export default function LibraryContent({ categories, onOpenItem }: LibraryConten
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {categories.map((category) => {
+          {filteredCategories.map((category) => {
             const isExpanded = !!expandedCategories[category.id]
             const hasMoreThanTen = category.items.length > 10
             const visibleItems = isExpanded ? category.items : category.items.slice(0, 10)
