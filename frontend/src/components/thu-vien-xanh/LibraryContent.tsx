@@ -3,10 +3,12 @@ import { type LibraryCategory, type LibraryItem, type ThuVienXanhMode } from '..
 
 interface LibraryContentProps {
   categories: LibraryCategory[]
+  mode: ThuVienXanhMode
+  onModeChange: (mode: ThuVienXanhMode) => void
   onOpenItem: (item: LibraryItem) => void
 }
 
-export default function LibraryContent({ categories, onOpenItem }: LibraryContentProps) {
+export default function LibraryContent({ categories, mode, onModeChange, onOpenItem }: LibraryContentProps) {
   const isEmpty = categories.length === 0
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({})
 

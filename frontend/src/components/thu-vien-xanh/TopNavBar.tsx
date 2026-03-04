@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { type ThuVienXanhMode } from '../../types/thuVienXanh'
+import thuVienLogo from '../../img/1x/logo-thu-vien.png'
 
 export interface ThuVienXanhSearchResult {
   itemId: string
@@ -59,7 +60,7 @@ export default function TopNavBar({
       <div className="absolute left-0 right-0 bottom-1 h-[2px] bg-[#1297b0]" />
       <div className="max-w-7xl mx-auto flex items-center gap-4">
         <Link to="/" className="min-w-0 flex items-center gap-3 text-white hover:opacity-90 transition-opacity">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-extrabold">TVX</div>
+          <img src={thuVienLogo} alt="Thư viện" className="w-15 h-15 object-contain" />
           <p className="text-sm sm:text-base md:text-lg font-black tracking-wide">THƯ VIỆN KHOA HỌC VIỄN TƯỞNG</p>
         </Link>
 

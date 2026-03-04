@@ -5,8 +5,11 @@ import LibraryContent from '../../components/thu-vien-xanh/LibraryContent'
 import { useThuVienXanhLibrary } from '../../hooks/useThuVienXanhLibrary'
 import { type LibraryItem, type ThuVienXanhMode } from '../../types/thuVienXanh'
 
+const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
+
 export default function ThuVienXanhLibraryPage() {
   const [searchValue, setSearchValue] = useState('')
+  const [mode, setMode] = useState<ThuVienXanhMode>('doc-hieu')
   const navigate = useNavigate()
   const { categories: shelfCategories, loading } = useThuVienXanhLibrary(searchValue)
 
@@ -24,10 +27,10 @@ export default function ThuVienXanhLibraryPage() {
             hasDocHieu: text.hasReadingQuiz,
             hasTichHop: text.hasIntegratedTask,
           }))
-          .filter((item) => item.hasDocHieu || item.hasTichHop),
+          .filter((item) => (mode === 'doc-hieu' ? item.hasDocHieu : item.hasTichHop)),
       }))
       .filter((category) => category.items.length > 0)
-  }, [shelfCategories])
+  }, [shelfCategories, mode])
 
   const searchResults = useMemo<ThuVienXanhSearchResult[]>(() => {
     if (!searchValue.trim()) return []
@@ -53,7 +56,7 @@ export default function ThuVienXanhLibraryPage() {
   }, [searchValue, shelfCategories])
 
   const handleOpenItem = (item: LibraryItem) => {
-    const preferredMode: ThuVienXanhMode = item.hasDocHieu ? 'doc-hieu' : 'tich-hop'
+    const preferredMode: ThuVienXanhMode = mode
     const params = new URLSearchParams({ itemId: item.id })
     if (item.coverUrl) {
       params.set('imageUrl', item.coverUrl)
@@ -82,7 +85,10 @@ export default function ThuVienXanhLibraryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-sky-100 via-cyan-100 to-emerald-100">
+    <div
+      className="min-h-screen bg-center bg-cover bg-no-repeat"
+      style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+    >
       <TopNavBar
         searchValue={searchValue}
         onSearchChange={setSearchValue}
@@ -91,7 +97,12 @@ export default function ThuVienXanhLibraryPage() {
         onSelectSearchResult={handleSelectSearchResult}
         loadingResults={loading}
       />
-      <LibraryContent categories={categories} onOpenItem={handleOpenItem} />
+      <LibraryContent
+        categories={categories}
+        mode={mode}
+        onModeChange={setMode}
+        onOpenItem={handleOpenItem}
+      />
     </div>
   )
 }

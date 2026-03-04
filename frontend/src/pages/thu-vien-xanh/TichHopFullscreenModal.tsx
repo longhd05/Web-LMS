@@ -8,6 +8,8 @@ import { useIntegratedTask } from '../../hooks/useIntegratedTask'
 import { uploadSubmission } from '../../api/integratedTask'
 import { type ThuVienXanhUserRole } from '../../types/thuVienXanh'
 
+const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
+
 function resolveRole(rawRole: string | null, authRole: 'STUDENT' | 'TEACHER' | undefined): ThuVienXanhUserRole {
   if (rawRole === 'free_student' || rawRole === 'normal_student' || rawRole === 'teacher' || rawRole === 'admin') {
     return rawRole
@@ -65,7 +67,10 @@ export default function TichHopFullscreenModal() {
 
   if (!itemId) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-sky-100 via-cyan-100 to-emerald-100">
+      <div
+        className="min-h-screen bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+      >
         <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
         <div className="max-w-3xl mx-auto p-6">
           <div className="rounded-2xl border border-cyan-200 bg-white p-6 text-slate-700">Thiếu `itemId` trên URL.</div>
@@ -76,7 +81,10 @@ export default function TichHopFullscreenModal() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-sky-100 via-cyan-100 to-emerald-100">
+      <div
+        className="min-h-screen bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+      >
         <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
         <div className="max-w-3xl mx-auto p-6">
           <div className="rounded-2xl border border-cyan-200 bg-white p-6 text-slate-700">Đang tải nội dung tích hợp...</div>
@@ -87,7 +95,10 @@ export default function TichHopFullscreenModal() {
 
   if (error || !task) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-sky-100 via-cyan-100 to-emerald-100">
+      <div
+        className="min-h-screen bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+      >
         <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
         <div className="max-w-3xl mx-auto p-6">
           <div className="rounded-2xl border border-cyan-200 bg-white p-6 text-red-600">
@@ -119,7 +130,10 @@ export default function TichHopFullscreenModal() {
   })
 
   return (
-    <div className="min-h-screen">
+    <div
+      className="min-h-screen bg-center bg-cover bg-no-repeat"
+      style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+    >
       <TopNavBar
         searchValue=""
         onSearchChange={() => undefined}
