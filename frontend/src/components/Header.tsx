@@ -1,7 +1,9 @@
 ﻿import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 import { useAuth } from '../contexts/AuthContext'
 import NotificationBell from './NotificationBell'
+import logoThuVien from '../img/1x/logo-thu-vien.png'
 
 export default function Header() {
   const { user, logout } = useAuth()
@@ -9,7 +11,10 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [teacherSearch, setTeacherSearch] = useState('')
+  const [profilePos, setProfilePos] = useState<{ top: number; right: number }>({ top: 0, right: 0 })
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
+  const profilePanelRef = useRef<HTMLDivElement | null>(null)
+  const profileButtonRef = useRef<HTMLButtonElement | null>(null)
   const MAX_TEACHER_SEARCH_LENGTH = 120
 
   const isTeacher = (user?.role ?? '').toUpperCase() === 'TEACHER'
@@ -23,8 +28,11 @@ export default function Header() {
     if (!profileOpen) return
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (!profileMenuRef.current) return
-      if (!profileMenuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+      const isInsideButtonWrap = profileMenuRef.current?.contains(target)
+      const isInsidePanel = profilePanelRef.current?.contains(target)
+
+      if (!isInsideButtonWrap && !isInsidePanel) {
         setProfileOpen(false)
       }
     }
@@ -36,15 +44,48 @@ export default function Header() {
   }, [profileOpen])
 
   useEffect(() => {
+    if (!profileOpen) return
+
+    const updateProfilePosition = () => {
+      if (!profileButtonRef.current) return
+      const rect = profileButtonRef.current.getBoundingClientRect()
+      setProfilePos({
+        top: rect.bottom + 8,
+        right: Math.max(8, window.innerWidth - rect.right),
+      })
+    }
+
+    updateProfilePosition()
+    window.addEventListener('resize', updateProfilePosition)
+    window.addEventListener('scroll', updateProfilePosition, true)
+    return () => {
+      window.removeEventListener('resize', updateProfilePosition)
+      window.removeEventListener('scroll', updateProfilePosition, true)
+    }
+  }, [profileOpen])
+
+  useEffect(() => {
     setProfileOpen(false)
   }, [user?.id])
+
+  const profileMenuNode = profileOpen ? (
+    <div
+      ref={profilePanelRef}
+      style={{ top: profilePos.top, right: profilePos.right }}
+      className="fixed z-[9999] min-w-[130px] rounded-xl border border-gray-200 bg-white p-1 shadow-lg"
+    >
+      <button onClick={handleLogout} className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-blue-900 hover:bg-blue-50">
+        Đăng xuất
+      </button>
+    </div>
+  ) : null
 
   return (
     <header
       className={
         isTeacher
-          ? 'relative sticky top-0 z-0 bg-[linear-gradient(180deg,#153177_0%,#1f849a_100%)] shadow-sm'
-          : 'sticky top-0 z-40 border-b border-gray-200 bg-white shadow-sm'
+          ? 'relative sticky top-0 z-[200] bg-[linear-gradient(180deg,#153177_0%,#1f849a_100%)] shadow-sm py-2'
+          : 'sticky top-0 z-[200] border-b border-gray-200 bg-white shadow-sm'
       }
     >
       {isTeacher && (
@@ -56,20 +97,12 @@ export default function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2">
-            <div
-              className={
-                isTeacher
-                  ? 'flex h-8 w-8 items-center justify-center rounded-lg border border-white/40 bg-white/15'
-                  : 'flex h-8 w-8 items-center justify-center rounded-lg bg-green-600'
-              }
-            >
-              <span className="text-sm font-bold text-white">VTX</span>
-            </div>
+            <img src={logoThuVien} alt="Logo thư viện" className="h-12 w-12 object-contain" />
             <span
               className={
                 isTeacher
-                  ? 'hidden text-sm font-bold uppercase tracking-wide text-white/95 sm:block'
-                  : 'hidden text-lg font-bold text-gray-900 sm:block'
+                  ? 'hidden text-xs font-bold uppercase tracking-wide text-white/95 sm:block'
+                  : 'hidden text-base font-bold text-gray-900 sm:block'
               }
             >
               Thế Giới Khoa Học Viễn Tưởng
@@ -77,8 +110,8 @@ export default function Header() {
           </Link>
 
           {isTeacher && (
-            <div className="hidden flex-1 justify-center md:flex">
-              <div className="flex w-full max-w-2xl items-center gap-2 rounded-full bg-white px-4 py-2 text-gray-500">
+            <div className="hidden flex-1 justify-start md:flex">
+              <div className="flex w-full max-w-[520px] items-center gap-2 rounded-full bg-white px-4 py-2 text-gray-500">
                 <svg className="h-5 w-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.85-5.15a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -87,7 +120,7 @@ export default function Header() {
                   value={teacherSearch}
                   onChange={(e) => setTeacherSearch(e.target.value)}
                   maxLength={MAX_TEACHER_SEARCH_LENGTH}
-                  placeholder='Nhập tên văn bản + Đăng bài tập (VD: "Bạch tuộc" - Đọc hiểu...)'
+                  placeholder='Nhập tên văn bản + Đăng bài tập (VD: “Bạch tuộc” - Đọc hiểu...)'
                   className="w-full bg-transparent text-sm italic text-gray-600 placeholder:text-gray-400 focus:outline-none"
                 />
               </div>
@@ -118,29 +151,23 @@ export default function Header() {
               </>
             ) : (
               <>
-                {isTeacher && <p className="hidden text-sm font-semibold uppercase tracking-wide text-white/95 sm:block">Xin chào, {user.name}</p>}
+                {isTeacher && <p className="hidden text-xs font-semibold uppercase tracking-wide text-white/95 sm:block">Xin chào, {user.name}</p>}
                 <NotificationBell role={user.role} theme={isTeacher ? 'teacher' : 'default'} />
-                <div ref={profileMenuRef}>
+                <div ref={profileMenuRef} className="relative">
                   <button
+                    ref={profileButtonRef}
                     onClick={() => setProfileOpen((v) => !v)}
                     className={
                       isTeacher
-                        ? 'flex h-9 w-9 items-center justify-center rounded-full border border-white/70 text-white'
-                        : 'flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 text-gray-600'
+                        ? 'relative flex h-9 w-9 items-center justify-center rounded-full border border-white/70 text-white'
+                        : 'relative flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 text-gray-600'
                     }
                     aria-label="Tài khoản"
                   >
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z" />
                     </svg>
                   </button>
-                  {profileOpen && (
-                    <div className="absolute right-0 top-11 z-50 min-w-[130px] rounded-xl border border-gray-200 bg-white p-1 shadow-lg">
-                      <button onClick={handleLogout} className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-blue-900 hover:bg-blue-50">
-                        Đăng xuất
-                      </button>
-                    </div>
-                  )}
                 </div>
               </>
             )}
@@ -178,10 +205,7 @@ export default function Header() {
           </div>
         )}
       </div>
+      {profileOpen && createPortal(profileMenuNode, document.body)}
     </header>
   )
 }
-
-
-
-

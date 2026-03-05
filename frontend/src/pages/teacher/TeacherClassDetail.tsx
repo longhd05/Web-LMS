@@ -209,7 +209,7 @@ export default function TeacherClassDetail() {
                 const isActive = activeTab === item.key
 
                 return (
-                  <div key={item.key} className="relative flex items-center gap-1">
+                  <div key={item.key} className="relative z-[1000] flex items-center gap-1">
                     <button
                       onClick={() => setActiveTab(item.key)}
                       className={`group p-1 sm:p-2 transition-opacity ${
@@ -222,10 +222,10 @@ export default function TeacherClassDetail() {
                       </span>
 
                       {/* Tooltip: chỉ hiện từ sm trở lên */}
-                      <span className="pointer-events-none absolute -top-10 left-1/2 z-1 hidden -translate-x-1/2 whitespace-nowrap rounded-full border border-[#9dc7de] bg-[#f4f8fc] px-4 py-1.5 text-sm font-extrabold text-[#1f3f8f] shadow-[0_2px_8px_rgba(31,63,143,0.18)] sm:group-hover:block">
-                        {item.label}
-                        <span className="absolute -bottom-[6px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-[#9dc7de] bg-[#f4f8fc]"/>
-                      </span>
+                        <span className="pointer-events-none absolute -top-10 left-1/2 z-[75] hidden -translate-x-1/2 whitespace-nowrap rounded-full border border-[#9dc7de] bg-[#f4f8fc] px-4 py-1.5 text-sm font-extrabold text-[#1f3f8f] shadow-[0_2px_8px_rgba(31,63,143,0.18)] sm:group-hover:block">
+                          {item.label}
+                          <span className="absolute -bottom-[6px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-[#9dc7de] bg-[#f4f8fc]"/>
+                        </span>
                     </button>
 
                     {/* Divider: mảnh hơn trên mobile */}
@@ -411,4 +411,5 @@ export default function TeacherClassDetail() {
     </div>
   )
 }
+
 
