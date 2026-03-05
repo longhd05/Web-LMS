@@ -1,5 +1,5 @@
 import CongDongTemplate, { LessonItem, CommunityCardItem } from './CongDongTemplate'
-import hiepSiXanhImg from '../../img/1x/hiep-si-xanh.png' // Thêm file này vào folder img/1x
+import hiepSiXanhImg from '../../img/1x/cong-dong-bg-hiep-si-xanh.svg'
 
 const lessons: LessonItem[] = [
     {
@@ -25,50 +25,130 @@ const lessons: LessonItem[] = [
 const communityCards: CommunityCardItem[] = [
     {
         id: 'card-1',
-        title: 'NGUYỄN VĂN A - LỚP 11/CHUYÊN ANH',
+        name: 'NGUYỄN VĂN A',
+        className: '11A',
+        school: 'TRƯỜNG THCS ABC',
         date: '15/03/2026',
         completed: true,
     },
     {
         id: 'card-2',
-        title: 'NGUYỄN VĂN B - LỚP 10/CHUYÊN ANH',
+        name: 'NGUYỄN VĂN B',
+        className: '10A',
+        school: 'TRƯỜNG THCS ABC',
         date: '14/03/2026',
         completed: true,
     },
     {
         id: 'card-3',
-        title: 'TRẦN THỊ C - LỚP 12/CHUYÊN LÝ',
+        name: 'TRẦN THỊ C',
+        className: '12B',
+        school: 'TRƯỜNG THCS ABC',
         date: '13/03/2026',
         completed: false,
     },
     {
         id: 'card-4',
-        title: 'LÊ VĂN D - LỚP 11/CHUYÊN HÓA',
+        name: 'LÊ VĂN D',
+        className: '11C',
+        school: 'TRƯỜNG THCS ABC',
         date: '12/03/2026',
         completed: true,
     },
     {
         id: 'card-5',
-        title: 'PHẠM THỊ E - LỚP 10/CHUYÊN TOÁN',
+        name: 'PHẠM THỊ E',
+        className: '10D',
+        school: 'TRƯỜNG THCS ABC',
         date: '11/03/2026',
         completed: false,
     },
     {
         id: 'card-6',
-        title: 'HOÀNG VĂN F - LỚP 12/CHUYÊN VĂN',
+        name: 'HOÀNG VĂN F',
+        className: '12A',
+        school: 'TRƯỜNG THCS ABC',
         date: '10/03/2026',
         completed: true,
     },
     {
         id: 'card-7',
-        title: 'NGUYỄN THỊ G - LỚP 11/CHUYÊN SINH',
+        name: 'NGUYỄN THỊ G',
+        className: '11B',
+        school: 'TRƯỜNG THCS ABC',
         date: '09/03/2026',
         completed: false,
     },
     {
         id: 'card-8',
-        title: 'TRẦN VĂN H - LỚP 10/CHUYÊN ĐỊA',
+        name: 'TRẦN VĂN H',
+        className: '10E',
+        school: 'TRƯỜNG THCS ABC',
         date: '08/03/2026',
+        completed: true,
+    },
+    {
+        id: 'card-9',
+        name: 'LÊ THỊ I',
+        className: '10A',
+        school: 'TRƯỜNG THCS ABC',
+        date: '07/03/2026',
+        completed: true,
+    },
+    {
+        id: 'card-10',
+        name: 'VÕ VĂN K',
+        className: '11D',
+        school: 'TRƯỜNG THCS ABC',
+        date: '06/03/2026',
+        completed: false,
+    },
+    {
+        id: 'card-11',
+        name: 'BÙI THỊ L',
+        className: '12C',
+        school: 'TRƯỜNG THCS ABC',
+        date: '05/03/2026',
+        completed: true,
+    },
+    {
+        id: 'card-12',
+        name: 'ĐỖ VĂN M',
+        className: '10B',
+        school: 'TRƯỜNG THCS ABC',
+        date: '04/03/2026',
+        completed: true,
+    },
+    {
+        id: 'card-13',
+        name: 'HỒ THỊ N',
+        className: '11A',
+        school: 'TRƯỜNG THCS ABC',
+        date: '03/03/2026',
+        completed: false,
+    },
+    {
+        id: 'card-14',
+        name: 'DƯƠNG VĂN O',
+        className: '12D',
+        school: 'TRƯỜNG THCS ABC',
+        date: '02/03/2026',
+        completed: true,
+    },
+    {
+        id: 'card-15',
+        name: 'LÝ THỊ P',
+        className: '10C',
+        school: 'TRƯỜNG THCS ABC',
+        date: '01/03/2026',
+        completed: false,
+    },
+    {
+        id: 'card-16',
+        name: 'NGUYỄN VĂN Q',
+        className: '11E',
+        school: 'TRƯỜNG THCS ABC',
+        date: '28/02/2026',
         completed: true,
     },
 ]
@@ -78,11 +158,13 @@ export default function HiepSiXanhPage() {
         <CongDongTemplate
             title="HIỆP SĨ XANH"
             subtitle="Tiêu chí, giới thiệu về cộng đồng hiệp sĩ xanh"
-            // headerImage={hiepSiXanhImg}
             backgroundImage={hiepSiXanhImg}
+            backgroundSize="113%" // Tùy chỉnh theo page này
+            backgroundSizeMobile="200%" // Tùy chỉnh cho mobile
+            subtitleBoxBottom="50px"
             primaryColor="#1e3a8a" // Navy blue
-            secondaryColor="#d9f99d" // Light lime
-            accentColor="#84cc16" // Lime green
+            secondaryColor="#a9f9d1"
+            accentColor="#baedb3"
             videoUrl="https://example.com/video" // URL video nếu có
             lessons={lessons}
             communityCards={communityCards}
