@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 868.83 911.24">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#linear-gradient-2);
+      }
+
+      .cls-2 {
+        stroke: url(#New_Gradient_Swatch);
+      }
+
+      .cls-2, .cls-3, .cls-4, .cls-5, .cls-6, .cls-7, .cls-8 {
+        fill: none;
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+
+      .cls-3 {
+        stroke: url(#New_Gradient_Swatch-7);
+      }
+
+      .cls-4 {
+        stroke: url(#New_Gradient_Swatch-4);
+      }
+
+      .cls-5 {
+        stroke: url(#New_Gradient_Swatch-6);
+      }
+
+      .cls-9 {
+        fill: url(#linear-gradient-6);
+      }
+
+      .cls-10 {
+        letter-spacing: -.04em;
+      }
+
+      .cls-11 {
+        fill: url(#New_Gradient_Swatch_copy_4);
+      }
+
+      .cls-12 {
+        fill: url(#New_Gradient_Swatch_copy_4-3);
+      }
+
+      .cls-13 {
+        fill: url(#New_Gradient_Swatch_copy_4-2);
+      }
+
+      .cls-14 {
+        font-family: ArialMT, Arial;
+        font-size: 26px;
+      }
+
+      .cls-14, .cls-15 {
+        fill: #153177;
+      }
+
+      .cls-16 {
+        fill: url(#linear-gradient-5);
+      }
+
+      .cls-6 {
+        stroke: url(#New_Gradient_Swatch-2);
+      }
+
+      .cls-17 {
+        fill: url(#linear-gradient-7);
+      }
+
+      .cls-7 {
+        stroke: url(#New_Gradient_Swatch-3);
+      }
+
+      .cls-18 {
+        fill: url(#New_Gradient_Swatch_copy_4-4);
+      }
+
+      .cls-15 {
+        font-family: Arial-BoldMT, Arial;
+        font-size: 30.34px;
+      }
+
+      .cls-19 {
+        fill: url(#linear-gradient-3);
+      }
+
+      .cls-20 {
+        fill: url(#linear-gradient);
+      }
+
+      .cls-21 {
+        fill: url(#New_Gradient_Swatch_copy_4-5);
+      }
+
+      .cls-22 {
+        fill: url(#linear-gradient-4);
+      }
+
+      .cls-8 {
+        stroke: url(#New_Gradient_Swatch-5);
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="437.76" y1="35.34" x2="437.76" y2="268.92" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#a9ffd6"/>
+    </linearGradient>
+    <linearGradient id="New_Gradient_Swatch" data-name="New Gradient Swatch" x1="309.42" y1="124.3" x2="566.09" y2="124.3" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#275081"/>
+      <stop offset="1" stop-color="#a0fd9b"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="731.48" y1="205.29" x2="731.48" y2="438.86" xlink:href="#linear-gradient"/>
+    <linearGradient id="New_Gradient_Swatch-2" data-name="New Gradient Swatch" x1="603.15" y1="294.25" x2="859.81" y2="294.25" xlink:href="#New_Gradient_Swatch"/>
+    <linearGradient id="linear-gradient-3" x1="13755.17" y1="10040.03" x2="13755.17" y2="10273.61" gradientTransform="translate(14486.65 10759.39) rotate(-180)" xlink:href="#linear-gradient"/>
+    <linearGradient id="New_Gradient_Swatch-3" data-name="New Gradient Swatch" x1="13626.83" y1="10128.99" x2="13883.5" y2="10128.99" gradientTransform="translate(14486.65 10759.39) rotate(-180)" xlink:href="#New_Gradient_Swatch"/>
+    <linearGradient id="linear-gradient-4" x1="14048.89" y1="9883.5" x2="14048.89" y2="10117.07" gradientTransform="translate(14486.65 10759.39) rotate(-180)" xlink:href="#linear-gradient"/>
+    <linearGradient id="New_Gradient_Swatch-4" data-name="New Gradient Swatch" x1="13920.55" y1="9972.46" x2="14177.22" y2="9972.46" gradientTransform="translate(14486.65 10759.39) rotate(-180)" xlink:href="#New_Gradient_Swatch"/>
+    <linearGradient id="linear-gradient-5" x1="14349.3" y1="10040.03" x2="14349.3" y2="10273.61" gradientTransform="translate(14486.65 10759.39) rotate(-180)" xlink:href="#linear-gradient"/>
+    <linearGradient id="New_Gradient_Swatch-5" data-name="New Gradient Swatch" x1="14220.97" y1="10128.99" x2="14477.63" y2="10128.99" gradientTransform="translate(14486.65 10759.39) rotate(-180)" xlink:href="#New_Gradient_Swatch"/>
+    <linearGradient id="linear-gradient-6" x1="137.35" y1="205.29" x2="137.35" y2="438.86" xlink:href="#linear-gradient"/>
+    <linearGradient id="New_Gradient_Swatch-6" data-name="New Gradient Swatch" x1="9.01" y1="294.25" x2="265.68" y2="294.25" xlink:href="#New_Gradient_Swatch"/>
+    <linearGradient id="linear-gradient-7" y1="357.72" x2="437.76" y2="614.77" xlink:href="#linear-gradient"/>
+    <linearGradient id="New_Gradient_Swatch-7" data-name="New Gradient Swatch" x1="295" y1="455.62" x2="580.52" y2="455.62" xlink:href="#New_Gradient_Swatch"/>
+    <linearGradient id="New_Gradient_Swatch_copy_4" data-name="New Gradient Swatch copy 4" x1="553.9" y1="203.84" x2="618.52" y2="203.84" gradientUnits="userSpaceOnUse">
+      <stop offset=".44" stop-color="#153177"/>
+      <stop offset="1" stop-color="#2aacba"/>
+    </linearGradient>
+    <linearGradient id="New_Gradient_Swatch_copy_4-2" data-name="New Gradient Swatch copy 4" x1="585.26" y1="677.23" x2="585.26" y2="733.26" xlink:href="#New_Gradient_Swatch_copy_4"/>
+    <linearGradient id="New_Gradient_Swatch_copy_4-3" data-name="New Gradient Swatch copy 4" x1="293.97" y1="734.43" x2="293.97" y2="678.4" xlink:href="#New_Gradient_Swatch_copy_4"/>
+    <linearGradient id="New_Gradient_Swatch_copy_4-4" data-name="New Gradient Swatch copy 4" x1="733.83" y1="427.08" x2="733.83" y2="494.45" xlink:href="#New_Gradient_Swatch_copy_4"/>
+    <linearGradient id="New_Gradient_Swatch_copy_4-5" data-name="New Gradient Swatch copy 4" x1="134.62" y1="427.08" x2="134.62" y2="494.45" xlink:href="#New_Gradient_Swatch_copy_4"/>
+  </defs>
+  <g id="element">
+    <g>
+      <g>
+        <path class="cls-20" d="M486.43,0h-97.35c-14.29,0-27.5,7.62-34.64,20l-48.67,84.3c-7.15,12.38-7.15,27.62,0,40l48.67,84.3c7.15,12.38,20.35,20,34.64,20h97.35c14.29,0,27.5-7.62,34.64-20l48.67-84.3c7.15-12.38,7.15-27.62,0-40l-48.67-84.3c-7.15-12.38-20.35-20-34.64-20Z"/>
+        <path class="cls-2" d="M389.08,238.61c-10.68,0-20.64-5.75-25.98-15l-48.67-84.3c-5.34-9.25-5.34-20.75,0-30l48.67-84.31c5.34-9.25,15.3-15,25.98-15h97.35c10.68,0,20.64,5.75,25.98,15l48.67,84.31c5.34,9.25,5.34,20.75,0,30l-48.67,84.3c-5.34,9.25-15.3,15-25.98,15h-97.35Z"/>
+      </g>
+      <text class="cls-14" transform="translate(378.46 101.97)"><tspan x="0" y="0">Đề tài gắn </tspan><tspan x="-15.02" y="31.2">với khoa học </tspan><tspan x="-1.46" y="62.4">công nghệ</tspan></text>
+    </g>
+    <g>
+      <g>
+        <path class="cls-1" d="M780.15,169.94h-97.35c-14.29,0-27.5,7.62-34.64,20l-48.67,84.3c-7.15,12.38-7.15,27.62,0,40l48.67,84.3c7.15,12.38,20.35,20,34.64,20h97.35c14.29,0,27.5-7.62,34.64-20l48.67-84.3c7.15-12.38,7.15-27.62,0-40l-48.67-84.3c-7.15-12.38-20.35-20-34.64-20Z"/>
+        <path class="cls-6" d="M682.81,408.55c-10.68,0-20.64-5.75-25.98-15l-48.67-84.3c-5.34-9.25-5.34-20.75,0-30l48.67-84.3c5.34-9.25,15.3-15,25.98-15h97.35c10.68,0,20.64,5.75,25.98,15l48.67,84.3c5.34,9.25,5.34,20.75,0,30l-48.67,84.3c-5.34,9.25-15.3,15-25.98,15h-97.35Z"/>
+      </g>
+      <text class="cls-14" transform="translate(655.73 256.31)"><tspan x="0" y="0">Bắt nguồn từ </tspan><tspan x="15.93" y="31.2">sự việc có </tspan><tspan x="17.39" y="62.4">thật, thêm </tspan><tspan x="29.66" y="93.6">giả định</tspan></text>
+    </g>
+    <g>
+      <g>
+        <path class="cls-19" d="M682.81,754.7h97.35c14.29,0,27.5-7.62,34.64-20l48.67-84.3c7.15-12.38,7.15-27.62,0-40l-48.67-84.3c-7.15-12.38-20.35-20-34.64-20h-97.35c-14.29,0-27.5,7.62-34.64,20l-48.67,84.3c-7.15,12.38-7.15,27.62,0,40l48.67,84.3c7.15,12.38,20.35,20,34.64,20Z"/>
+        <path class="cls-7" d="M682.81,744.7c-10.68,0-20.64-5.75-25.98-15l-48.67-84.3c-5.34-9.25-5.34-20.75,0-30l48.67-84.31c5.34-9.25,15.3-15,25.98-15h97.35c10.68,0,20.64,5.75,25.98,15l48.67,84.31c5.34,9.25,5.34,20.75,0,30l-48.67,84.3c-5.34,9.25-15.3,15-25.98,15h-97.35Z"/>
+      </g>
+      <text class="cls-14" transform="translate(666.28 610.79)"><tspan x="0" y="0">Tình huống </tspan><tspan x="17.49" y="31.2">bất ngờ,</tspan><tspan x="46.27" y="62.4">li kì</tspan></text>
+    </g>
+    <g>
+      <g>
+        <path class="cls-22" d="M389.08,911.24h97.35c14.29,0,27.5-7.62,34.64-20l48.67-84.3c7.15-12.38,7.15-27.62,0-40l-48.67-84.3c-7.15-12.38-20.35-20-34.64-20h-97.35c-14.29,0-27.5,7.62-34.64,20l-48.67,84.3c-7.15,12.38-7.15,27.62,0,40l48.67,84.3c7.15,12.38,20.35,20,34.64,20Z"/>
+        <path class="cls-4" d="M389.08,901.24c-10.68,0-20.64-5.75-25.98-15l-48.67-84.3c-5.34-9.25-5.34-20.75,0-30l48.67-84.3c5.34-9.25,15.3-15,25.98-15h97.35c10.68,0,20.64,5.75,25.98,15l48.67,84.3c5.34,9.25,5.34,20.75,0,30l-48.67,84.3c-5.34,9.25-15.3,15-25.98,15h-97.35Z"/>
+      </g>
+      <text class="cls-14" transform="translate(377.04 749)"><tspan x="0" y="0">Cốt truyện </tspan><tspan x="-2.06" y="31.2">gắn với sự </tspan><tspan x="-20.25" y="62.4">kiện khoa học </tspan><tspan x="-18.09" y="93.6">và công nghệ</tspan></text>
+    </g>
+    <g>
+      <g>
+        <path class="cls-16" d="M88.67,754.7h97.35c14.29,0,27.5-7.62,34.64-20l48.67-84.3c7.15-12.38,7.15-27.62,0-40l-48.67-84.3c-7.15-12.38-20.35-20-34.64-20H88.67c-14.29,0-27.5,7.62-34.64,20L5.36,610.4c-7.15,12.38-7.15,27.62,0,40l48.67,84.3c7.15,12.38,20.35,20,34.64,20Z"/>
+        <path class="cls-8" d="M88.67,744.7c-10.68,0-20.64-5.75-25.98-15l-48.67-84.3c-5.34-9.25-5.34-20.75,0-30l48.67-84.31c5.34-9.25,15.3-15,25.98-15h97.35c10.68,0,20.64,5.75,25.98,15l48.67,84.31c5.34,9.25,5.34,20.75,0,30l-48.67,84.3c-5.34,9.25-15.3,15-25.98,15H88.67Z"/>
+      </g>
+      <text class="cls-14" transform="translate(71.15 590.23)"><tspan x="0" y="0">Nhân vật là </tspan><tspan x="6.61" y="31.2">con người </tspan><tspan x="5.05" y="62.4">thông thái, </tspan><tspan x="2.27" y="93.6">phi thường</tspan></text>
+    </g>
+    <g>
+      <g>
+        <path class="cls-9" d="M186.02,169.94H88.67c-14.29,0-27.5,7.62-34.64,20L5.36,274.25c-7.15,12.38-7.15,27.62,0,40l48.67,84.3c7.15,12.38,20.35,20,34.64,20h97.35c14.29,0,27.5-7.62,34.64-20l48.67-84.3c7.15-12.38,7.15-27.62,0-40l-48.67-84.3c-7.15-12.38-20.35-20-34.64-20Z"/>
+        <path class="cls-5" d="M88.67,408.55c-10.68,0-20.64-5.75-25.98-15L14.02,309.25c-5.34-9.25-5.34-20.75,0-30l48.67-84.3c5.34-9.25,15.3-15,25.98-15h97.35c10.68,0,20.64,5.75,25.98,15l48.67,84.3c5.34,9.25,5.34,20.75,0,30l-48.67,84.3c-5.34,9.25-15.3,15-25.98,15H88.67Z"/>
+      </g>
+      <text class="cls-14" transform="translate(68.16 269.68)"><tspan x="0" y="0">Không gian, </tspan><tspan x="18.95" y="31.2">thời gian </tspan><tspan x="23.85" y="62.4">giả định</tspan></text>
+    </g>
+    <g>
+      <g>
+        <path class="cls-17" d="M493.64,318.82h-111.77c-14.29,0-27.5,7.62-34.64,20l-55.89,96.8c-7.15,12.38-7.15,27.62,0,40l55.89,96.8c7.15,12.38,20.35,20,34.64,20h111.77c14.29,0,27.5-7.62,34.64-20l55.89-96.8c7.15-12.38,7.15-27.62,0-40l-55.89-96.8c-7.15-12.38-20.35-20-34.64-20Z"/>
+        <path class="cls-3" d="M381.87,582.42c-10.68,0-20.64-5.75-25.98-15l-55.89-96.8c-5.34-9.25-5.34-20.75,0-30l55.89-96.8c5.34-9.25,15.3-15,25.98-15h111.77c10.68,0,20.64,5.75,25.98,15l55.89,96.8c5.34,9.25,5.34,20.75,0,30l-55.89,96.8c-5.34,9.25-15.3,15-25.98,15h-111.77Z"/>
+      </g>
+      <text class="cls-15" transform="translate(375.02 413.62)"><tspan x="0" y="0">TRUYỆN </tspan><tspan x="-19.66" y="36.41">KHO</tspan><tspan class="cls-10" x="47.77" y="36.41">A</tspan><tspan x="68.55" y="36.41" xml:space="preserve"> HỌC </tspan><tspan x="26.97" y="72.82">VIỄN </tspan><tspan x="4.82" y="109.24">TƯỞNG</tspan></text>
+    </g>
+    <path class="cls-11" d="M599.72,180.42l-4.47,7.74-19.43-11.22c-3.99-2.3-9.13-.92-11.43,3.06l-9.37,16.22c-2.3,3.99-.92,9.13,3.06,11.43l19.43,11.22-4.47,7.74c-1.51,2.62,.79,5.78,3.75,5.15l17.54-3.74,21.43-4.56c2.02-.43,3.23-2.52,2.59-4.49l-6.76-20.84-5.54-17.06c-.93-2.87-4.83-3.28-6.34-.67Z"/>
+    <path class="cls-13" d="M598.43,728.02l-4.47-7.74,19.43-11.22c3.99-2.3,5.36-7.45,3.06-11.43l-9.37-16.22c-2.3-3.99-7.45-5.36-11.43-3.06l-19.43,11.22-4.47-7.74c-1.51-2.62-5.4-2.21-6.34,.67l-5.54,17.06-6.76,20.84c-.64,1.97,.57,4.06,2.59,4.49l21.43,4.56,17.54,3.74c2.95,.63,5.26-2.54,3.75-5.15Z"/>
+    <path class="cls-12" d="M280.46,729.84l4.47-7.74,19.43,11.22c3.99,2.3,9.13,.92,11.43-3.06l9.37-16.22c2.3-3.99,.92-9.13-3.06-11.43l-19.43-11.22,4.47-7.74c1.51-2.62-.79-5.78-3.75-5.15l-17.54,3.74-21.43,4.56c-2.02,.43-3.23,2.52-2.59,4.49l6.76,20.84,5.54,17.06c.93,2.87,4.83,3.28,6.34,.67Z"/>
+    <path class="cls-18" d="M760.51,457.88h-8.94v-22.43c0-4.6-3.77-8.37-8.37-8.37h-18.73c-4.6,0-8.37,3.77-8.37,8.37v22.43h-8.94c-3.02,0-4.61,3.58-2.59,5.82l12.01,13.33,14.67,16.27c1.38,1.54,3.8,1.54,5.18,0l14.67-16.27,12.01-13.33c2.02-2.24,.43-5.82-2.59-5.82Z"/>
+    <path class="cls-21" d="M107.94,463.65h8.94v22.43c0,4.6,3.77,8.37,8.37,8.37h18.73c4.6,0,8.37-3.77,8.37-8.37v-22.43h8.94c3.02,0,4.61-3.58,2.59-5.82l-12.01-13.33-14.67-16.27c-1.38-1.54-3.8-1.54-5.18,0l-14.67,16.27-12.01,13.33c-2.02,2.24-.43,5.82,2.59,5.82Z"/>
+  </g>
+</svg>

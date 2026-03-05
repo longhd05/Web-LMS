@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 877.23 166.06">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke: url(#New_Gradient_Swatch);
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+
+      .cls-1, .cls-3 {
+        fill: none;
+      }
+
+      .cls-4 {
+        fill: url(#New_Gradient_Swatch_copy_2);
+      }
+
+      .cls-5 {
+        fill: url(#New_Gradient_Swatch_copy_2-2);
+      }
+
+      .cls-2 {
+        fill: url(#New_Gradient_Swatch_copy_4);
+        fill-rule: evenodd;
+        stroke: #2aacba;
+      }
+
+      .cls-3 {
+        stroke: url(#New_Gradient_Swatch-2);
+      }
+
+      .cls-6 {
+        fill: #153177;
+        font-family: Arial-BoldMT, Arial;
+        font-size: 24px;
+      }
+
+      .cls-7 {
+        letter-spacing: -.04em;
+      }
+    </style>
+    <linearGradient id="New_Gradient_Swatch_copy_2" data-name="New Gradient Swatch copy 2" x1="176.74" y1="83.03" x2="176.74" y2="291.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#a9ffd6"/>
+    </linearGradient>
+    <linearGradient id="New_Gradient_Swatch" data-name="New Gradient Swatch" x1="4" y1="83.03" x2="349.49" y2="83.03" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#275081"/>
+      <stop offset="1" stop-color="#a0fd9b"/>
+    </linearGradient>
+    <linearGradient id="New_Gradient_Swatch_copy_2-2" data-name="New Gradient Swatch copy 2" x1="718.38" y1="78.43" x2="718.38" y2="275.36" xlink:href="#New_Gradient_Swatch_copy_2"/>
+    <linearGradient id="New_Gradient_Swatch-2" data-name="New Gradient Swatch" x1="563.52" y1="78.43" x2="873.23" y2="78.43" xlink:href="#New_Gradient_Swatch"/>
+    <linearGradient id="New_Gradient_Swatch_copy_4" data-name="New Gradient Swatch copy 4" x1="456.5" y1="41.92" x2="456.5" y2="133.88" gradientUnits="userSpaceOnUse">
+      <stop offset=".44" stop-color="#153177"/>
+      <stop offset="1" stop-color="#2aacba"/>
+    </linearGradient>
+  </defs>
+  <g id="element">
+    <g>
+      <g>
+        <g>
+          <rect class="cls-4" x="0" y="0" width="353.49" height="166.06" rx="45" ry="45"/>
+          <rect class="cls-1" x="5" y="5" width="343.49" height="156.06" rx="40" ry="40"/>
+        </g>
+        <text class="cls-6" transform="translate(41.51 76.5)"><tspan x="0" y="0">TRI THỨC, THÀNH TỰU </tspan><tspan x="70.34" y="28.8">KHO</tspan><tspan class="cls-7" x="123.67" y="28.8">A</tspan><tspan x="140.12" y="28.8" xml:space="preserve"> HỌC</tspan></text>
+      </g>
+      <g>
+        <g>
+          <rect class="cls-5" x="559.52" y="0" width="317.71" height="156.87" rx="45" ry="45"/>
+          <rect class="cls-3" x="564.52" y="5" width="307.71" height="146.87" rx="40" ry="40"/>
+        </g>
+        <text class="cls-6" transform="translate(620.66 72.06)"><tspan x="0" y="0">TƯỞNG TƯỢNG, </tspan><tspan x="49.76" y="28.8">HƯ CẤU</tspan></text>
+      </g>
+      <path class="cls-2" d="M490.48,74.11h-20.18v-20.18c0-6.6-5.4-12-12-12h-3.59c-6.6,0-12,5.4-12,12v20.18h-20.18c-6.6,0-12,5.4-12,12v3.59c0,6.6,5.4,12,12,12h20.18v20.18c0,6.6,5.4,12,12,12h3.59c6.6,0,12-5.4,12-12v-20.18h20.18c6.6,0,12-5.4,12-12v-3.59c0-6.6-5.4-12-12-12Z"/>
+    </g>
+  </g>
+</svg>
