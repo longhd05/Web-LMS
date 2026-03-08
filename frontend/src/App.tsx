@@ -34,10 +34,11 @@ function Layout({ children }: { children: React.ReactNode }) {
   const isThuVienXanh = location.pathname.startsWith('/thu-vien-xanh')
   const isStudentPortal = location.pathname.startsWith('/student')
   const isHomePage = location.pathname === '/trang-chu'
+  const isAuthPortal = ['/dang-nhap', '/dang-ky', '/login', '/register'].includes(location.pathname)
 
   return (
     <div className={isThuVienXanh ? 'min-h-screen' : 'min-h-screen bg-gray-50'}>
-      {!isThuVienXanh && !isStudentPortal && !isHomePage && <Header />}
+      {!isThuVienXanh && !isStudentPortal && !isHomePage && !isAuthPortal && <Header />}
       <main>{children}</main>
     </div>
   )
@@ -54,6 +55,8 @@ export default function App() {
             <Route path="/trang-chu" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/dang-nhap" element={<Login />} />
+            <Route path="/dang-ky" element={<Register />} />
             <Route path="/library" element={<LibraryList />} />
             <Route path="/library/:id" element={<LibraryDetail />} />
             <Route path="/thu-vien-xanh" element={<ThuVienXanhLibraryPage />} />
