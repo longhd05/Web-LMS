@@ -65,8 +65,7 @@ export default function AuthPortal() {
     }`
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#6895d4_0%,#95d7cb_100%)] relative overflow-hidden">
-      <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle,_rgba(255,255,255,0.9)_1px,_transparent_1px)] [background-size:28px_28px]" />
+    <div className="min-h-screen bg-[url('/src/img/1x/hinh-nen.png')] bg-cover bg-center relative overflow-hidden">
       <div className="absolute right-[-120px] top-[35%] h-[450px] w-[450px] rounded-full bg-[rgba(174,241,225,0.35)] blur-3xl" />
 
       <div className="relative z-10">
@@ -76,7 +75,7 @@ export default function AuthPortal() {
           <div className="flex items-start gap-8">
             <button
               type="button"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/trang-chu')}
               className="mt-6 hidden h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#1e3f97] text-white shadow-lg transition hover:scale-105 md:flex"
               aria-label="Quay lại"
             >
@@ -114,7 +113,7 @@ export default function AuthPortal() {
               <form onSubmit={handleSubmit} className="space-y-6 text-[#192f85]">
                 {mode === 'register' && (
                   <div>
-                    <label className="mb-2 block text-[40px] leading-none sm:text-[46px]">Bạn tên là</label>
+                    <label className="mb-2 block text-[40px] leading-none sm:text-[30px]">Bạn tên là</label>
                     <input
                       type="text"
                       value={name}
@@ -127,7 +126,7 @@ export default function AuthPortal() {
                 )}
 
                 <div>
-                  <label className="mb-4 block text-[40px] leading-none sm:text-[46px]">Bạn là</label>
+                  <label className="mb-4 block text-[40px] leading-none sm:text-[30px]">Bạn là</label>
                   <div className="flex flex-col gap-4 sm:flex-row">
                     <button type="button" onClick={() => setRole('STUDENT')} className={roleButtonClass('STUDENT')}>
                       <UserCircle2 className="mx-auto mb-2 h-8 w-8" />
@@ -141,7 +140,7 @@ export default function AuthPortal() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-[40px] leading-none sm:text-[46px]">Email</label>
+                  <label className="mb-2 block text-[40px] leading-none sm:text-[30px]">Email</label>
                   <input
                     type="email"
                     value={email}
@@ -152,7 +151,7 @@ export default function AuthPortal() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-[40px] leading-none sm:text-[46px]">Mật khẩu</label>
+                  <label className="mb-2 block text-[40px] leading-none sm:text-[30px]">Mật khẩu</label>
                   <input
                     type="password"
                     value={password}
