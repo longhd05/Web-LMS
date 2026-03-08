@@ -159,9 +159,10 @@ export default function HiepSiXanhPage() {
             title="HIỆP SĨ XANH"
             subtitle="Tiêu chí, giới thiệu về cộng đồng hiệp sĩ xanh"
             backgroundImage={hiepSiXanhImg}
-            backgroundSize="113%" // Tùy chỉnh theo page này
+            backgroundSize="115%" // Tùy chỉnh theo page này
             backgroundSizeMobile="200%" // Tùy chỉnh cho mobile
-            subtitleBoxBottom="50px"
+            backgroundPaddingTop="50px" // Thêm khoảng cách trên cho background để chữ không bị cắt
+            subtitleBoxBottom="120px"
             primaryColor="#1e3a8a" // Navy blue
             secondaryColor="#a9f9d1"
             accentColor="#baedb3"

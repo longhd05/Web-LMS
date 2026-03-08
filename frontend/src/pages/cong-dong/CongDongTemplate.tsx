@@ -77,6 +77,28 @@ export default function CongDongTemplate({
                 __html: `
                     .background-image-section {
                         background-size: ${backgroundSize};
+                        min-height: 650px;
+                    }
+                    .spacer-top {
+                        height: ${backgroundPaddingTop || '0'};
+                        position: relative;
+                        z-index: 0;
+                    }
+                    .bg-wrapper {
+                        margin-top: -${backgroundPaddingTop || '0'};
+                    }
+                    /* Màn hình rộng: aspect ratio >= 2:1 (a gấp 2 b) */
+                    @media (min-aspect-ratio: 2/1) {
+                        .background-image-section {
+                            background-size: ${backgroundSize} !important;
+                            min-height: 50vw !important;
+                        }
+                        .spacer-top {
+                            height: calc(${backgroundPaddingTop || '0'} + 80px);
+                        }
+                        .bg-wrapper {
+                            margin-top: calc(-${backgroundPaddingTop || '0'} - 80px);
+                        }
                     }
                     @media (max-width: 768px) {
                         .background-image-section {
@@ -85,9 +107,13 @@ export default function CongDongTemplate({
                     }
                 `
             }} />
+
+            {/* Div trống để tạo khoảng cách với header */}
+            <div className="spacer-top"></div>
+
             {/* Background Image Section with overlapping header */}
             {backgroundImage && (
-                <div className="relative" style={{ paddingTop: backgroundPaddingTop }}>
+                <div className="relative bg-wrapper" style={{ zIndex: 1 }}>
                     {/* Header Section with Title - Overlapping */}
                     {/* Title phần background */}
                     {/* <div className="absolute top-0 left-0 right-0 z-20 pt-0 pb-0 px-4" style={{ overflow: 'visible' }}>
@@ -121,7 +147,6 @@ export default function CongDongTemplate({
                         className="w-full relative background-image-section"
                         style={{
                             backgroundImage: `url(${backgroundImage})`,
-                            minHeight: '650px',
                             backgroundPosition: backgroundPosition,
                             backgroundRepeat: 'no-repeat'
                         }}
