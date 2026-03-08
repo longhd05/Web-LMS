@@ -16,6 +16,7 @@ import hiepSiImage from '../img/1x/home-hiep-si-xanh.png'
 import vienTuongXanhSVG from '../img/SVG/vien-tuong-xanh.svg'
 import truyenKhoaHocSVG from '../img/SVG/truyen-khoa-hoc-vien-tuong.svg'
 import giaoDucPhatTrienBenVungSVG from '../img/SVG/giao-duc-phat-trien-ben-vung.svg'
+import congDongTrachNhiemSVG from '../img/SVG/cong-dong-trach-nhiem.svg'
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -85,12 +86,12 @@ export default function HomePage() {
 
       {/* HERO SECTION */}
       <section className="relative flex flex-col items-center justify-center text-center px-4 min-h-screen">
-        <div className="flex flex-col items-center max-w-[700px] relative z-10 gap-6">
+        <div className="flex flex-col items-center max-w-[1100px] relative z-10 gap-6">
           {/* Title "VIỄN TƯỞNG XANH" with Floating Animation */}
           <motion.img 
             src={vienTuongXanhSVG}
             alt="VIỄN TƯỞNG XANH"
-            className="w-full max-w-[600px] h-auto"
+            className="w-full max-w-[1000px] h-auto"
             style={{
               filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 3px 0 rgba(0,0,0,0.1)) drop-shadow(0 6px 20px rgba(0,0,0,0.2))'
             }}
@@ -109,7 +110,7 @@ export default function HomePage() {
           
           {/* Quote text */}
           <motion.p 
-            className="text-lg leading-relaxed text-[#3a3a3a] max-w-[640px] text-center"
+            className="text-xl leading-relaxed text-[#1e3a8a] max-w-[750px] text-center font-medium"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -243,15 +244,19 @@ export default function HomePage() {
       {/* COMMUNITY SECTION */}
       <section className="pt-24 pb-32 md:pt-32 md:pb-40 text-center px-4">
         <div className="max-w-6xl mx-auto">
-          <motion.h2
-            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-16 md:mb-20 tracking-wider bg-gradient-to-br from-[#1e3a8a] to-[#0891b2] bg-clip-text text-transparent"
+          <motion.div
+            className="mb-16 md:mb-20 flex justify-center"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            CỘNG ĐỒNG TRÁCH NHIỆM
-          </motion.h2>
+            <img 
+              src={congDongTrachNhiemSVG} 
+              alt="CỘNG ĐỒNG TRÁCH NHIỆM"
+              className="w-full max-w-[600px] h-auto"
+            />
+          </motion.div>
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-12 md:gap-20">
             {/* Icon 1: Sứ giả hòa bình */}
