@@ -16,7 +16,7 @@ export default function HomePageHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-6 z-50 px-4 md:px-8">
+    <header className="sticky top-12 z-50 px-4 md:px-8">
       {/* Main container - horizontally centered with responsive width (80-90%) */}
       <div className="mx-auto relative" style={{ maxWidth: '90%' }}>
         
