@@ -158,11 +158,12 @@ export default function SuGiaHoaBinhPage() {
         <CongDongTemplate
             title="SỨ GIẢ HÒA BÌNH & HÒA GIẢI"
             subtitle="Tiêu chí, giới thiệu về cộng đồng sứ giả hòa bình"
-            // headerImage={suGiaHoaBinhImg}
             backgroundImage={suGiaHoaBinhImg}
             backgroundSize="90%" // Tùy chỉnh theo page này - ví dụ lớn hơn một chút
             backgroundSizeMobile="220%" // Tùy chỉnh cho mobile
-            subtitleBoxBottom="110px" 
+            backgroundPosition="center 0%" // Kéo background xuống một chút (60% từ trên xuống)
+            backgroundPaddingTop="100px" // Thêm khoảng cách trên cho background
+            subtitleBoxBottom="120px"
             primaryColor="#1e3a8a" // Navy blue
             secondaryColor="#b7e9e5" // Light cyan/blue
             accentColor="#caf2e7" // Sky blue

@@ -24,6 +24,8 @@ export interface CongDongTemplateProps {
     backgroundImage?: string
     backgroundSize?: string // Default: '113%'
     backgroundSizeMobile?: string // Default: '200%'
+    backgroundPosition?: string // Default: 'center bottom' - vị trí của background image
+    backgroundPaddingTop?: string // Default: '0' - padding top của background section
     subtitleBoxBottom?: string // Default: '0' - vị trí bottom của subtitle box
     primaryColor: string
     secondaryColor: string
@@ -40,6 +42,8 @@ export default function CongDongTemplate({
     backgroundImage,
     backgroundSize = '113%',
     backgroundSizeMobile = '200%',
+    backgroundPosition = 'center bottom',
+    backgroundPaddingTop = '0',
     subtitleBoxBottom = '0',
     primaryColor,
     secondaryColor,
@@ -83,7 +87,7 @@ export default function CongDongTemplate({
             }} />
             {/* Background Image Section with overlapping header */}
             {backgroundImage && (
-                <div className="relative">
+                <div className="relative" style={{ paddingTop: backgroundPaddingTop }}>
                     {/* Header Section with Title - Overlapping */}
                     {/* Title phần background */}
                     {/* <div className="absolute top-0 left-0 right-0 z-20 pt-0 pb-0 px-4" style={{ overflow: 'visible' }}>
@@ -118,7 +122,7 @@ export default function CongDongTemplate({
                         style={{
                             backgroundImage: `url(${backgroundImage})`,
                             minHeight: '650px',
-                            backgroundPosition: 'center bottom',
+                            backgroundPosition: backgroundPosition,
                             backgroundRepeat: 'no-repeat'
                         }}
                     >
