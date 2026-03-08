@@ -12,6 +12,11 @@ import homeTonTrongImage from '../img/1x/home-ton-trong.png'
 import suGiaImage from '../img/1x/home-su-gia-hoa-binh.png'
 import hiepSiImage from '../img/1x/home-hiep-si-xanh.png'
 
+// Import SVG headings
+import vienTuongXanhSVG from '../img/SVG/vien-tuong-xanh.svg'
+import truyenKhoaHocSVG from '../img/SVG/truyen-khoa-hoc-vien-tuong.svg'
+import giaoDucPhatTrienBenVungSVG from '../img/SVG/giao-duc-phat-trien-ben-vung.svg'
+
 export default function HomePage() {
   const navigate = useNavigate()
   const [showScrollIndicator, setShowScrollIndicator] = useState(true)
@@ -81,14 +86,13 @@ export default function HomePage() {
       {/* HERO SECTION */}
       <section className="relative flex flex-col items-center justify-center text-center px-4 min-h-screen">
         <div className="flex flex-col items-center max-w-[700px] relative z-10 gap-6">
-          {/* Title "LITORA" with Floating Animation */}
-          <motion.h1 
-            className="font-extrabold tracking-wider"
+          {/* Title "VIỄN TƯỞNG XANH" with Floating Animation */}
+          <motion.img 
+            src={vienTuongXanhSVG}
+            alt="VIỄN TƯỞNG XANH"
+            className="w-full max-w-[600px] h-auto"
             style={{
-              fontSize: 'clamp(64px, 8vw, 110px)',
-              fontWeight: 900,
-              color: '#2d3f8f',
-              textShadow: '0 0 8px rgba(255,255,255,0.8), 0 3px 0 rgba(0,0,0,0.1), 0 6px 20px rgba(0,0,0,0.2)'
+              filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 3px 0 rgba(0,0,0,0.1)) drop-shadow(0 6px 20px rgba(0,0,0,0.2))'
             }}
             initial={{ opacity: 0, y: 40 }}
             animate={{ 
@@ -101,9 +105,7 @@ export default function HomePage() {
               y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
               scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
             }}
-          >
-            LITORA
-          </motion.h1>
+          />
           
           {/* Quote text */}
           <motion.p 
@@ -146,15 +148,19 @@ export default function HomePage() {
 
       {/* INTRODUCTION SECTION */}
       <section className="py-24 md:py-28 text-center px-4 max-w-[1200px] mx-auto">
-        <motion.h2 
-          className="text-3xl md:text-4xl lg:text-5xl font-bold mb-12 md:mb-16 text-[#1E3A8A] tracking-wider"
+        <motion.div
+          className="mb-12 md:mb-16 flex justify-center"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          TRUYỆN KHOA HỌC VIỄN TƯỞNG
-        </motion.h2>
+          <img 
+            src={truyenKhoaHocSVG} 
+            alt="TRUYỆN KHOA HỌC VIỄN TƯỞNG"
+            className="w-full max-w-[800px] h-auto"
+          />
+        </motion.div>
 
         <motion.div
           className="w-full mx-auto max-w-[900px]"
@@ -188,15 +194,19 @@ export default function HomePage() {
       {/* SUSTAINABLE EDUCATION SECTION */}
       <section className="pt-32 pb-20 text-center">
         <div className="max-w-6xl mx-auto px-6">
-          <motion.h2 
-            className="text-3xl md:text-4xl lg:text-5xl font-bold mb-12 md:mb-16 tracking-wider bg-gradient-to-br from-[#1e3a8a] to-[#0891b2] bg-clip-text text-transparent"
+          <motion.div
+            className="mb-12 md:mb-16 flex justify-center"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            GIÁO DỤC PHÁT TRIỂN BỀN VỮNG
-          </motion.h2>
+            <img 
+              src={giaoDucPhatTrienBenVungSVG} 
+              alt="GIÁO DỤC PHÁT TRIỂN BỀN VỮNG"
+              className="w-full max-w-[800px] h-auto"
+            />
+          </motion.div>
 
           <motion.div
             className="relative"
