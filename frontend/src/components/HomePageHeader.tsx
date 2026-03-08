@@ -87,7 +87,7 @@ export default function HomePageHeader() {
           {/* LEFT SECTION - Site Title */}
           <div className="flex-1 relative z-10">
             <h1 
-              className="text-white uppercase text-xs sm:text-sm md:text-base whitespace-nowrap"
+              className="text-white uppercase text-l sm:text-sm md:text-base whitespace-nowrap"
               style={{ 
                 fontWeight: 600, 
                 letterSpacing: '0.05em'
@@ -109,7 +109,7 @@ export default function HomePageHeader() {
           >
 
             {/* VIỀN SVG */}
-            <img
+            {/* <img
               src="/src/img/SVG/vien-logo.svg"
               alt="viền logo"
               style={{
@@ -118,15 +118,15 @@ export default function HomePageHeader() {
                 height: "100%",
                 objectFit: "contain"
               }}
-            />
+            /> */}
 
             {/* LOGO Ở GIỮA */}
             <img
               src="/src/img/SVG/logo.svg"
               alt="logo"
               style={{
-                width: "65%",
-                height: "65%",
+                transform: "scale(1.3)",
+                transformOrigin: "center",
                 objectFit: "contain",
                 position: "relative",
                 zIndex: 2
@@ -140,7 +140,7 @@ export default function HomePageHeader() {
             {/* Login button - hidden on mobile */}
             <button
               onClick={() => navigate('/dang-nhap')}
-              className="hidden md:block text-white text-sm font-semibold rounded-full transition-all duration-300"
+              className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
               style={{
                 background: 'transparent',
                 padding: '6px 18px',
@@ -155,7 +155,7 @@ export default function HomePageHeader() {
             {/* Register button - hidden on mobile */}
             <button
               onClick={() => navigate('/dang-ky')}
-              className="hidden md:block text-white text-sm font-semibold rounded-full transition-all duration-300"
+              className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
               style={{
                 background: 'transparent',
                 padding: '6px 18px',
