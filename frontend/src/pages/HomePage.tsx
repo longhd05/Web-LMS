@@ -65,7 +65,8 @@ export default function HomePage() {
       className="min-h-screen relative overflow-x-hidden bg-cover bg-center bg-no-repeat"
       style={{ 
         backgroundImage: `url(${bgImage})`,
-        backgroundAttachment: 'scroll'
+        backgroundAttachment: 'scroll',
+        backgroundSize: '100%'
       }}
     >
       {/* Scroll Progress Bar */}
@@ -85,13 +86,13 @@ export default function HomePage() {
       <HomePageHeader />
 
       {/* HERO SECTION */}
-      <section className="relative flex flex-col items-center justify-center text-center px-4 min-h-screen">
-        <div className="flex flex-col items-center max-w-[1100px] relative z-10 gap-6">
+      <section className="relative flex flex-col items-center justify-center text-center px-4 min-h-screen pt-10 md:pt-0">
+        <div className="flex flex-col items-center max-w-[1100px] relative z-10 gap-0 -translate-y-0 md:-translate-y-20">
           {/* Title "VIỄN TƯỞNG XANH" with Floating Animation */}
           <motion.img 
             src={vienTuongXanhSVG}
             alt="VIỄN TƯỞNG XANH"
-            className="w-full max-w-[1000px] h-auto"
+            className="w-full max-w-[1200px] h-auto"
             style={{
               filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 3px 0 rgba(0,0,0,0.1)) drop-shadow(0 6px 20px rgba(0,0,0,0.2))'
             }}
@@ -110,13 +111,13 @@ export default function HomePage() {
           
           {/* Quote text */}
           <motion.p 
-            className="text-xl leading-relaxed text-[#1e3a8a] max-w-[750px] text-center font-medium"
+            className="text-3xl leading-relaxed text-[#1e3a8a] max-w-[900px] text-center font-medium -mt-5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            "Bằng cách đọc tác phẩm văn học, chúng ta có thể hòa thiện vào nhiều hành trình sống, 
-            để rồi hiểu cảm nhận những giá trị sống, tự đa hóa cách sống của bản thân, người khác và môi trường."
+            Bằng cách đọc tác phẩm văn học, chúng ta có thể hòa thiện vào nhiều hành trình sống, 
+            để rồi hiểu cảm nhận những giá trị sống, tự đa hóa cách sống của bản thân, người khác và môi trường.
           </motion.p>
         </div>
         
@@ -127,7 +128,7 @@ export default function HomePage() {
               className="absolute bottom-[100px] -translate-x-1/2 flex flex-col items-center gap-1.5 cursor-pointer text-[#3c4cb0] z-10"
               onClick={handleScrollDown}
               initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={{ opacity: 2, y: -20 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
             >
@@ -136,10 +137,10 @@ export default function HomePage() {
                 animate={{ y: [0, 8, 0] }}
                 transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
               >
-                <ChevronDown className="w-10 h-10" strokeWidth={2.5} />
-                <ChevronDown className="w-10 h-10 absolute top-4 left-0" strokeWidth={2.5} />
+                <ChevronDown className="w-10 h-10" strokeWidth={3.5} />
+                <ChevronDown className="w-10 h-10 absolute top-4 left-0" strokeWidth={3.5} />
               </motion.div>
-              <p className="font-semibold text-sm mt-2">
+              <p className="font-semibold text-xl mt-2">
                 Cuộn xuống để tiếp tục đọc
               </p>
             </motion.div>

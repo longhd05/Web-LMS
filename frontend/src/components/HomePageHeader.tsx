@@ -16,7 +16,7 @@ export default function HomePageHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-6 z-50 px-4 md:px-8">
+    <header className="sticky top-12 z-50 px-4 md:px-8">
       {/* Main container - horizontally centered with responsive width (80-90%) */}
       <div className="mx-auto relative" style={{ maxWidth: '90%' }}>
         
@@ -24,7 +24,7 @@ export default function HomePageHeader() {
         <div
           className="relative flex items-center justify-between px-8 md:px-16"
           style={{
-            height: '55px',
+            height: '70px',
             borderRadius: '999px',
             background: `
               linear-gradient(
@@ -87,38 +87,52 @@ export default function HomePageHeader() {
           {/* LEFT SECTION - Site Title */}
           <div className="flex-1 relative z-10">
             <h1 
-              className="text-white uppercase text-xs sm:text-sm md:text-base whitespace-nowrap"
+              className="text-white uppercase text-l sm:text-sm md:text-base whitespace-nowrap"
               style={{ 
                 fontWeight: 600, 
                 letterSpacing: '0.05em'
               }}
             >
-              THẾ GIỚI KHOA HỌC VIỄN TƯỞNG
+              THƯ VIỆN KHOA HỌC VIỄN TƯỞNG
             </h1>
           </div>
 
           {/* CENTER SECTION - Circular Logo (overlaps header) */}
-          <div 
-            className="absolute left-1/2 top-1/2 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-300"
+          <div
+            className="absolute left-1/2 top-1/2 flex items-center justify-center"
             style={{
-              transform: 'translate(-50%, -50%)',
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              background: 'white',
-              border: '4px solid #2e63b6',
-              boxShadow: '0 0 0 4px rgba(255, 255, 255, 0.15), 0 8px 20px rgba(0, 0, 0, 0.25)',
-              zIndex: 20,
+              transform: "translate(-50%, -50%)",
+              width: "110px",
+              height: "110px",
+              zIndex: 20
             }}
           >
-            {/* Book icon inside circle */}
+
+            {/* VIỀN SVG */}
+            {/* <img
+              src="/src/img/SVG/vien-logo.svg"
+              alt="viền logo"
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                objectFit: "contain"
+              }}
+            /> */}
+
+            {/* LOGO Ở GIỮA */}
             <img
               src="/src/img/SVG/logo.svg"
-              width="60"
-              height="60"
-              alt="Logo thư viện"
-              className="text-blue-600"
+              alt="logo"
+              style={{
+                transform: "scale(1.3)",
+                transformOrigin: "center",
+                objectFit: "contain",
+                position: "relative",
+                zIndex: 2
+              }}
             />
+
           </div>
 
           {/* RIGHT SECTION - Buttons and Menu */}
@@ -126,7 +140,7 @@ export default function HomePageHeader() {
             {/* Login button - hidden on mobile */}
             <button
               onClick={() => navigate('/dang-nhap')}
-              className="hidden md:block text-white text-sm font-semibold rounded-full transition-all duration-300"
+              className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
               style={{
                 background: 'transparent',
                 padding: '6px 18px',
@@ -141,7 +155,7 @@ export default function HomePageHeader() {
             {/* Register button - hidden on mobile */}
             <button
               onClick={() => navigate('/dang-ky')}
-              className="hidden md:block text-white text-sm font-semibold rounded-full transition-all duration-300"
+              className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
               style={{
                 background: 'transparent',
                 padding: '6px 18px',

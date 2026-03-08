@@ -23,7 +23,39 @@ export default function BackgroundEffects() {
   }, [])
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-[999]">
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-[1]">
+      {/* Aurora bands on top */}
+      <motion.div
+        className="absolute left-[-15%] top-[-18%] h-[42vh] w-[130%]"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 55%, rgba(167, 243, 208, 0.45) 0%, rgba(110, 231, 183, 0.26) 35%, rgba(56, 189, 248, 0.2) 58%, transparent 75%)',
+          filter: 'blur(22px)'
+        }}
+        animate={{
+          x: [-30, 20, -10, -30],
+          y: [0, 10, -4, 0],
+          opacity: [0.55, 0.9, 0.65, 0.55],
+          scaleX: [1, 1.08, 0.98, 1]
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      <motion.div
+        className="absolute right-[-18%] top-[-12%] h-[36vh] w-[120%]"
+        style={{
+          background: 'radial-gradient(ellipse at 55% 40%, rgba(125, 211, 252, 0.42) 0%, rgba(196, 181, 253, 0.22) 40%, transparent 70%)',
+          filter: 'blur(24px)'
+        }}
+        animate={{
+          x: [15, -24, 12, 15],
+          y: [0, -8, 6, 0],
+          opacity: [0.4, 0.7, 0.5, 0.4],
+          scaleX: [1.02, 0.95, 1.06, 1.02]
+        }}
+        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Twinkling stars */}
       {sparkles.map((sparkle) => (
         <motion.div
           key={sparkle.id}
@@ -36,8 +68,8 @@ export default function BackgroundEffects() {
             boxShadow: '0 0 4px rgba(255, 255, 255, 0.8)'
           }}
           animate={{
-            opacity: [0, 0.8, 0],
-            scale: [0.5, 1.2, 0.5]
+            opacity: [0.15, 1, 0.2, 0.9, 0.15],
+            scale: [0.8, 1.35, 0.9, 1.2, 0.8]
           }}
           transition={{
             duration: sparkle.duration,
@@ -52,14 +84,14 @@ export default function BackgroundEffects() {
       <motion.div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%)'
+          background: 'radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 38%, transparent 62%)'
         }}
         animate={{
-          opacity: [0.3, 0.6, 0.3],
-          scale: [0.98, 1.02, 0.98]
+          opacity: [0.2, 0.42, 0.26, 0.2],
+          scale: [0.98, 1.03, 1, 0.98]
         }}
         transition={{
-          duration: 8,
+          duration: 9,
           repeat: Infinity,
           ease: "easeInOut"
         }}

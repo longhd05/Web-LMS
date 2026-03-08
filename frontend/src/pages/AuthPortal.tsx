@@ -73,28 +73,30 @@ export default function AuthPortal() {
 
         <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-10 lg:pt-16">
           <div className="flex items-start gap-8">
-            <button
-              type="button"
-              onClick={() => navigate('/trang-chu')}
-              className="mt-6 hidden h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#1e3f97] text-white shadow-lg transition hover:scale-105 md:flex"
-              aria-label="Quay lại"
-            >
-              <svg viewBox="0 0 24 24" className="h-10 w-10" fill="currentColor">
-                <path d="M14.5 5.5 8 12l6.5 6.5v-4h6v-5h-6v-4Z" />
-              </svg>
-            </button>
+          <button
+            type="button"
+            onClick={() => navigate('/trang-chu')}
+            className="mt-6 hidden h-16 w-16 shrink-0 items-center justify-center rounded-xl text-white transition hover:scale-105 md:flex"
+            aria-label="Quay lại"
+          >
+            <img
+              src="/src/img/SVG/back-button.svg"
+              alt="Back"
+              className="h-20 w-20 object-contain scale-125"
+            />
+          </button>
 
             <div className="mx-auto w-full max-w-3xl rounded-[36px] border-2 border-[#7ddca0] bg-[rgba(244,249,248,0.92)] p-6 shadow-[0_0_0_2px_#1f629b] sm:p-9">
               <div className="mx-auto mb-8 flex w-full max-w-xl rounded-full border-2 border-[#7ddca0] bg-[#e8f4f2] p-1.5">
                 <Link
                   to="/dang-nhap"
-                  className={`w-1/2 rounded-full px-4 py-3 text-center text-xl font-bold transition ${
+                  className={`w-1/2 rounded-full px-4 py-3 text-center text-xl font-bold transition  ${
                     mode === 'login'
                       ? 'bg-[linear-gradient(180deg,#1f347f_0%,#1c85a2_100%)] text-white shadow-[inset_0_2px_0_#74d8c8]'
                       : 'text-[#1f347f] hover:bg-[#d8efea]'
                   }`}
                 >
-                  Đăng nhập
+                  <span className="relative -top-[2px]">Đăng nhập</span>
                 </Link>
                 <Link
                   to="/dang-ky"
@@ -104,7 +106,7 @@ export default function AuthPortal() {
                       : 'text-[#1f347f] hover:bg-[#d8efea]'
                   }`}
                 >
-                  Đăng ký
+                  <span className="relative -top-[2px]">Đăng ký</span>
                 </Link>
               </div>
 
@@ -129,11 +131,11 @@ export default function AuthPortal() {
                   <label className="mb-4 block text-[40px] leading-none sm:text-[30px]">Bạn là</label>
                   <div className="flex flex-col gap-4 sm:flex-row">
                     <button type="button" onClick={() => setRole('STUDENT')} className={roleButtonClass('STUDENT')}>
-                      <UserCircle2 className="mx-auto mb-2 h-8 w-8" />
+                      <UserCircle2 className="mx-auto mb-2 h-20 w-20" />
                       <p className="text-2xl">Học sinh</p>
                     </button>
                     <button type="button" onClick={() => setRole('TEACHER')} className={roleButtonClass('TEACHER')}>
-                      <GraduationCap className="mx-auto mb-2 h-8 w-8" />
+                      <GraduationCap className="mx-auto mb-2 h-20 w-20" />
                       <p className="text-2xl">Giáo viên</p>
                     </button>
                   </div>
@@ -146,6 +148,7 @@ export default function AuthPortal() {
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     className="h-14 w-full rounded-full bg-[#c8e7ec] px-6 text-xl text-[#11337e] outline-none focus:ring-2 focus:ring-[#1c85a2]"
+                    placeholder="Nhập Email"
                     required
                   />
                 </div>
@@ -157,6 +160,7 @@ export default function AuthPortal() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     className="h-14 w-full rounded-full bg-[#c8e7ec] px-6 text-xl text-[#11337e] outline-none focus:ring-2 focus:ring-[#1c85a2]"
+                    placeholder="Nhập mật khẩu"
                     required
                   />
                 </div>
@@ -164,9 +168,11 @@ export default function AuthPortal() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mx-auto block min-w-56 rounded-full border-2 border-[#1e3f97] bg-[linear-gradient(180deg,#1f347f_0%,#1c85a2_100%)] px-10 py-3 text-4xl font-bold text-white shadow-[inset_0_2px_0_#74d8c8] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="mx-auto block rounded-full border-2 border-[#1e3f97] bg-[linear-gradient(180deg,#1f347f_0%,#1c85a2_100%)] px-6 py-2 text-2xl font-bold text-white shadow-[inset_0_2px_0_#74d8c8] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {loading ? MODE_CONFIG[mode].loadingLabel : MODE_CONFIG[mode].actionLabel}
+                  <span className="relative -top-[2px]">
+                    {loading ? MODE_CONFIG[mode].loadingLabel : MODE_CONFIG[mode].actionLabel}
+                  </span>
                 </button>
               </form>
 
