@@ -21,7 +21,7 @@ export default function AvatarDropdown() {
 
   const handleLogout = async () => {
     await logout()
-    navigate('/login')
+    navigate('/dang-nhap')
   }
 
   if (!user) return null

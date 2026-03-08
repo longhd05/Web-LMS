@@ -59,7 +59,7 @@ export default function TopNavBar({
       <div className="absolute left-0 right-0 top-1 h-[2px] bg-[#1297b0]" />
       <div className="absolute left-0 right-0 bottom-1 h-[2px] bg-[#1297b0]" />
       <div className="max-w-7xl mx-auto flex items-center gap-4">
-        <Link to="/" className="min-w-0 flex items-center gap-3 text-white hover:opacity-90 transition-opacity">
+        <Link to="/trang-chu" className="min-w-0 flex items-center gap-3 text-white hover:opacity-90 transition-opacity">
           <img src={thuVienLogo} alt="Thư viện" className="w-15 h-15 object-contain" />
           <p className="text-sm sm:text-base md:text-lg font-black tracking-wide">THƯ VIỆN KHOA HỌC VIỄN TƯỞNG</p>
         </Link>

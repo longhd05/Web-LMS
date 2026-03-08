@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react'
+import StudentTopNavBar from '../../components/student/Layout/StudentTopNavBar'
 
 export interface LessonItem {
     id: string
@@ -69,6 +70,7 @@ export default function CongDongTemplate({
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: secondaryColor }}>
+            <StudentTopNavBar />
             <style dangerouslySetInnerHTML={{
                 __html: `
                     .background-image-section {

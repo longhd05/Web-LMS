@@ -133,7 +133,7 @@ export default function HomePageHeader() {
           <div className="flex-1 flex items-center justify-end gap-3 relative z-10">
             {/* Login button - hidden on mobile */}
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/dang-nhap')}
               className="hidden md:block text-white text-sm font-semibold rounded-full transition-all duration-300"
               style={{
                 border: '1px solid rgba(255, 255, 255, 0.6)',
@@ -149,7 +149,7 @@ export default function HomePageHeader() {
 
             {/* Register button - hidden on mobile */}
             <button
-              onClick={() => navigate('/register')}
+              onClick={() => navigate('/dang-ky')}
               className="hidden md:block text-white text-sm font-semibold rounded-full transition-all duration-300"
               style={{
                 border: '1px solid rgba(255, 255, 255, 0.6)',
@@ -190,7 +190,7 @@ export default function HomePageHeader() {
             <div className="p-4 space-y-2">
               <button
                 onClick={() => {
-                  navigate('/login')
+                  navigate('/dang-nhap')
                   setMenuOpen(false)
                 }}
                 className="block w-full text-center text-white font-semibold py-3 px-4 rounded-full border border-white/40 hover:bg-white/10 transition-all duration-300"
@@ -199,7 +199,7 @@ export default function HomePageHeader() {
               </button>
               <button
                 onClick={() => {
-                  navigate('/register')
+                  navigate('/dang-ky')
                   setMenuOpen(false)
                 }}
                 className="block w-full text-center text-white font-semibold py-3 px-4 rounded-full border border-white/40 hover:bg-white/10 transition-all duration-300"

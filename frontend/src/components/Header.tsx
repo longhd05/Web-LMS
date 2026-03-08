@@ -21,7 +21,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await logout()
-    navigate('/')
+    navigate('/trang-chu')
   }
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function Header() {
       )}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-3">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/trang-chu" className="flex items-center gap-2">
             <img src={logoThuVien} alt="Logo thư viện" className="h-12 w-12 object-contain" />
             <span
               className={
@@ -129,7 +129,7 @@ export default function Header() {
 
           {!isTeacher && (
             <nav className="hidden items-center gap-6 md:flex">
-              <Link to="/library" className="font-medium text-gray-600 transition-colors hover:text-green-600">Thư viện</Link>
+              <Link to="/thu-vien-xanh" className="font-medium text-gray-600 transition-colors hover:text-green-600">Thư viện</Link>
               <Link to="/community" className="font-medium text-gray-600 transition-colors hover:text-green-600">Cộng đồng</Link>
               {user?.role === 'STUDENT' && (
                 <>
@@ -146,8 +146,8 @@ export default function Header() {
           <div className="relative flex items-center gap-2">
             {!user ? (
               <>
-                <Link to="/login" className="hidden text-sm font-medium text-gray-700 transition-colors hover:text-green-600 sm:block">Đăng nhập</Link>
-                <Link to="/register" className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700">Đăng ký</Link>
+                <Link to="/dang-nhap" className="hidden text-sm font-medium text-gray-700 transition-colors hover:text-green-600 sm:block">Đăng nhập</Link>
+                <Link to="/dang-ky" className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700">Đăng ký</Link>
               </>
             ) : (
               <>
@@ -185,7 +185,7 @@ export default function Header() {
 
         {menuOpen && (
           <div className={isTeacher ? 'mt-2 flex flex-col gap-2 border-t border-white/20 pb-3 pt-3 md:hidden' : 'mt-2 flex flex-col gap-2 border-t border-gray-100 pb-3 pt-3 md:hidden'}>
-            <Link to="/library" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Thư viện</Link>
+            <Link to="/thu-vien-xanh" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Thư viện</Link>
             <Link to="/community" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Cộng đồng</Link>
             {user?.role === 'STUDENT' && (
               <>
@@ -198,8 +198,8 @@ export default function Header() {
             )}
             {!user && (
               <>
-                <Link to="/login" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Đăng nhập</Link>
-                <Link to="/register" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Đăng ký</Link>
+                <Link to="/dang-nhap" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Đăng nhập</Link>
+                <Link to="/dang-ky" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Đăng ký</Link>
               </>
             )}
           </div>
