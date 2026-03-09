@@ -1,11 +1,7 @@
-<<<<<<< Updated upstream
-import { ReactNode, useState } from 'react'
-=======
 import { ReactNode, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import StudentTopNavBar from '../../components/student/Layout/StudentTopNavBar'
->>>>>>> Stashed changes
 
 export interface LessonItem {
     id: string
