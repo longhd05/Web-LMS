@@ -1,4 +1,11 @@
+<<<<<<< Updated upstream
 import { ReactNode, useState } from 'react'
+=======
+import { ReactNode, useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronDown } from 'lucide-react'
+import StudentTopNavBar from '../../components/student/Layout/StudentTopNavBar'
+>>>>>>> Stashed changes
 
 export interface LessonItem {
     id: string
@@ -53,6 +60,8 @@ export default function CongDongTemplate({
     communityCards,
 }: CongDongTemplateProps) {
     const [currentPage, setCurrentPage] = useState(0)
+    const [slideDirection, setSlideDirection] = useState(0)
+    const [showScroll, setShowScroll] = useState(true)
     const cardsPerPage = 8
     const totalPages = Math.ceil(communityCards.length / cardsPerPage)
     const startIndex = currentPage * cardsPerPage
@@ -61,15 +70,23 @@ export default function CongDongTemplate({
 
     const handlePrevPage = () => {
         if (currentPage > 0) {
+            setSlideDirection(-1)
             setCurrentPage(currentPage - 1)
         }
     }
 
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {
+            setSlideDirection(1)
             setCurrentPage(currentPage + 1)
         }
     }
+
+    useEffect(() => {
+        const onScroll = () => setShowScroll(window.scrollY <= 100)
+        window.addEventListener('scroll', onScroll)
+        return () => window.removeEventListener('scroll', onScroll)
+    }, [])
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: secondaryColor }}>
@@ -88,10 +105,22 @@ export default function CongDongTemplate({
                         margin-top: -${backgroundPaddingTop || '0'};
                     }
                     /* Màn hình rộng: aspect ratio >= 2:1 (a gấp 2 b) */
-                    @media (min-aspect-ratio: 2/1) {
+                    // @media (min-aspect-ratio: 2/1) {
+                    //     .background-image-section {
+                    //         background-size: ${backgroundSize} !important;
+                    //         min-height: 50vw !important;
+                    //     }
+                    //     .spacer-top {
+                    //         height: calc(${backgroundPaddingTop || '0'} + 80px);
+                    //     }
+                    //     .bg-wrapper {
+                    //         margin-top: calc(-${backgroundPaddingTop || '0'} - 80px);
+                    //     }
+                    // }
+                    @media (min-aspect-ratio: 1.5/1) {
                         .background-image-section {
                             background-size: ${backgroundSize} !important;
-                            min-height: 50vw !important;
+                            min-height: 45vw !important;
                         }
                         .spacer-top {
                             height: calc(${backgroundPaddingTop || '0'} + 80px);
@@ -100,10 +129,26 @@ export default function CongDongTemplate({
                             margin-top: calc(-${backgroundPaddingTop || '0'} - 80px);
                         }
                     }
+                    @media (min-aspect-ratio: 2/1) {
+                        .background-image-section {
+                            background-size: ${backgroundSize} !important;
+                            min-height: 42vw !important;
+                        }
+                        .subtitle-overlay {
+                            bottom: 12% !important;
+                        }
+                    }    
                     @media (max-width: 768px) {
                         .background-image-section {
                             background-size: ${backgroundSizeMobile} !important;
                         }
+                    }
+                    @keyframes bgFloat {
+                        0%, 100% { transform: translateY(0); }
+                        50% { transform: translateY(12px); }
+                    }
+                    .bg-animate {
+                        animation: bgFloat 4s ease-in-out infinite;
                     }
                 `
             }} />
@@ -143,17 +188,19 @@ export default function CongDongTemplate({
                     </div> */}
 
                     {/* Background Image */}
-                    <div
-                        className="w-full relative background-image-section"
-                        style={{
-                            backgroundImage: `url(${backgroundImage})`,
-                            backgroundPosition: backgroundPosition,
-                            backgroundRepeat: 'no-repeat'
-                        }}
-                    >
-                        {/* Search/Info Box - Overlay on background */}
-                        <div className="absolute inset-x-0 px-4" style={{ bottom: subtitleBoxBottom }}>
-                            <div className="max-w-6xl mx-auto" >
+                    <div className="w-full relative" style={{ overflow: 'hidden' }}>
+                        <div
+                            className="w-full relative background-image-section bg-animate"
+                            style={{
+                                backgroundImage: `url(${backgroundImage})`,
+                                backgroundPosition: backgroundPosition,
+                                backgroundRepeat: 'no-repeat'
+                            }}
+                        >
+                        </div>
+                        {/* Search/Info Box - Overlay on background (outside bg-animate) */}
+                        <div className="absolute inset-x-0 px-4 subtitle-overlay" style={{ bottom: subtitleBoxBottom }}>
+                            <div className="max-w-6xl mx-auto flex flex-col items-center">
                                 <div
                                     className="w-full px-10 rounded-[35px] text-center flex items-center justify-center h-[100px]"
                                     style={{
@@ -164,6 +211,33 @@ export default function CongDongTemplate({
                                     }}
                                 >
                                     {subtitle}
+                                </div>
+                                {/* Cuộn xuống để tiếp tục đọc */}
+                                <div className="h-[72px]">
+                                    <AnimatePresence>
+                                        {showScroll && (
+                                            <motion.div
+                                                className="flex flex-col items-center cursor-pointer mt-4"
+                                                onClick={() => window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                transition={{ duration: 0.4 }}
+                                            >
+                                                <motion.div
+                                                    className="relative mb-1"
+                                                    animate={{ y: [0, 8, 0] }}
+                                                    transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+                                                >
+                                                    <ChevronDown className="w-8 h-8 text-[#303f86]" strokeWidth={3.5} />
+                                                    <ChevronDown className="w-8 h-8 text-[#303f86] absolute top-3 left-0" strokeWidth={3.5} />
+                                                </motion.div>
+                                                <p className="font-semibold text-lg text-[#303f86] mt-4">
+                                                    Cuộn xuống để tiếp tục đọc
+                                                </p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </div>
                         </div>
@@ -179,63 +253,16 @@ export default function CongDongTemplate({
 
             {/* Lower Section Wrapper with New Background */}
             <div style={{ backgroundColor: accentColor }}>
-                {/* Cuộn xuống để tiếp tục đọc */}
-                <div className="relative pt-2 pb-8 flex flex-col items-center justify-center" style={{ backgroundColor: accentColor }}>
-                    {/* Animated Chevron Arrows */}
-                    <div className="flex flex-col items-center mb-4">
-                        <style dangerouslySetInnerHTML={{
-                            __html: `
-                            @keyframes bounceDown {
-                                0%, 100% {
-                                    transform: translateY(0);
-                                }
-                                50% {
-                                    transform: translateY(10px);
-                                }
-                            }
-                            .animate-bounce-down {
-                                animation: bounceDown 1.5s ease-in-out infinite;
-                            }
-                        `}} />
-                        <div className="animate-bounce-down">
-                            <svg
-                                width="64"
-                                height="64"
-                                viewBox="0 0 64 64"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                {/* First Chevron */}
-                                <path
-                                    d="M8 18 L32 42 L56 18"
-                                    stroke="#303f86"
-                                    strokeWidth="6"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    fill="none"
-                                />
-                                {/* Second Chevron */}
-                                <path
-                                    d="M8 28 L32 52 L56 28"
-                                    stroke="#303f86"
-                                    strokeWidth="6"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    fill="none"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-
-                    {/* Text */}
-                    <p className="text-2xl" style={{ color: '#303f86' }}>
-                        Cuộn xuống để tiếp tục đọc
-                    </p>
-                </div>
 
                 {/* Cùng Xem Section - Video */}
                 {videoUrl && (
-                    <div className="max-w-7xl mx-auto px-4 mb-[150px]">
+                    <motion.div
+                        className="max-w-7xl mx-auto px-4 mb-[150px]"
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        viewport={{ once: true }}
+                    >
                         <h2
                             className="text-6xl font-bold text-center mb-8 uppercase"
                             style={{
@@ -247,23 +274,35 @@ export default function CongDongTemplate({
                         >
                             CÙNG XEM
                         </h2>
-                        <div className="bg-white rounded-3xl p-12 max-w-3xl mx-auto shadow-lg aspect-video flex items-center justify-center" style={{
-                            border: `2px solid ${primaryColor}`
-                        }}>
+                        <motion.div
+                            className="bg-white rounded-3xl p-12 max-w-3xl mx-auto shadow-lg aspect-video flex items-center justify-center"
+                            style={{ border: `2px solid ${primaryColor}` }}
+                            whileHover={{ scale: 1.03, boxShadow: `0 12px 40px ${primaryColor}44` }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        >
                             <div className="text-center">
                                 <p className="text-4xl font-semibold" style={{ color: '#303f86' }}>
                                     ẢNH<br />VIDEO
                                 </p>
                             </div>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 )}
 
                 {/* Cùng Đọc Section - Lessons */}
-                <div className="max-w-7xl mx-auto px-4 mb-12">
-                    <div className="bg-white rounded-3xl p-12 max-w-4xl mx-auto shadow-lg" style={{
-                        border: `2px solid ${primaryColor}`
-                    }}>
+                <motion.div
+                    className="max-w-7xl mx-auto px-4 mb-12"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.15 }}
+                    viewport={{ once: true }}
+                >
+                    <motion.div
+                        className="bg-white rounded-3xl p-12 max-w-4xl mx-auto shadow-lg"
+                        style={{ border: `2px solid ${primaryColor}` }}
+                        whileHover={{ scale: 1.02, boxShadow: `0 12px 40px ${primaryColor}44` }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    >
                         {/* Title inside box */}
                         <h2
                             className="text-6xl font-bold text-center mb-12 uppercase"
@@ -335,8 +374,8 @@ export default function CongDongTemplate({
                                 </div>
                             </div>
                         ))}
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
 
                 {/* Gradient Transition */}
@@ -349,7 +388,13 @@ export default function CongDongTemplate({
             {/* Cộng Đồng Section Wrapper */}
             <div style={{ backgroundColor: secondaryColor }}>
                 {/* Cộng Đồng Section - Community Cards */}
-                <div className="max-w-7xl mx-auto px-4 pb-12">
+                <motion.div
+                    className="max-w-7xl mx-auto px-4 pb-12"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7 }}
+                    viewport={{ once: true }}
+                >
                     <h2
                         className="text-6xl font-bold text-center mb-20 uppercase"
                         style={{
@@ -379,71 +424,80 @@ export default function CongDongTemplate({
 
                         {/* Grid Layout - 2 rows x 4 columns */}
                         <div className="px-16">
-                            <div className="grid grid-cols-4 gap-6 max-w-5xl mx-auto">
-                                {currentCards.map((card) => (
-                                    <div
-                                        key={card.id}
-                                        className="relative rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden hover:scale-105 hover:-translate-y-1"
-                                        style={{
-                                            backgroundColor: primaryColor,
-                                            padding: '2px'
-                                        }}
-                                    >
-                                        {/* White spacing layer */}
-                                        <div className="bg-white rounded-3xl" style={{ padding: '2.5px' }}>
-                                            {/* Inner card with gradient border effect */}
-                                            <div
-                                                className="relative rounded-3xl overflow-hidden"
-                                                style={{
-                                                    background: `linear-gradient(to right, ${primaryColor} 0%, #d4f542 100%)`,
-                                                    padding: '2px'
-                                                }}
-                                            >
-                                                <div className="bg-white rounded-3xl p-4 relative">
+                            <AnimatePresence mode="wait" initial={false}>
+                                <motion.div
+                                    key={currentPage}
+                                    className="grid grid-cols-4 gap-6 max-w-5xl mx-auto"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    {currentCards.map((card) => (
+                                        <div
+                                            key={card.id}
+                                            className="relative rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+                                            style={{
+                                                backgroundColor: primaryColor,
+                                                padding: '2px'
+                                            }}
+                                        >
+                                            {/* White spacing layer */}
+                                            <div className="bg-white rounded-3xl" style={{ padding: '2.5px' }}>
+                                                {/* Inner card with gradient border effect */}
+                                                <div
+                                                    className="relative rounded-3xl overflow-hidden"
+                                                    style={{
+                                                        background: `linear-gradient(to right, ${primaryColor} 0%, #d4f542 100%)`,
+                                                        padding: '2px'
+                                                    }}
+                                                >
+                                                    <div className="bg-white rounded-3xl p-4 relative">
 
-                                                    {/* Top section with name, class, and school */}
-                                                    <div className="mb-3 text-center">
-                                                        <h3 className="text-[17px] font-bold leading-tight uppercase" style={{ color: primaryColor }}>
-                                                            {card.name} - {card.className}
-                                                        </h3>
-                                                        <p className="text-[17px] font-bold" style={{ color: primaryColor }}>
-                                                            {card.school}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 font-semibold" style={{ color: primaryColor }}>
-                                                            {card.date}
-                                                        </p>
-                                                    </div>
+                                                        {/* Top section with name, class, and school */}
+                                                        <div className="mb-3 text-center">
+                                                            <h3 className="text-[17px] font-bold leading-tight uppercase" style={{ color: primaryColor }}>
+                                                                {card.name} - {card.className}
+                                                            </h3>
+                                                            <p className="text-[17px] font-bold" style={{ color: primaryColor }}>
+                                                                {card.school}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500 font-semibold" style={{ color: primaryColor }}>
+                                                                {card.date}
+                                                            </p>
+                                                        </div>
 
-                                                    {/* Large empty area */}
-                                                    <div className="h-40 mb-4"></div>
+                                                        {/* Large empty area */}
+                                                        <div className="h-40 mb-4"></div>
 
-                                                    {/* Gradient divider line */}
-                                                    <div
-                                                        className=" h-[2px] w-full"
-                                                        style={{
-                                                            background: `linear-gradient(to right, ${primaryColor} 0%, #d4f542 100%)`
-                                                        }}
-                                                    ></div>
+                                                        {/* Gradient divider line */}
+                                                        <div
+                                                            className=" h-[2px] w-full"
+                                                            style={{
+                                                                background: `linear-gradient(to right, ${primaryColor} 0%, #d4f542 100%)`
+                                                            }}
+                                                        ></div>
 
-                                                    {/* Bottom icons */}
-                                                    <div className="flex items-center justify-between">
-                                                        <button className="p-1">
-                                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: primaryColor }}>
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                                            </svg>
-                                                        </button>
-                                                        <button className="p-1">
-                                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: primaryColor }}>
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                                            </svg>
-                                                        </button>
+                                                        {/* Bottom icons */}
+                                                        <div className="flex items-center justify-between">
+                                                            <button className="p-1">
+                                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: primaryColor }}>
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                                                </svg>
+                                                            </button>
+                                                            <button className="p-1">
+                                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: primaryColor }}>
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </motion.div>
+                            </AnimatePresence>
                         </div>
 
                         <button
@@ -460,7 +514,7 @@ export default function CongDongTemplate({
                             </svg>
                         </button>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </div>
     )

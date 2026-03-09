@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
+<<<<<<< Updated upstream
+=======
+    "framer-motion": "^12.35.2",
+>>>>>>> Stashed changes
     "lucide-react": "^0.576.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
