@@ -6,6 +6,7 @@ import { useThuVienXanhLibrary } from '../../hooks/useThuVienXanhLibrary'
 import { type LibraryItem, type ThuVienXanhMode } from '../../types/thuVienXanh'
 
 const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
+const allowedCategoryIds = new Set(['env', 'peace'])
 
 export default function ThuVienXanhLibraryPage() {
   const [searchValue, setSearchValue] = useState('')
@@ -15,6 +16,7 @@ export default function ThuVienXanhLibraryPage() {
 
   const categories = useMemo(() => {
     return shelfCategories
+      .filter((category) => allowedCategoryIds.has(category.id))
       .map((category) => ({
         id: category.id,
         title: category.name.toUpperCase(),
@@ -36,6 +38,7 @@ export default function ThuVienXanhLibraryPage() {
     if (!searchValue.trim()) return []
 
     return shelfCategories
+      .filter((category) => allowedCategoryIds.has(category.id))
       .flatMap((category) => category.texts)
       .map((text) => {
         const options: ThuVienXanhSearchResult['options'] = []

@@ -11,32 +11,20 @@ interface LibraryContentProps {
 export default function LibraryContent({ categories, mode, onModeChange, onOpenItem }: LibraryContentProps) {
   const isEmpty = categories.length === 0
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({})
+  const desktopGridColsClass = categories.length <= 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3'
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide text-blue-950">
+      <div className="flex justify-center mb-10 sm:mb-12 md:mb-14">
+        <h1
+          className="w-full text-center text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-wide text-[#123f92]"
+          style={{
+            WebkitTextStroke: '2px #e8f7ff',
+            textShadow: '0 0 1px #e8f7ff, 0 2px 0 rgba(17, 53, 120, 0.2)',
+          }}
+        >
           THƯ VIỆN KHOA HỌC VIỄN TƯỞNG
         </h1>
-
-        <div className="inline-flex bg-white rounded-full p-1 border border-cyan-300 self-start">
-          <button
-            onClick={() => onModeChange('doc-hieu')}
-            className={`px-5 py-2.5 rounded-full text-sm font-bold transition ${
-              mode === 'doc-hieu' ? 'bg-teal-600 text-white' : 'text-slate-700'
-            }`}
-          >
-            Đọc hiểu
-          </button>
-          <button
-            onClick={() => onModeChange('tich-hop')}
-            className={`px-5 py-2.5 rounded-full text-sm font-bold transition ${
-              mode === 'tich-hop' ? 'bg-teal-600 text-white' : 'text-slate-700'
-            }`}
-          >
-            Tích hợp
-          </button>
-        </div>
       </div>
 
       {isEmpty ? (
@@ -44,21 +32,58 @@ export default function LibraryContent({ categories, mode, onModeChange, onOpenI
           Không có văn bản phù hợp với từ khóa tìm kiếm.
         </div>
       ) : (
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="relative mt-7">
+          <div className="mx-auto mb-4 w-fit lg:mb-0 lg:absolute lg:right-[-108px] lg:top-[124px] z-10">
+            <div className="inline-flex flex-col rounded-2xl overflow-hidden border border-cyan-300 bg-white/95 shadow-sm">
+              <button
+                onClick={() => onModeChange('doc-hieu')}
+                className={`px-6 py-2 text-lg font-bold transition ${
+                  mode === 'doc-hieu' ? 'bg-slate-100 text-blue-800' : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                Đọc hiểu
+              </button>
+              <button
+                onClick={() => onModeChange('tich-hop')}
+                className={`border-t border-cyan-200 px-6 py-2 text-lg font-bold transition ${
+                  mode === 'tich-hop' ? 'bg-slate-100 text-blue-800' : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                Tích hợp
+              </button>
+            </div>
+          </div>
+
+          <div className={`grid grid-cols-1 ${desktopGridColsClass} gap-1 lg:gap-1`}>
           {categories.map((category) => {
             const isExpanded = !!expandedCategories[category.id]
             const hasMoreThanTen = category.items.length > 10
             const visibleItems = isExpanded ? category.items : category.items.slice(0, 10)
 
             return (
-              <article key={category.id} className="rounded-3xl bg-white/90 border border-cyan-200 p-5 sm:p-6">
-                <h2 className="text-lg sm:text-xl font-extrabold text-blue-950">{category.title}</h2>
-                <ul className="mt-4 space-y-3">
+              <article
+                key={category.id}
+                className="relative w-full max-w-[400px] mx-auto rounded-[22px] bg-white/90 border border-cyan-200 px-4 pb-5 pt-16 sm:px-5 sm:pb-5 sm:pt-20"
+              >
+                <div className="absolute left-1/2 -top-5 sm:-top-6 -translate-x-1/2 w-[calc(100%+2.5rem)] sm:w-[calc(100%+2.5rem)] h-[78px] sm:h-[88px]">
+                  <span className="absolute -left-2.5 top-8 h-4 w-4 rounded-full bg-[#114795]" />
+                  <span className="absolute -right-2.5 top-8 h-4 w-4 rounded-full bg-[#114795]" />
+
+                  <div className="relative h-[72px] sm:h-[84px] rounded-[20px] sm:rounded-[22px] bg-gradient-to-b from-[#2265b4] to-[#1a569f] p-1.5">
+                    <div className="h-full rounded-[16px] sm:rounded-[18px] border-[3px] border-[#17d7d9] px-3 sm:px-4 flex items-center justify-center">
+                      <h2 className="text-center text-[13px] sm:text-[15px] md:text-base font-black text-white uppercase tracking-[0.03em] leading-tight">
+                        {category.title}
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                <ul className="space-y-1.5">
                   {visibleItems.map((item) => (
                   <li key={item.id}>
                     <button
                       onClick={() => onOpenItem(item)}
-                      className="w-full text-left rounded-2xl bg-cyan-50 hover:bg-cyan-100 px-4 py-3 font-semibold text-slate-800 transition"
+                      className="w-full text-left rounded-xl bg-cyan-50 hover:bg-cyan-100 px-3.5 py-2.5 font-semibold text-slate-800 transition"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <span>{item.title}</span>
@@ -99,6 +124,7 @@ export default function LibraryContent({ categories, mode, onModeChange, onOpenI
               </article>
             )
           })}
+          </div>
         </div>
       )}
     </section>
