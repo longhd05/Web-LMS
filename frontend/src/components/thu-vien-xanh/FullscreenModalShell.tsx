@@ -174,7 +174,7 @@ export default function FullscreenModalShell({
   }, [isConfirmOpen, requestClose])
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-r from-cyan-100 via-sky-100 to-emerald-100">
+    <div className="min-h-[calc(100vh-80px)] bg-transparent">
       <div className="h-[calc(100vh-80px)] flex flex-col">
         <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
           <button

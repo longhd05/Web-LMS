@@ -7,6 +7,7 @@ import { useReadingComprehension } from '../../hooks/useReadingComprehension'
 import { submitReadingQuiz } from '../../api/readingComprehension'
 
 type McqResultMap = Record<string, { isCorrect: boolean; correctAnswer: string }>
+const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
 
 export default function DocHieuFullscreenModal() {
   const [searchParams] = useSearchParams()
@@ -63,7 +64,10 @@ export default function DocHieuFullscreenModal() {
 
   if (!itemId) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-sky-100 via-cyan-100 to-emerald-100">
+      <div
+        className="min-h-screen bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+      >
         <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
         <div className="max-w-3xl mx-auto p-6">
           <div className="rounded-2xl border border-cyan-200 bg-white p-6 text-slate-700">Thiếu `itemId` trên URL.</div>
@@ -74,7 +78,10 @@ export default function DocHieuFullscreenModal() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-sky-100 via-cyan-100 to-emerald-100">
+      <div
+        className="min-h-screen bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+      >
         <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
         <div className="max-w-3xl mx-auto p-6">
           <div className="rounded-2xl border border-cyan-200 bg-white p-6 text-slate-700">Đang tải nội dung đọc hiểu...</div>
@@ -85,7 +92,10 @@ export default function DocHieuFullscreenModal() {
 
   if (error || !textDetail) {
     return (
-      <div className="min-h-screen bg-gradient-to-r from-sky-100 via-cyan-100 to-emerald-100">
+      <div
+        className="min-h-screen bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+      >
         <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
         <div className="max-w-3xl mx-auto p-6">
           <div className="rounded-2xl border border-cyan-200 bg-white p-6 text-red-600">
@@ -126,7 +136,10 @@ export default function DocHieuFullscreenModal() {
   })
 
   return (
-    <div className="min-h-screen">
+    <div
+      className="min-h-screen bg-center bg-cover bg-no-repeat"
+      style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+    >
       <TopNavBar
         searchValue=""
         onSearchChange={() => undefined}

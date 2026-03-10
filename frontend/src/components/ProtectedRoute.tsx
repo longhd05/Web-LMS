@@ -18,11 +18,11 @@ export default function ProtectedRoute({ children, role }: ProtectedRouteProps) 
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/dang-nhap" replace />
   }
 
   if (role && user.role !== role) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/trang-chu" replace />
   }
 
   return <>{children}</>

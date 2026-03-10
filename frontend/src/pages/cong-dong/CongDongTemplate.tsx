@@ -86,6 +86,7 @@ export default function CongDongTemplate({
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: secondaryColor }}>
+            <StudentTopNavBar />
             <style dangerouslySetInnerHTML={{
                 __html: `
                     .background-image-section {

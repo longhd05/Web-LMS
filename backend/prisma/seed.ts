@@ -147,11 +147,13 @@ async function main() {
   for (const userData of users) {
     const existing = await prisma.user.findUnique({ where: { email: userData.email } });
     if (!existing) {
-      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      const hashedPassword = await bcrypt.hash(userData.password, 12);
       await prisma.user.create({
         data: {
-          ...userData,
-          password: hashedPassword,
+          name: userData.name,
+          email: userData.email,
+          passwordHash: hashedPassword,
+          role: userData.role,
         },
       });
       console.log(`✅ Created user: ${userData.email}`);

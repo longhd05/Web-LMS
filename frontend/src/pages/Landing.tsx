@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Landing() {
@@ -22,14 +22,14 @@ export default function Landing() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            to="/library"
+            to="/thu-vien-xanh"
             className="bg-green-600 text-white px-8 py-3 rounded-xl font-semibold text-lg hover:bg-green-700 transition-colors shadow-lg shadow-green-200"
           >
             Khám phá Thư viện
           </Link>
           {!user ? (
             <Link
-              to="/login"
+              to="/dang-nhap"
               className="bg-white text-gray-700 px-8 py-3 rounded-xl font-semibold text-lg hover:bg-gray-50 transition-colors border border-gray-200 shadow-sm"
             >
               Đăng nhập
@@ -60,7 +60,7 @@ export default function Landing() {
             icon="📚"
             title="Thư viện học liệu"
             description="Kho tài liệu đa dạng với các bài đọc hiểu và bài tích hợp theo nhiều chủ đề và cấp độ khác nhau."
-            link="/library"
+            link="/thu-vien-xanh"
             linkText="Xem thư viện"
           />
           <FeatureCard

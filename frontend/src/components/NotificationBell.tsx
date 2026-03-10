@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 import api from '../api/axios'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -11,11 +12,21 @@ interface Notification {
   payload: Record<string, unknown>
 }
 
-export default function NotificationBell({ role }: { role: 'STUDENT' | 'TEACHER' }) {
+interface NotificationBellProps {
+  role: 'STUDENT' | 'TEACHER'
+  theme?: 'default' | 'teacher'
+}
+
+export default function NotificationBell({ role, theme = 'default' }: NotificationBellProps) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const [dropdownPos, setDropdownPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 })
+
+  const isTeacherTheme = theme === 'teacher'
 
   const fetchNotifications = async () => {
     if (!user) return
@@ -33,16 +44,41 @@ export default function NotificationBell({ role }: { role: 'STUDENT' | 'TEACHER'
     return () => clearInterval(interval)
   }, [user])
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      const isInsideButtonWrap = dropdownRef.current?.contains(target)
+      const isInsidePanel = panelRef.current?.contains(target)
+
+      if (!isInsideButtonWrap && !isInsidePanel) {
         setOpen(false)
       }
     }
+
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  useEffect(() => {
+    if (!open) return
+
+    const updatePosition = () => {
+      if (!buttonRef.current) return
+      const rect = buttonRef.current.getBoundingClientRect()
+      setDropdownPos({
+        top: rect.bottom + 8,
+        right: Math.max(4, window.innerWidth - rect.right - 10),
+      })
+    }
+
+    updatePosition()
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
+  }, [open])
 
   const unreadCount = notifications.filter((n) => !n.readAt).length
 
@@ -61,71 +97,79 @@ export default function NotificationBell({ role }: { role: 'STUDENT' | 'TEACHER'
 
   const typeLabel: Record<string, string> = {
     STUDENT_JOINED: 'Học sinh tham gia lớp',
-    SUBMISSION_RECEIVED: 'Bài nộp mới',
+    SUBMISSION_RECEIVED: 'Bài làm mới',
     SUBMISSION_REVIEWED: 'Bài đã được chấm',
     SUBMISSION_PUBLISHED: 'Bài được đăng cộng đồng',
   }
 
+  const dropdownNode = open ? (
+    <div
+      ref={panelRef}
+      style={{ top: dropdownPos.top, right: dropdownPos.right }}
+      className={
+        isTeacherTheme
+          ? 'fixed z-[9999] w-[220px] overflow-hidden rounded-[12px] border border-[#9dc7de] bg-white shadow-[0_6px_14px_rgba(29,90,136,0.24)]'
+          : 'fixed z-[9999] w-80 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl'
+      }
+    >
+      <div className={isTeacherTheme ? 'border-b border-[#d6e2ea] bg-[#f1f3f5] px-5 py-3' : 'border-b border-gray-100 px-4 py-3'}>
+        <div className="mb-1 flex items-center justify-between">
+          <span className="text-lg font-bold text-[#1f3f8f]">Thông báo</span>
+          {unreadCount > 0 && (
+            <button onClick={markAllRead} className="text-xs text-cyan-700 hover:underline">
+              Đánh dấu đã đọc
+            </button>
+          )}
+        </div>
+        {!isTeacherTheme && (
+          <Link to={notifPath} onClick={() => setOpen(false)} className="text-xs text-blue-700 hover:underline">
+            Xem tất cả
+          </Link>
+        )}
+      </div>
+      <div className={isTeacherTheme ? 'max-h-72 overflow-y-auto bg-[#c5e5ec]' : 'max-h-72 overflow-y-auto'}>
+        {notifications.length === 0 ? (
+          <p className={isTeacherTheme ? 'px-4 py-5 text-[12px] font-semibold text-[#2a4f85]' : 'py-6 text-center text-sm text-gray-500'}>
+            Chưa có thông báo mới
+          </p>
+        ) : (
+          notifications.slice(0, 10).map((n) => (
+            <div
+              key={n.id}
+              className={`border-b px-4 py-3 last:border-0 ${isTeacherTheme ? 'border-[#b6dbe4] bg-[#c5e5ec]' : 'border-gray-50'} ${!n.readAt ? 'bg-cyan-50' : ''}`}
+            >
+              <p className="text-sm font-semibold text-[#1f3f8f]">{typeLabel[n.type] ?? n.type}</p>
+              <p className="mt-1 text-xs text-[#37558e]">{new Date(n.createdAt).toLocaleString('vi-VN')}</p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  ) : null
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        ref={buttonRef}
         onClick={() => setOpen((v) => !v)}
-        className="relative p-2 text-gray-600 hover:text-green-600 transition-colors"
+        className={
+          isTeacherTheme
+            ? 'relative z-10 p-2 text-white transition-colors hover:text-cyan-100'
+            : 'relative z-10 p-2 text-gray-600 transition-colors hover:text-green-600'
+        }
         aria-label="Thông báo"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-          />
+        <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2a4 4 0 00-4 4v1.1A7 7 0 004 13v4l-2 2h20l-2-2v-4a7 7 0 00-4-5.9V6a4 4 0 00-4-4zm0 20a3 3 0 002.83-2H9.17A3 3 0 0012 22z" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+          <span className="absolute -right-1 -top-1 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
-      {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="font-semibold text-gray-800">Thông báo</span>
-            <div className="flex gap-2">
-              {unreadCount > 0 && (
-                <button
-                  onClick={markAllRead}
-                  className="text-xs text-green-600 hover:underline"
-                >
-                  Đánh dấu đã đọc
-                </button>
-              )}
-              <Link
-                to={notifPath}
-                onClick={() => setOpen(false)}
-                className="text-xs text-indigo-600 hover:underline"
-              >
-                Xem tất cả
-              </Link>
-            </div>
-          </div>
-          <div className="max-h-72 overflow-y-auto">
-            {notifications.length === 0 ? (
-              <p className="text-center text-gray-500 text-sm py-6">Không có thông báo</p>
-            ) : (
-              notifications.slice(0, 10).map((n) => (
-                <div
-                  key={n.id}
-                  className={`px-4 py-3 border-b border-gray-50 last:border-0 ${!n.readAt ? 'bg-green-50' : ''}`}
-                >
-                  <p className="text-sm font-medium text-gray-800">{typeLabel[n.type] ?? n.type}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {new Date(n.createdAt).toLocaleString('vi-VN')}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+      {open && createPortal(dropdownNode, document.body)}
     </div>
   )
 }

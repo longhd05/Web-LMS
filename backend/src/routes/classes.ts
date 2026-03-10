@@ -124,8 +124,18 @@ router.get('/:classId', authenticate, async (req: Request, res: Response): Promi
     where: { id: req.params.classId },
     include: {
       teacher: { select: { id: true, name: true, email: true } },
-      memberships: { include: { student: { select: { id: true, name: true, email: true } } } },
-      assignments: { include: { libraryItem: true }, orderBy: { createdAt: 'desc' } },
+      memberships: {
+        include: {
+          student: { select: { id: true, name: true, email: true } },
+        },
+      },
+      assignments: {
+        include: {
+          libraryItem: { select: { id: true, title: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+      },
+      _count: { select: { memberships: true, assignments: true } },
     },
   });
 
@@ -137,10 +147,15 @@ router.get('/:classId', authenticate, async (req: Request, res: Response): Promi
   // Check access
   const userId = req.user!.userId;
   const isTeacher = cls.teacherId === userId;
-  const isMember = cls.memberships.some((m) => m.studentId === userId);
-  if (!isTeacher && !isMember) {
-    res.status(403).json({ error: 'You are not a member of this class' });
-    return;
+  
+  if (!isTeacher) {
+    const membership = await prisma.membership.findUnique({
+      where: { classId_studentId: { classId: cls.id, studentId: userId } },
+    });
+    if (!membership) {
+      res.status(403).json({ error: 'You are not a member of this class' });
+      return;
+    }
   }
 
   res.json({ data: cls });

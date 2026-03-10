@@ -1,25 +1,17 @@
-import { useState, useEffect, FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import StudentLayout from '../../components/student/Layout/StudentLayout'
+import JoinClassModal from '../../components/student/Class/JoinClassModal'
 import api from '../../api/axios'
-
-interface ClassInfo {
-  id: string
-  name: string
-  code: string
-  teacher: { id: string; name: string; email: string }
-  _count: { memberships: number; assignments: number }
-}
+import { ClassInfo } from '../../types/student'
 
 export default function StudentDashboard() {
+  const navigate = useNavigate()
   const [classes, setClasses] = useState<ClassInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showJoinDialog, setShowJoinDialog] = useState(false)
-  const [classCode, setClassCode] = useState('')
-  const [joining, setJoining] = useState(false)
-  const [joinError, setJoinError] = useState('')
-  const [showCreateSuccess, setShowCreateSuccess] = useState<{ name: string; code: string } | null>(null)
-  const navigate = useNavigate()
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const fetchClasses = async () => {
     setLoading(true)
@@ -33,143 +25,110 @@ export default function StudentDashboard() {
     }
   }
 
-  useEffect(() => { fetchClasses() }, [])
+  useEffect(() => { 
+    fetchClasses() 
+  }, [])
 
-  const handleJoin = async (e: FormEvent) => {
-    e.preventDefault()
-    setJoining(true)
-    setJoinError('')
-    try {
-      const res = await api.post('/classes/join', { code: classCode.toUpperCase() })
-      setShowJoinDialog(false)
-      setClassCode('')
-      // Show success and navigate
-      const cls = res.data.data.class
-      setShowCreateSuccess({ name: cls.name, code: cls.code })
-      await fetchClasses()
-      setTimeout(() => setShowCreateSuccess(null), 4000)
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      setJoinError(msg ?? 'Tham gia lớp thất bại.')
-    } finally {
-      setJoining(false)
-    }
+  const handleJoinSuccess = () => {
+    fetchClasses()
+    setShowSuccess(true)
+    setTimeout(() => setShowSuccess(false), 4000)
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Lớp học của tôi</h1>
-          <p className="text-gray-500 mt-1">Quản lý và truy cập các lớp học đã tham gia</p>
-        </div>
+    <StudentLayout>
+      <div className="space-y-8">
+        {/* Header with Join button */}
         <button
           onClick={() => setShowJoinDialog(true)}
-          className="bg-green-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
+          className="inline-flex h-16 items-center gap-3 rounded-[22px] border-2 border-[#1f3f8f] bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-6 text-xl font-bold text-white shadow-[inset_0_0_0_1px_rgba(49,184,202,0.9)] transition-all duration-200 hover:-translate-y-0.5"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
+          <span className="text-3xl leading-none">+</span>
           Tham gia lớp
         </button>
+
+        {/* Success message */}
+        {showSuccess && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700">
+            ✅ Đã tham gia lớp học thành công!
+          </div>
+        )}
+
+        {/* Error message */}
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+            {error}
+          </div>
+        )}
+
+        {/* Content */}
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-[#1f3f8f]" />
+          </div>
+        ) : classes.length === 0 ? (
+          <button
+            type="button"
+            onClick={() => setShowJoinDialog(true)}
+            className="block w-full rounded-3xl border-2 border-dashed border-[#8be9a0] bg-[#f5fffd] py-16 text-center text-lg font-bold text-[#1f3f8f] transition-colors hover:bg-[#ebf9ff]"
+          >
+            Tham gia lớp học đầu tiên
+          </button>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {classes.map((cls) => (
+              <button
+                key={cls.id}
+                type="button"
+                onClick={() => navigate(`/student/class/${cls.id}`)}
+                className="group rounded-[26px] border-2 border-transparent p-6 text-left shadow-[0_8px_16px_rgba(44,96,162,0.24),0_0_10px_rgba(83,145,220,0.28)] transition-transform hover:-translate-y-0.5"
+                style={{
+                  background:'linear-gradient(#f9ffff, #dbf2ea) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                }}
+              >
+                <div className="mb-4 flex items-start justify-between gap-2">
+                  <h3 className="line-clamp-2 text-3xl font-extrabold uppercase leading-tight text-[#1f3f8f]">{cls.name}</h3>
+                  <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#1f3f8f] text-[#13a0b4]">
+                    <svg className="h-8 w-8 translate-x-[1px]" viewBox="0 0 28 25" fill="currentColor">
+                      <path d="M8.8 6.8c0-.86.94-1.4 1.7-.95l7.9 4.73c.73.44.73 1.49 0 1.93l-7.9 4.73c-.76.46-1.7-.08-1.7-.95z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div
+                  className="mb-2 flex h-10 max-w-[180px] items-center overflow-hidden rounded-full border-2 border-transparent"
+                  style={{
+                    background:
+                      'linear-gradient(#f6ffff, #f6ffff) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                  }}
+                >
+                  <span className="h-full rounded-full border-r border-[#55bccf] bg-gradient-to-b from-[#1f3f8f] to-[#159eb3] px-4 py-1.5 text-sm font-extrabold uppercase text-white">Mã</span>
+                  <span className="px-3 text-lg font-extrabold uppercase text-[#1f3f8f]">{cls.code}</span>
+                </div>
+
+                <div
+                  className="flex h-10 max-w-[180px] items-center overflow-hidden rounded-full border-2 border-transparent"
+                  style={{
+                    background:
+                      'linear-gradient(#f6ffff, #f6ffff) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                  }}
+                >
+                  <span className="h-full rounded-full border-r border-[#55bccf] bg-gradient-to-b from-[#1f3f8f] to-[#159eb3] px-4 py-1.5 text-sm font-extrabold text-white">
+                    {String(cls._count?.memberships || 0).padStart(2, '0')}
+                  </span>
+                  <span className="px-3 text-lg font-bold text-[#1f3f8f]">Học sinh</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {showCreateSuccess && (
-        <div className="bg-green-50 border border-green-200 text-green-800 px-5 py-4 rounded-xl mb-6 flex items-center gap-3">
-          ✅ Đã tham gia lớp <strong>{showCreateSuccess.name}</strong> thành công!
-        </div>
-      )}
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">{error}</div>
-      )}
-
-      {loading ? (
-        <div className="flex justify-center py-16">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600" />
-        </div>
-      ) : classes.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
-          <div className="text-5xl mb-4">🏫</div>
-          <p className="text-gray-500 text-lg mb-4">Bạn chưa tham gia lớp học nào</p>
-          <button
-            onClick={() => setShowJoinDialog(true)}
-            className="text-green-600 font-medium hover:underline"
-          >
-            Tham gia lớp học ngay
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {classes.map((cls) => (
-            <div
-              key={cls.id}
-              onClick={() => navigate(`/student/class/${cls.id}`)}
-              className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md hover:border-green-300 transition-all cursor-pointer group"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                  <span className="text-green-700 font-bold">📚</span>
-                </div>
-              </div>
-              <h3 className="font-bold text-gray-900 text-lg mb-1 group-hover:text-green-600 transition-colors">
-                {cls.name}
-              </h3>
-              <p className="text-sm text-gray-500 mb-4">Giáo viên: {cls.teacher.name}</p>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1">
-                  👥 {cls._count.memberships} học sinh
-                </span>
-                <span className="flex items-center gap-1">
-                  📋 {cls._count.assignments} bài tập
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Join class dialog */}
-      {showJoinDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Tham gia lớp học</h2>
-            <p className="text-gray-500 text-sm mb-6">Nhập mã lớp gồm 6 ký tự do giáo viên cung cấp</p>
-
-            {joinError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{joinError}</div>
-            )}
-
-            <form onSubmit={handleJoin} className="space-y-4">
-              <input
-                type="text"
-                value={classCode}
-                onChange={(e) => setClassCode(e.target.value.toUpperCase())}
-                placeholder="Ví dụ: ABC123"
-                maxLength={6}
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-center text-2xl font-bold tracking-widest uppercase focus:outline-none focus:ring-2 focus:ring-green-500"
-                required
-              />
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => { setShowJoinDialog(false); setJoinError(''); setClassCode('') }}
-                  className="flex-1 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={joining || classCode.length !== 6}
-                  className="flex-1 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {joining ? 'Đang tham gia...' : 'Tham gia'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+      <JoinClassModal
+        open={showJoinDialog}
+        onClose={() => setShowJoinDialog(false)}
+        onSuccess={handleJoinSuccess}
+      />
+    </StudentLayout>
   )
 }
