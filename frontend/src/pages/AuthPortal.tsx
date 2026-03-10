@@ -46,7 +46,7 @@ export default function AuthPortal() {
 
     try {
       if (mode === 'login') {
-        const userData = await login(email, password)
+        const userData = await login(email, password, role)
         if (userData.role === 'TEACHER') {
           navigate('/giao-vien/trang-chu')
         } else {

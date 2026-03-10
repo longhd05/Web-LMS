@@ -25,6 +25,7 @@ const registerSchema = z.object({
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  role: z.enum(['STUDENT', 'TEACHER']).optional(),
 });
 
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
@@ -57,7 +58,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response): Promise
     res.status(400).json({ error: parsed.error.flatten() });
     return;
   }
-  const { email, password } = parsed.data;
+  const { email, password, role } = parsed.data;
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -68,6 +69,12 @@ router.post('/login', loginLimiter, async (req: Request, res: Response): Promise
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
     res.status(401).json({ error: 'Invalid email or password' });
+    return;
+  }
+
+  if (role && user.role !== role) {
+    const roleLabel = role === 'STUDENT' ? 'Học sinh' : 'Giáo viên';
+    res.status(403).json({ error: `Tài khoản này không phải ${roleLabel}` });
     return;
   }
 
