@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Header from './components/Header'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -164,17 +164,8 @@ export default function App() {
               }
             />
 
-            {/* Catch all */}
-            <Route
-              path="*"
-              element={
-                <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-                  <p className="text-6xl font-bold text-gray-200">404</p>
-                  <p className="text-xl text-gray-600">Trang không tồn tại</p>
-                  <a href="/trang-chu" className="text-green-600 hover:underline font-medium">← Về trang chủ</a>
-                </div>
-              }
-            />
+            {/* Catch all - redirect to home */}
+            <Route path="*" element={<Navigate to="/trang-chu" replace />} />
           </Routes>
         </Layout>
       </BrowserRouter>
