@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
 /**
  * HomePageHeader Component
@@ -9,10 +10,11 @@ import { Menu, X } from 'lucide-react'
  * - Pill-shaped container with gradient background
  * - Overlapping circular logo in the center
  * - Left: site title
- * - Right: login/register buttons + hamburger menu
+ * - Right: login/register buttons (or greeting if logged in) + hamburger menu
  */
 export default function HomePageHeader() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -137,35 +139,43 @@ export default function HomePageHeader() {
 
           {/* RIGHT SECTION - Buttons and Menu */}
           <div className="flex-1 flex items-center justify-end gap-3 relative z-10">
-            {/* Login button - hidden on mobile */}
-            <button
-              onClick={() => navigate('/dang-nhap')}
-              className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
-              style={{
-                background: 'transparent',
-                padding: '6px 18px',
-                letterSpacing: '0.03em'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              ĐĂNG NHẬP
-            </button>
+            {user ? (
+              <span className="hidden md:block text-white text-l font-semibold">
+                XIN CHÀO, {user.name}
+              </span>
+            ) : (
+              <>
+                {/* Login button - hidden on mobile */}
+                <button
+                  onClick={() => navigate('/dang-nhap')}
+                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
+                  style={{
+                    background: 'transparent',
+                    padding: '6px 18px',
+                    letterSpacing: '0.03em'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  ĐĂNG NHẬP
+                </button>
 
-            {/* Register button - hidden on mobile */}
-            <button
-              onClick={() => navigate('/dang-ky')}
-              className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
-              style={{
-                background: 'transparent',
-                padding: '6px 18px',
-                letterSpacing: '0.03em'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              ĐĂNG KÝ
-            </button>
+                {/* Register button - hidden on mobile */}
+                <button
+                  onClick={() => navigate('/dang-ky')}
+                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
+                  style={{
+                    background: 'transparent',
+                    padding: '6px 18px',
+                    letterSpacing: '0.03em'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  ĐĂNG KÝ
+                </button>
+              </>
+            )}
 
             {/* Hamburger menu icon - always visible */}
             <button

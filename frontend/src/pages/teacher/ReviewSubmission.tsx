@@ -158,9 +158,9 @@ export default function ReviewSubmission() {
     <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <nav className="mb-6 flex items-center gap-2 text-sm text-gray-600">
-          <Link to="/teacher/dashboard" className="hover:underline">Lớp học</Link>
+          <Link to="/giao-vien/trang-chu" className="hover:underline">Lớp học</Link>
           <span>/</span>
-          <Link to={`/teacher/class/${submission.assignment.class.id}`} className="hover:underline">
+          <Link to={`/giao-vien/class/${submission.assignment.class.id}`} className="hover:underline">
             {submission.assignment.class.name}
           </Link>
           <span>/</span>
