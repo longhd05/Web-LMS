@@ -36,14 +36,14 @@ export default function Landing() {
             </Link>
           ) : user.role === 'STUDENT' ? (
             <Link
-              to="/student/dashboard"
+              to="/hoc-sinh/trang-chu"
               className="bg-white text-gray-700 px-8 py-3 rounded-xl font-semibold text-lg hover:bg-gray-50 transition-colors border border-gray-200 shadow-sm"
             >
               Vào lớp học
             </Link>
           ) : (
             <Link
-              to="/teacher/dashboard"
+              to="/giao-vien/trang-chu"
               className="bg-white text-gray-700 px-8 py-3 rounded-xl font-semibold text-lg hover:bg-gray-50 transition-colors border border-gray-200 shadow-sm"
             >
               Quản lý lớp học
@@ -67,7 +67,7 @@ export default function Landing() {
             icon="🏫"
             title="Lớp học trực tuyến"
             description="Giáo viên tạo lớp, giao bài tập và chấm điểm. Học sinh tham gia và nộp bài thuận tiện."
-            link={user ? (user.role === 'TEACHER' ? '/teacher/dashboard' : '/student/dashboard') : '/login'}
+            link={user ? (user.role === 'TEACHER' ? '/giao-vien/trang-chu' : '/hoc-sinh/trang-chu') : '/dang-nhap'}
             linkText="Vào lớp học"
           />
           <FeatureCard

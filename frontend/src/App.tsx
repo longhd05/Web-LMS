@@ -5,7 +5,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 import ScrollToTop from './components/ScrollToTop'
 
 // Pages
-import Landing from './pages/Landing'
 import HomePage from './pages/HomePage'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -31,7 +30,7 @@ import { HiepSiXanhPage, SuGiaHoaBinhPage } from './pages/cong-dong'
 function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const isThuVienXanh = location.pathname.startsWith('/thu-vien-xanh')
-  const isStudentPortal = location.pathname.startsWith('/student')
+  const isStudentPortal = location.pathname.startsWith('/hoc-sinh')
   const isHomePage = location.pathname === '/trang-chu'
   const isCongDong = location.pathname.startsWith('/cong-dong')
   const isAuthPage = location.pathname === '/dang-nhap' || location.pathname === '/dang-ky'
@@ -51,8 +50,10 @@ export default function App() {
         <ScrollToTop />
         <Layout>
           <Routes>
+            {/* Root redirect */}
+            <Route path="/" element={<Navigate to="/trang-chu" replace />} />
+
             {/* Public routes */}
-            <Route path="/" element={<Landing />} />
             <Route path="/trang-chu" element={<HomePage />} />
             <Route path="/dang-nhap" element={<Login />} />
             <Route path="/dang-ky" element={<Register />} />
@@ -68,7 +69,7 @@ export default function App() {
 
             {/* Student routes */}
             <Route
-              path="/student/dashboard"
+              path="/hoc-sinh/trang-chu"
               element={
                 <ProtectedRoute role="STUDENT">
                   <StudentDashboard />
@@ -76,7 +77,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/class/:classId"
+              path="/hoc-sinh/class/:classId"
               element={
                 <ProtectedRoute role="STUDENT">
                   <StudentClassDetail />
@@ -84,7 +85,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/class/:classId/assignment/:assignmentId"
+              path="/hoc-sinh/class/:classId/assignment/:assignmentId"
               element={
                 <ProtectedRoute role="STUDENT">
                   <AssignmentDetail />
@@ -92,7 +93,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/products"
+              path="/hoc-sinh/products"
               element={
                 <ProtectedRoute role="STUDENT">
                   <ProductsPage />
@@ -100,7 +101,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/profile"
+              path="/hoc-sinh/profile"
               element={
                 <ProtectedRoute role="STUDENT">
                   <ProfilePage />
@@ -108,7 +109,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/submissions"
+              path="/hoc-sinh/submissions"
               element={
                 <ProtectedRoute role="STUDENT">
                   <Submissions />
@@ -116,7 +117,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/notifications"
+              path="/hoc-sinh/notifications"
               element={
                 <ProtectedRoute role="STUDENT">
                   <Notifications />
@@ -126,7 +127,7 @@ export default function App() {
 
             {/* Teacher routes */}
             <Route
-              path="/teacher/dashboard"
+              path="/giao-vien/trang-chu"
               element={
                 <ProtectedRoute role="TEACHER">
                   <TeacherDashboard />
@@ -134,7 +135,7 @@ export default function App() {
               }
             />
             <Route
-              path="/teacher/class/:classId"
+              path="/giao-vien/class/:classId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <TeacherClassDetail />
@@ -142,7 +143,7 @@ export default function App() {
               }
             />
             <Route
-              path="/teacher/create-assignment/:classId"
+              path="/giao-vien/create-assignment/:classId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <CreateAssignment />
@@ -150,7 +151,7 @@ export default function App() {
               }
             />
             <Route
-              path="/teacher/review/:submissionId"
+              path="/giao-vien/review/:submissionId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <ReviewSubmission />
@@ -158,7 +159,7 @@ export default function App() {
               }
             />
             <Route
-              path="/teacher/notifications"
+              path="/giao-vien/notifications"
               element={
                 <ProtectedRoute role="TEACHER">
                   <TeacherNotifications />

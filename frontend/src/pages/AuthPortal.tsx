@@ -7,6 +7,29 @@ import { useAuth } from '../contexts/AuthContext'
 type AuthMode = 'login' | 'register'
 type UserRole = 'STUDENT' | 'TEACHER'
 
+function extractErrorMessage(err: unknown): string | null {
+  const errorData = (err as { response?: { data?: { error?: unknown } } })?.response?.data?.error
+  if (typeof errorData === 'string') {
+    return errorData
+  }
+
+  if (errorData && typeof errorData === 'object') {
+    const fieldErrors = (errorData as { fieldErrors?: Record<string, string[]> }).fieldErrors
+    const formErrors = (errorData as { formErrors?: string[] }).formErrors
+    const firstFieldError = fieldErrors
+      ? Object.values(fieldErrors).flat().find((message) => typeof message === 'string' && message.length > 0)
+      : null
+    if (firstFieldError) {
+      return firstFieldError
+    }
+    if (Array.isArray(formErrors) && formErrors.length > 0) {
+      return formErrors[0]
+    }
+  }
+
+  return null
+}
+
 const MODE_CONFIG: Record<AuthMode, { title: string; actionLabel: string; loadingLabel: string }> = {
   login: {
     title: 'Đăng nhập',
@@ -30,6 +53,8 @@ export default function AuthPortal() {
     [location.pathname],
   )
 
+  const successMessage = (location.state as { successMessage?: string })?.successMessage ?? ''
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -43,14 +68,23 @@ export default function AuthPortal() {
     setLoading(true)
 
     try {
+      const normalizedEmail = email.trim().toLowerCase()
+      const normalizedName = name.trim()
+
       if (mode === 'login') {
-        await login(email, password)
+        const userData = await login(email, password, role)
+        if (userData.role === 'TEACHER') {
+          navigate('/giao-vien/trang-chu')
+        } else {
+          navigate('/hoc-sinh/trang-chu')
+        }
       } else {
-        await register(name, email, password, role)
+        await register(normalizedName, normalizedEmail, password, role)
+        const roleLabel = role === 'STUDENT' ? 'Học sinh' : 'Giáo viên'
+        navigate('/dang-nhap', { state: { successMessage: `${roleLabel} đã đăng ký thành công` } })
       }
-      navigate('/')
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+      const msg = extractErrorMessage(err)
       setError(msg ?? (mode === 'login' ? 'Đăng nhập thất bại. Vui lòng thử lại.' : 'Đăng ký thất bại. Vui lòng thử lại.'))
     } finally {
       setLoading(false)
@@ -109,6 +143,10 @@ export default function AuthPortal() {
                   <span className="relative -top-[2px]">Đăng ký</span>
                 </Link>
               </div>
+
+              {successMessage && mode === 'login' && (
+                <p className="mb-4 rounded-xl bg-green-100 px-4 py-3 text-sm text-green-700">{successMessage}</p>
+              )}
 
               {error && <p className="mb-4 rounded-xl bg-red-100 px-4 py-3 text-sm text-red-700">{error}</p>}
 
