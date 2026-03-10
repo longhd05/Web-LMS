@@ -72,7 +72,7 @@ export default function AuthPortal() {
       const normalizedName = name.trim()
 
       if (mode === 'login') {
-        const userData = await login(normalizedEmail, password)
+        const userData = await login(email, password, role)
         if (userData.role === 'TEACHER') {
           navigate('/giao-vien/trang-chu')
         } else {
