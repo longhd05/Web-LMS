@@ -30,6 +30,8 @@ export default function AuthPortal() {
     [location.pathname],
   )
 
+  const successMessage = (location.state as { successMessage?: string })?.successMessage ?? ''
+
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -44,11 +46,17 @@ export default function AuthPortal() {
 
     try {
       if (mode === 'login') {
-        await login(email, password)
+        const userData = await login(email, password)
+        if (userData.role === 'TEACHER') {
+          navigate('/giao-vien/trang-chu')
+        } else {
+          navigate('/hoc-sinh/trang-chu')
+        }
       } else {
         await register(name, email, password, role)
+        const roleLabel = role === 'STUDENT' ? 'Học sinh' : 'Giáo viên'
+        navigate('/dang-nhap', { state: { successMessage: `${roleLabel} đã đăng ký thành công` } })
       }
-      navigate('/')
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
       setError(msg ?? (mode === 'login' ? 'Đăng nhập thất bại. Vui lòng thử lại.' : 'Đăng ký thất bại. Vui lòng thử lại.'))
@@ -109,6 +117,10 @@ export default function AuthPortal() {
                   <span className="relative -top-[2px]">Đăng ký</span>
                 </Link>
               </div>
+
+              {successMessage && mode === 'login' && (
+                <p className="mb-4 rounded-xl bg-green-100 px-4 py-3 text-sm text-green-700">{successMessage}</p>
+              )}
 
               {error && <p className="mb-4 rounded-xl bg-red-100 px-4 py-3 text-sm text-red-700">{error}</p>}
 

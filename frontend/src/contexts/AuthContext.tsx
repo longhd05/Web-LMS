@@ -13,7 +13,7 @@ interface AuthContextValue {
   user: User | null
   token: string | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<User>
   register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER') => Promise<void>
   logout: () => Promise<void>
 }
@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('lms_user', JSON.stringify(userData))
     setToken(accessToken)
     setUser(userData)
+    return userData as User
   }, [])
 
   const register = useCallback(async (
@@ -56,12 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     role: 'STUDENT' | 'TEACHER'
   ) => {
-    const res = await api.post('/auth/register', { name, email, password, role })
-    const { accessToken, user: userData } = res.data.data
-    localStorage.setItem('lms_token', accessToken)
-    localStorage.setItem('lms_user', JSON.stringify(userData))
-    setToken(accessToken)
-    setUser(userData)
+    await api.post('/auth/register', { name, email, password, role })
   }, [])
 
   const logout = useCallback(async () => {
