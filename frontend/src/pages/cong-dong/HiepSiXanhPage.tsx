@@ -162,7 +162,7 @@ export default function HiepSiXanhPage() {
             backgroundSize="115%" // Tùy chỉnh theo page này
             backgroundSizeMobile="200%" // Tùy chỉnh cho mobile
             backgroundPaddingTop="50px" // Thêm khoảng cách trên cho background để chữ không bị cắt
-            subtitleBoxBottom="120px"
+            subtitleBoxBottom="80px"
             primaryColor="#1e3a8a" // Navy blue
             secondaryColor="#a9f9d1"
             accentColor="#baedb3"
