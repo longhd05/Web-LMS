@@ -37,30 +37,7 @@ interface ClassDetail {
   assignments: Assignment[]
 }
 
-const MOCK_STUDENTS_COUNT = 10
-const ENABLE_MOCK_STUDENTS = true
-type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | null
-
-function buildMockStudents(count: number) {
-  return Array.from({ length: count }).map((_, index) => {
-    const no = String(index + 1).padStart(2, '0')
-    return {
-      id: `mock-student-${no}`,
-      name: `Học sinh ${no}`,
-      email: `hocsinh${no}@example.com`,
-    }
-  })
-}
-
-const MOCK_ATTENDANCE: Record<number, Record<number, AttendanceStatus>> = {
-  1: { 1: 'PRESENT', 2: 'PRESENT', 3: 'PRESENT', 4: 'ABSENT', 5: 'ABSENT', 6: 'PRESENT', 7: 'LATE', 8: 'PRESENT', 9: 'ABSENT', 10: 'PRESENT' },
-  2: { 1: 'ABSENT' },
-  3: { 1: 'LATE' },
-}
-
-function getAttendanceStatus(rowNumber: number, sessionNumber: number): AttendanceStatus {
-  return MOCK_ATTENDANCE[rowNumber]?.[sessionNumber] ?? null
-}
+type SubmissionCellStatus = 'APPROVED' | 'PENDING' | 'REJECTED' | null
 
 type MainTab = 'assignments' | 'students' | 'criteria' | 'pending' | 'community'
 type TaskType = 'READING' | 'INTEGRATION'
@@ -134,6 +111,65 @@ export default function TeacherClassDetail() {
     return pendingByTaskType.filter((s) => s.assignment && s.assignment.id === selectedAssignmentId)
   }, [pendingByTaskType, selectedAssignmentId])
 
+  const assignmentIdsByColumn = useMemo<(string | null)[]>(() => {
+    if (!cls) return Array.from({ length: 10 }, () => null)
+    const ids = cls.assignments.slice(0, 10).map((a) => a.id)
+    return Array.from({ length: 10 }, (_, idx) => ids[idx] ?? null)
+  }, [cls])
+
+  const submittedStudents = useMemo(() => {
+    const byStudent = new Map<string, { id: string; name: string; email: string; firstSubmittedAt: number }>()
+
+    for (const s of submissions) {
+      const submittedAt = new Date(s.createdAt).getTime()
+      const existing = byStudent.get(s.student.id)
+      if (!existing || submittedAt < existing.firstSubmittedAt) {
+        byStudent.set(s.student.id, {
+          id: s.student.id,
+          name: s.student.name,
+          email: s.student.email,
+          firstSubmittedAt: submittedAt,
+        })
+      }
+    }
+
+    return Array.from(byStudent.values())
+      .sort((a, b) => a.firstSubmittedAt - b.firstSubmittedAt)
+      .map(({ id, name, email }) => ({ id, name, email }))
+  }, [submissions])
+
+  const submissionStatusByStudentAssignment = useMemo(() => {
+    const allowedAssignmentIds = new Set(assignmentIdsByColumn.filter((id): id is string => Boolean(id)))
+    const latestByPair = new Map<string, { submittedAt: number; status: SubmissionCellStatus }>()
+
+    for (const s of submissions) {
+      if (!s.assignment?.id || !allowedAssignmentIds.has(s.assignment.id)) continue
+
+      const cellStatus: SubmissionCellStatus = !s.review
+        ? 'PENDING'
+        : s.review.resultStatus === 'PASSED'
+          ? 'APPROVED'
+          : 'REJECTED'
+
+      const key = `${s.student.id}:${s.assignment.id}`
+      const submittedAt = new Date(s.createdAt).getTime()
+      const prev = latestByPair.get(key)
+
+      if (!prev || submittedAt > prev.submittedAt) {
+        latestByPair.set(key, { submittedAt, status: cellStatus })
+      }
+    }
+
+    const result = new Map<string, SubmissionCellStatus>()
+    latestByPair.forEach((value, key) => result.set(key, value.status))
+    return result
+  }, [submissions, assignmentIdsByColumn])
+
+  const getSubmissionStatus = (studentId: string, assignmentId: string | null): SubmissionCellStatus => {
+    if (!assignmentId) return null
+    return submissionStatusByStudentAssignment.get(`${studentId}:${assignmentId}`) ?? null
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -150,11 +186,6 @@ export default function TeacherClassDetail() {
       </div>
     )
   }
-// const students = cls.memberships.map((m) => m.student)
-  const students =
-    ENABLE_MOCK_STUDENTS && cls.memberships.length === 0
-      ? buildMockStudents(MOCK_STUDENTS_COUNT)
-      : cls.memberships.map((m) => m.student)
   const parsedClass = parseClassAndSchool(cls.name)
   const classLabel = parsedClass?.className ?? cls.name
   const schoolLabel = parsedClass?.schoolName ?? 'Chưa có'
@@ -274,7 +305,7 @@ export default function TeacherClassDetail() {
                   <div key={a.id} className="rounded-[20px] bg-[#cbeff2] px-6 py-5 text-[#1f3f8f]">
                     <div className="mb-2 flex items-start justify-between gap-3">
                       <h3 className="text-2xl font-extrabold">Bài tập {idx + 1}</h3>
-                      <button className="text-2xl">⋮</button>
+                      {/* <button className="text-2xl">⋮</button> */}
                     </div>
                     <p className="text-lg font-semibold">{a.mode === 'INDIVIDUAL' ? 'Cá nhân' : 'Nhóm'}: {a.libraryItem.title}</p>
                     {a.dueAt && <p className="mt-1 text-sm font-semibold">Ngày hoàn thành: {new Date(a.dueAt).toLocaleDateString('vi-VN')}</p>}
@@ -295,31 +326,39 @@ export default function TeacherClassDetail() {
                     <tr className="text-lg font-bold">
                       <th className="rounded-tl-[20px] border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2">STT</th>
                       <th className="border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2">Họ và tên</th>
-                      {Array.from({ length: 10 }).map((_, i) => (
+                      {assignmentIdsByColumn.map((_, i) => (
                         <th key={i} className={`${i === 9 ? 'rounded-tr-[20px] ' : ''}border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2`}>{i + 1}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                  {Array.from({ length: Math.max(10, students.length) }).map((_, rowIdx) => {
-                      const student = students[rowIdx]
-                      const isLastRow = rowIdx === Math.max(10, students.length) - 1
+                    {submittedStudents.length === 0 && (
+                      <tr>
+                        <td colSpan={12} className="rounded-b-[20px] border border-[#7ea2e0] px-4 py-8 text-base font-semibold text-[#1f3f8f]">
+                          Chưa có học sinh nộp bài.
+                        </td>
+                      </tr>
+                    )}
+                    {submittedStudents.map((student, rowIdx) => {
+                      const isLastRow = rowIdx === submittedStudents.length - 1
                       return (
-                        <tr key={rowIdx} className="text-sm font-semibold">
+                        <tr key={student.id} className="text-sm font-semibold">
                           <td className={`${isLastRow ? 'rounded-bl-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>{rowIdx + 1}</td>
-                          <td className="border border-[#7ea2e0] px-3 py-2 text-left">{student?.name ?? ''}</td>
-                          {Array.from({ length: 10 }).map((__, colIdx) => {
-                            const status = getAttendanceStatus(rowIdx + 1, colIdx + 1)
+                          <td className="border border-[#7ea2e0] px-3 py-2 text-left">{student.name}</td>
+                          {assignmentIdsByColumn.map((assignmentId, colIdx) => {
+                            const status = getSubmissionStatus(student.id, assignmentId)
                             return (
                               <td key={colIdx} className={`${isLastRow && colIdx === 9 ? 'rounded-br-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>
                                 {!status && <span className="text-gray-300">•</span>}
-                                {status === 'PRESENT' && (
+                                {status === 'APPROVED' && (
                                   <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#7bd85e] text-[11px] font-black leading-none text-white">✓</span>
                                 )}
-                                {status === 'ABSENT' && (
+                                {status === 'PENDING' && (
+                                  <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#e6d335] text-[11px] font-black leading-none text-white">!</span>
+                                )}
+                                {status === 'REJECTED' && (
                                   <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#ef4444] text-[11px] font-black leading-none text-white">✕</span>
                                 )}
-                                {status === 'LATE' && <span className="mx-auto inline-block h-3.5 w-3.5 rounded-full border-2 border-[#e6d335] bg-[#fff9cf]" />}
                               </td>
                             )
                           })}
