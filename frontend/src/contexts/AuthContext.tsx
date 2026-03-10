@@ -7,12 +7,21 @@ export interface User {
   email: string
   role: 'STUDENT' | 'TEACHER'
   avatarUrl?: string | null
+
+  // Added to match UI usage
+  className?: string | null
+  studentType?: 'CLASS' | 'INDEPENDENT' | null
 }
 
 interface AuthContextValue {
   user: User | null
   token: string | null
   loading: boolean
+
+  // Added to match UI usage
+  isClassStudent: boolean
+  isIndependentStudent: boolean
+
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER') => Promise<void>
   logout: () => Promise<void>
@@ -26,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Restore from localStorage
     const storedToken = localStorage.getItem('lms_token')
     const storedUser = localStorage.getItem('lms_user')
     if (storedToken && storedUser) {
@@ -76,8 +84,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }, [])
 
+  // Default logic (adjust if your backend encodes this differently)
+  const isClassStudent = !!user && user.role === 'STUDENT' && !!user.className
+  const isIndependentStudent = !!user && user.role === 'STUDENT' && !user.className
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      loading,
+      isClassStudent,
+      isIndependentStudent,
+      login,
+      register,
+      logout
+    }}>
       {children}
     </AuthContext.Provider>
   )
