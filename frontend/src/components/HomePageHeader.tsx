@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
 /**
  * HomePageHeader Component
@@ -9,11 +10,29 @@ import { Menu, X } from 'lucide-react'
  * - Pill-shaped container with gradient background
  * - Overlapping circular logo in the center
  * - Left: site title
- * - Right: login/register buttons + hamburger menu
+ * - Right: login/register buttons (or greeting + logout dropdown when logged in) + hamburger menu
  */
 export default function HomePageHeader() {
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleLogout = async () => {
+    await logout()
+    setUserMenuOpen(false)
+  }
 
   return (
     <header className="sticky top-12 z-50 px-4 md:px-8">
@@ -137,35 +156,73 @@ export default function HomePageHeader() {
 
           {/* RIGHT SECTION - Buttons and Menu */}
           <div className="flex-1 flex items-center justify-end gap-3 relative z-10">
-            {/* Login button - hidden on mobile */}
-            <button
-              onClick={() => navigate('/dang-nhap')}
-              className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
-              style={{
-                background: 'transparent',
-                padding: '6px 18px',
-                letterSpacing: '0.03em'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              ĐĂNG NHẬP
-            </button>
+            {user ? (
+              /* Logged-in: greeting with dropdown */
+              <div className="relative hidden md:block" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="text-white text-l font-semibold rounded-full transition-all duration-300"
+                  style={{
+                    background: 'transparent',
+                    padding: '6px 18px',
+                    letterSpacing: '0.03em'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  XIN CHÀO, {(user.name || '').toUpperCase()}
+                </button>
+                {userMenuOpen && (
+                  <div
+                    className="absolute right-0 mt-2 rounded-xl shadow-lg overflow-hidden"
+                    style={{
+                      background: 'linear-gradient(135deg, #1e3c8f, #1e7ea0)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      minWidth: '160px',
+                    }}
+                  >
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-white font-semibold py-3 px-5 text-left hover:bg-white/15 transition-all duration-200"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                {/* Login button - hidden on mobile */}
+                <button
+                  onClick={() => navigate('/dang-nhap')}
+                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
+                  style={{
+                    background: 'transparent',
+                    padding: '6px 18px',
+                    letterSpacing: '0.03em'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  ĐĂNG NHẬP
+                </button>
 
-            {/* Register button - hidden on mobile */}
-            <button
-              onClick={() => navigate('/dang-ky')}
-              className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
-              style={{
-                background: 'transparent',
-                padding: '6px 18px',
-                letterSpacing: '0.03em'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              ĐĂNG KÝ
-            </button>
+                {/* Register button - hidden on mobile */}
+                <button
+                  onClick={() => navigate('/dang-ky')}
+                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
+                  style={{
+                    background: 'transparent',
+                    padding: '6px 18px',
+                    letterSpacing: '0.03em'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  ĐĂNG KÝ
+                </button>
+              </>
+            )}
 
             {/* Hamburger menu icon - always visible */}
             <button
