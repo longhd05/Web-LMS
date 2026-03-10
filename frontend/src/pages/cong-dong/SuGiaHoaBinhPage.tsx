@@ -163,7 +163,7 @@ export default function SuGiaHoaBinhPage() {
             backgroundSizeMobile="220%" // Tùy chỉnh cho mobile
             backgroundPosition="center 0%" // Kéo background xuống một chút (60% từ trên xuống)
             backgroundPaddingTop="100px" // Thêm khoảng cách trên cho background
-            subtitleBoxBottom="120px"
+            subtitleBoxBottom="50px"
             primaryColor="#1e3a8a" // Navy blue
             secondaryColor="#b7e9e5" // Light cyan/blue
             accentColor="#caf2e7" // Sky blue
