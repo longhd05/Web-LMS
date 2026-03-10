@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../../api/axios'
 import { Notification } from '../../../types/student'
+import { useAuth } from '../../../contexts/AuthContext'
 
 export default function NotificationDropdown() {
+  const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(false)
@@ -28,6 +30,7 @@ export default function NotificationDropdown() {
   }, [isOpen])
 
   const fetchNotifications = async () => {
+    if (!user) return
     setLoading(true)
     try {
       const res = await api.get('/notifications')
