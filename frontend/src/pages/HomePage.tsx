@@ -24,12 +24,6 @@ export default function HomePage() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [ripples, setRipples] = useState<{x: number, y: number, id: number}[]>([])
 
-  // Scroll to top on page load
-  useEffect(() => {
-    window.scrollTo(0, 0)
-    window.history.scrollRestoration = 'manual'
-  }, [])
-
   // Handle scroll effects
   useEffect(() => {
     const handleScroll = () => {
