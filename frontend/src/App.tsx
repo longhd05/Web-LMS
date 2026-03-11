@@ -8,8 +8,6 @@ import ScrollToTop from './components/ScrollToTop'
 import HomePage from './pages/HomePage'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import CommunityList from './pages/community/CommunityList'
-import CommunityDetail from './pages/community/CommunityDetail'
 import StudentDashboard from './pages/student/StudentDashboard'
 import StudentClassDetail from './pages/student/StudentClassDetail'
 import AssignmentDetail from './pages/student/AssignmentDetail'
@@ -60,9 +58,6 @@ export default function App() {
             <Route path="/thu-vien-xanh" element={<ThuVienXanhLibraryPage />} />
             <Route path="/thu-vien-xanh/doc-hieu" element={<DocHieuFullscreenModal />} />
             <Route path="/thu-vien-xanh/tich-hop" element={<TichHopFullscreenModal />} />
-            <Route path="/community" element={<CommunityList />} />
-            <Route path="/community/:communityKey" element={<CommunityDetail />} />
-
             {/* Cong Dong Trac Nhiem routes */}
             <Route path="/cong-dong/hiep-si-xanh" element={<HiepSiXanhPage />} />
             <Route path="/cong-dong/su-gia-hoa-binh" element={<SuGiaHoaBinhPage />} />
@@ -77,7 +72,7 @@ export default function App() {
               }
             />
             <Route
-              path="/hoc-sinh/class/:classId"
+              path="/hoc-sinh/lop-hoc/:classId"
               element={
                 <ProtectedRoute role="STUDENT">
                   <StudentClassDetail />
@@ -85,7 +80,7 @@ export default function App() {
               }
             />
             <Route
-              path="/hoc-sinh/class/:classId/assignment/:assignmentId"
+              path="/hoc-sinh/lop-hoc/:classId/bai-tap/:assignmentId"
               element={
                 <ProtectedRoute role="STUDENT">
                   <AssignmentDetail />
@@ -93,7 +88,7 @@ export default function App() {
               }
             />
             <Route
-              path="/hoc-sinh/products"
+              path="/hoc-sinh/san-pham"
               element={
                 <ProtectedRoute role="STUDENT">
                   <ProductsPage />
@@ -101,7 +96,7 @@ export default function App() {
               }
             />
             <Route
-              path="/hoc-sinh/profile"
+              path="/hoc-sinh/ho-so"
               element={
                 <ProtectedRoute role="STUDENT">
                   <ProfilePage />
@@ -109,7 +104,7 @@ export default function App() {
               }
             />
             <Route
-              path="/hoc-sinh/submissions"
+              path="/hoc-sinh/bai-nop"
               element={
                 <ProtectedRoute role="STUDENT">
                   <Submissions />
@@ -117,7 +112,7 @@ export default function App() {
               }
             />
             <Route
-              path="/hoc-sinh/notifications"
+              path="/hoc-sinh/thong-bao"
               element={
                 <ProtectedRoute role="STUDENT">
                   <Notifications />
@@ -135,7 +130,7 @@ export default function App() {
               }
             />
             <Route
-              path="/giao-vien/class/:classId"
+              path="/giao-vien/lop-hoc/:classId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <TeacherClassDetail />
@@ -143,7 +138,7 @@ export default function App() {
               }
             />
             <Route
-              path="/giao-vien/create-assignment/:classId"
+              path="/giao-vien/tao-bai-tap/:classId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <CreateAssignment />
@@ -151,7 +146,7 @@ export default function App() {
               }
             />
             <Route
-              path="/giao-vien/review/:submissionId"
+              path="/giao-vien/xem-bai/:submissionId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <ReviewSubmission />
@@ -159,7 +154,7 @@ export default function App() {
               }
             />
             <Route
-              path="/giao-vien/notifications"
+              path="/giao-vien/thong-bao"
               element={
                 <ProtectedRoute role="TEACHER">
                   <TeacherNotifications />

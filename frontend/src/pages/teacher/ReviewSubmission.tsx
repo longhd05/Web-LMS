@@ -160,7 +160,7 @@ export default function ReviewSubmission() {
         <nav className="mb-6 flex items-center gap-2 text-sm text-gray-600">
           <Link to="/giao-vien/trang-chu" className="hover:underline">Lớp học</Link>
           <span>/</span>
-          <Link to={`/giao-vien/class/${submission.assignment.class.id}`} className="hover:underline">
+          <Link to={`/giao-vien/lop-hoc/${submission.assignment.class.id}`} className="hover:underline">
             {submission.assignment.class.name}
           </Link>
           <span>/</span>
