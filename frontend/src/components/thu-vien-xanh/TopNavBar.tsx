@@ -2,6 +2,8 @@ import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { type ThuVienXanhMode } from '../../types/thuVienXanh'
 import thuVienLogo from '../../img/1x/logo-thu-vien.png'
+import { useAuth } from '../../contexts/AuthContext'
+import NotificationBell from '../NotificationBell'
 
 export interface ThuVienXanhSearchResult {
   itemId: string
@@ -30,6 +32,7 @@ export default function TopNavBar({
   onSelectSearchResult,
   loadingResults = false,
 }: TopNavBarProps) {
+  const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
 
@@ -130,7 +133,23 @@ export default function TopNavBar({
           </div>
         </form>
 
-        <div className="w-8 sm:w-20" />
+        <div className="flex items-center gap-3 shrink-0">
+          {user && (
+            <span className="hidden sm:block text-sm font-bold uppercase tracking-wide text-white whitespace-nowrap">
+              Xin chào, {user.name}
+            </span>
+          )}
+          {user && <NotificationBell role={user.role} />}
+          {user && (
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white font-bold text-sm">
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.name} className="h-full w-full rounded-full object-cover" />
+              ) : (
+                <span>{user.name.charAt(0).toUpperCase()}</span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   )
