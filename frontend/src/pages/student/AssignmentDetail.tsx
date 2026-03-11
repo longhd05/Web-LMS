@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import StudentTopNavBar from '../../components/student/Layout/StudentTopNavBar'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
 import api from '../../api/axios'
+import { backIn } from 'framer-motion'
+import { button } from 'framer-motion/client'
 
 interface ParsedContent {
   text: string
@@ -157,7 +159,7 @@ export default function AssignmentDetail() {
       await api.post(`/assignments/${assignmentId}/submissions`, payload)
       if (status === 'SUBMITTED') {
         alert('✓ Nộp bài thành công!')
-        navigate(`/hoc-sinh/class/${classId}`)
+        navigate(`/hoc-sinh/lop-hoc/${classId}`)
       } else {
         alert('✓ Đã lưu bản nháp!')
       }
@@ -188,7 +190,7 @@ export default function AssignmentDetail() {
             <p className="font-bold text-red-700">{error || 'Không tìm thấy bài tập'}</p>
           </div>
           <button
-            onClick={() => navigate(`/hoc-sinh/class/${classId}`)}
+            onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
             className="mt-4 font-bold text-[#1f3f8f] hover:underline"
           >
             ← Quay lại
@@ -204,25 +206,29 @@ export default function AssignmentDetail() {
       <StudentTopNavBar />
 
       {/* Sub-header: Back arrow + Title + Type label */}
-      <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-4">
+      <div className="grid grid-cols-[64px_1fr_180px] items-center px-6 py-4">
+        {/* Back button */}
+        <div className="flex justify-start">
           <button
-            onClick={() => navigate(`/hoc-sinh/class/${classId}`)}
-            className="text-[#1f3f8f] transition-transform hover:scale-110"
+            onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
+            className="transition-transform hover:scale-110"
             title="Quay lại"
           >
-            <svg className="h-10 w-10" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M14 7l-5 5 5 5V7z" />
-              <rect x="4" y="4" width="2" height="16" rx="1" />
-            </svg>
+            <img src={'/src/img/SVG/back-button.svg'} alt="Quay lại" className="h-10 w-10 object-contain" />
           </button>
-          <h1 className="text-2xl font-black text-[#1f3f8f]">
-            {assignment.libraryItem.title}
-          </h1>
         </div>
-        <h2 className="text-2xl font-black uppercase text-[#1f3f8f]">
-          {assignment.type === 'READING' ? 'Đọc hiểu' : 'Tích hợp'}
-        </h2>
+
+        {/* Title */}
+        <h1 className="text-center text-2xl font-black text-[#1f3f8f]">
+          {assignment.libraryItem.title}
+        </h1>
+
+        {/* Type */}
+        <div className="flex justify-end">
+          <h2 className="text-2xl font-black uppercase text-[#1f3f8f]">
+            {assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
+          </h2>
+        </div>
       </div>
 
       {/* Main Content - Two Panel Layout */}
@@ -236,7 +242,7 @@ export default function AssignmentDetail() {
           <button
             onClick={() => {
               if (window.confirm('Bạn có chắc muốn thoát? Dữ liệu chưa lưu sẽ bị mất.')) {
-                navigate(`/hoc-sinh/class/${classId}`)
+                navigate(`/hoc-sinh/lop-hoc/${classId}`)
               }
             }}
             className="mb-6 self-start rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow transition-colors hover:bg-gray-400"

@@ -101,7 +101,7 @@ export default function Header() {
             <span
               className={
                 isTeacher
-                  ? 'hidden text-xs font-bold uppercase tracking-wide text-white/95 sm:block'
+                  ? 'hidden text-l font-bold uppercase tracking-wide text-white/95 sm:block'
                   : 'hidden text-base font-bold text-gray-900 sm:block'
               }
             >
