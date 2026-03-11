@@ -60,8 +60,8 @@ router.get('/:id', authenticate, async (req: Request, res: Response): Promise<vo
       libraryItem: true,
       class: { include: { teacher: { select: { id: true, name: true, email: true } } } },
       submissions: req.user!.role === 'TEACHER'
-        ? { include: { student: { select: { id: true, name: true, email: true } }, review: true } }
-        : { where: { studentId: req.user!.userId }, include: { review: true } },
+        ? { include: { student: { select: { id: true, name: true, email: true } }, review: true, integrationFile: true } }
+        : { where: { studentId: req.user!.userId }, include: { review: true, integrationFile: true } },
     },
   });
 
