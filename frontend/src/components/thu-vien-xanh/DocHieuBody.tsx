@@ -26,9 +26,9 @@ export default function DocHieuBody({
 }: DocHieuBodyProps) {
   const leftPanel = (
     <div>
-      <p className="font-bold text-blue-900">Ngữ liệu</p>
+      <p className="font-bold text-blue-900 text-center">Ngữ liệu</p>
       <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.passageContent}</div>
-      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-white/80 flex items-center justify-center text-slate-500">
+      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white">
         {content.passageImageUrl ? (
           <img src={content.passageImageUrl} alt={content.passageTitle} className="w-full h-full rounded-2xl object-cover" />
         ) : (
@@ -113,13 +113,15 @@ export default function DocHieuBody({
         />
       </section>
 
-      <button
-        onClick={onSubmit}
-        disabled={submitted}
-        className="w-full sm:w-auto rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-400 text-white font-extrabold"
-      >
-        {submitted ? 'ĐÃ NỘP' : 'NỘP BÀI'}
-      </button>
+      <div className="flex justify-end">
+        <button
+          onClick={onSubmit}
+          disabled={submitted}
+          className="rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-400 text-white font-extrabold"
+        >
+          {submitted ? 'ĐÃ NỘP' : 'NỘP BÀI'}
+        </button>
+      </div>
     </div>
   )
 
