@@ -76,7 +76,9 @@ export default function AssignmentDetail() {
           if (existingSub.readingAnswersJson) {
             try {
               setAnswers(JSON.parse(existingSub.readingAnswersJson))
-            } catch { /* ignore parse errors */ }
+            } catch (e) {
+              console.warn('Failed to parse readingAnswersJson:', e)
+            }
           }
           if (existingSub.integrationFile) {
             setUploadedFileId(existingSub.integrationFile.id)
