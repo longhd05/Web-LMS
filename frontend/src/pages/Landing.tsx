@@ -74,7 +74,7 @@ export default function Landing() {
             icon="🌐"
             title="Cộng đồng học tập"
             description="Chia sẻ và xem bài làm xuất sắc từ các học sinh trong ba cộng đồng học tập đặc biệt."
-            link="/community"
+            link="/cong-dong/hiep-si-xanh"
             linkText="Khám phá cộng đồng"
           />
         </div>

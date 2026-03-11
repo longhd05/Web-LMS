@@ -192,7 +192,7 @@ export default function ClassDetail() {
                   <AssignmentCard
                     key={assignment.id}
                     assignment={assignment}
-                    onClick={() => navigate(`/hoc-sinh/class/${classId}/assignment/${assignment.id}`)}
+                    onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}/bai-tap/${assignment.id}`)}
                   />
                 ))}
               </div>
@@ -236,7 +236,7 @@ export default function ClassDetail() {
             <p className="mt-4 text-lg text-[#1f3f8f]">
               Hoặc xem tất cả sản phẩm tại{' '}
               <button
-                onClick={() => navigate('/hoc-sinh/products')}
+                onClick={() => navigate('/hoc-sinh/san-pham')}
                 className="font-extrabold text-teal-600 hover:underline"
               >
                 trang Sản phẩm
