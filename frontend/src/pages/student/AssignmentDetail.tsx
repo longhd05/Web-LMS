@@ -90,7 +90,7 @@ export default function AssignmentDetail() {
       
       await api.post(`/assignments/${assignmentId}/submit`, payload)
       alert('✓ Nộp bài thành công!')
-      navigate(`/hoc-sinh/class/${classId}`)
+      navigate(`/hoc-sinh/lop-hoc/${classId}`)
     } catch (err: any) {
       alert(err.response?.data?.message || 'Không thể nộp bài. Vui lòng thử lại.')
     } finally {
@@ -113,7 +113,7 @@ export default function AssignmentDetail() {
           <p className="font-bold text-red-700">{error || 'Không tìm thấy bài tập'}</p>
         </div>
         <button
-          onClick={() => navigate(`/hoc-sinh/class/${classId}`)}
+          onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
           className="mt-4 font-bold text-[#1f3f8f] hover:underline"
         >
           ← Quay lại
@@ -131,7 +131,7 @@ export default function AssignmentDetail() {
       {/* Top Navigation */}
       <div className="flex items-center justify-between border-b-4 border-[#31b8ca] bg-gradient-to-r from-[#153177] to-[#1f849a] px-6 py-4 shadow-[inset_0_-2px_0_0_rgba(138,233,160,0.5)]">
         <button
-          onClick={() => navigate(`/hoc-sinh/class/${classId}`)}
+          onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
           className="flex items-center gap-2 text-lg font-bold text-white transition-transform hover:scale-105"
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

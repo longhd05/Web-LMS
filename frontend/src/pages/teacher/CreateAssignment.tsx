@@ -93,7 +93,7 @@ export default function CreateAssignment() {
         title: title.trim() || undefined,
         description: description.trim() || undefined,
       })
-      navigate(`/giao-vien/class/${classId}`)
+      navigate(`/giao-vien/lop-hoc/${classId}`)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
       setError(msg ?? 'Tạo bài tập thất bại.')
@@ -264,7 +264,7 @@ export default function CreateAssignment() {
 
             <div className="grid grid-cols-2 gap-4 pt-2 sm:gap-6">
               <Link
-                to={`/giao-vien/class/${classId}`}
+                to={`/giao-vien/lop-hoc/${classId}`}
                 className="mx-auto w-full max-w-[190px] rounded-[18px] border-2 border-[#cfd4d9] bg-[#a8aaad] py-2.5 text-center text-base font-bold uppercase text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
               >
                 Hủy

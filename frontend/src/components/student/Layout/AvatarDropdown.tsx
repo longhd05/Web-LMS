@@ -51,7 +51,7 @@ export default function AvatarDropdown() {
           <div className="py-2">
             <button
               onClick={() => {
-                navigate('/hoc-sinh/profile')
+                navigate('/hoc-sinh/ho-so')
                 setIsOpen(false)
               }}
               className="w-full px-4 py-2 text-left text-[#1f3f8f] font-semibold hover:bg-cyan-50 transition"
