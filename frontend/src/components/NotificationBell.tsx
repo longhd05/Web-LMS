@@ -93,7 +93,7 @@ export default function NotificationBell({ role, theme = 'default' }: Notificati
     }
   }
 
-  const notifPath = role === 'TEACHER' ? '/giao-vien/notifications' : '/hoc-sinh/notifications'
+  const notifPath = role === 'TEACHER' ? '/giao-vien/thong-bao' : '/hoc-sinh/thong-bao'
 
   const typeLabel: Record<string, string> = {
     STUDENT_JOINED: 'Học sinh tham gia lớp',
