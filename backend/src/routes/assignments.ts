@@ -13,6 +13,8 @@ const createAssignmentSchema = z.object({
   type: z.enum(['READING', 'INTEGRATION']),
   mode: z.enum(['INDIVIDUAL', 'GROUP']).default('INDIVIDUAL'),
   dueAt: z.string().datetime().optional().nullable(),
+  title: z.string().max(200).optional(),
+  description: z.string().max(2000).optional(),
 });
 
 router.post('/', authenticate, requireRole('TEACHER'), async (req: Request, res: Response): Promise<void> => {
@@ -21,7 +23,7 @@ router.post('/', authenticate, requireRole('TEACHER'), async (req: Request, res:
     res.status(400).json({ error: parsed.error.flatten() });
     return;
   }
-  const { classId, libraryItemId, type, mode, dueAt } = parsed.data;
+  const { classId, libraryItemId, type, mode, dueAt, title, description } = parsed.data;
 
   const cls = await prisma.class.findUnique({ where: { id: classId } });
   if (!cls) {
@@ -47,6 +49,8 @@ router.post('/', authenticate, requireRole('TEACHER'), async (req: Request, res:
       mode,
       dueAt: dueAt ? new Date(dueAt) : null,
       createdBy: req.user!.userId,
+      title,
+      description,
     },
     include: { libraryItem: true, class: true },
   });

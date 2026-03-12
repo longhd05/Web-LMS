@@ -11,6 +11,8 @@ interface Assignment {
   mode: 'INDIVIDUAL' | 'GROUP'
   dueAt: string | null
   createdAt: string
+  title: string | null
+  description: string | null
   libraryItem: { id: string; title: string }
 }
 
@@ -279,9 +281,10 @@ export default function TeacherClassDetail() {
                 {cls.assignments.map((a, idx) => (
                   <div key={a.id} className="rounded-[20px] bg-[#cbeff2] px-6 py-5 text-[#1f3f8f]">
                     <div className="mb-2 flex items-start justify-between gap-3">
-                      <h3 className="text-2xl font-extrabold">Bài tập {idx + 1}</h3>
+                      <h3 className="text-2xl font-extrabold">{a.title || `Bài tập ${idx + 1}`}</h3>
                       <button className="text-2xl">⋮</button>
                     </div>
+                    {a.description && <p className="mb-2 text-base text-[#1f3f8f]">{a.description}</p>}
                     <p className="text-lg font-semibold">{a.mode === 'INDIVIDUAL' ? 'Cá nhân' : 'Nhóm'}: {a.libraryItem.title}</p>
                     {a.dueAt && <p className="mt-1 text-sm font-semibold">Ngày hoàn thành: {new Date(a.dueAt).toLocaleDateString('vi-VN')}</p>}
                   </div>
