@@ -66,12 +66,18 @@ type MainTab = 'assignments' | 'students' | 'criteria' | 'pending' | 'community'
 type TaskType = 'READING' | 'INTEGRATION'
 type IconButtonItem = { key: MainTab; label: string; icon: ReactNode }
 
+import assignmentsIcon from "../../../../SVG/hs-bai-tap.svg"
+import studentsIcon from "../../../../SVG/hs-danh-sach.svg"
+import criteriaIcon from "../../../../SVG/hs-bai-cho-duyet.svg"
+import pendingIcon from "../../../../SVG/hs-tieu-chi.svg"
+import communityIcon from "../../../../SVG/hs-cong-dong.svg"
+
 const iconButtons: IconButtonItem[] = [
-  { key: 'assignments', label: 'Bài tập', icon: <BookOpen className="h-8 w-8" /> },
-  { key: 'students', label: 'Danh sách', icon: <ListChecks className="h-8 w-8" /> },
-  { key: 'criteria', label: 'Bài chờ duyệt', icon: <Clock3 className="h-8 w-8" /> },
-  { key: 'pending', label: 'Tiêu chí', icon: <CheckSquare className="h-8 w-8" /> },
-  { key: 'community', label: 'Cộng đồng', icon: <Leaf className="h-8 w-8" /> },
+  { key: 'assignments', label: 'Bài tập', icon: <img src={assignmentsIcon} className="h-8 w-8" /> },
+  { key: 'students', label: 'Danh sách', icon: <img src={studentsIcon} className="h-8 w-8" /> },
+  { key: 'criteria', label: 'Bài chờ duyệt', icon: <img src={criteriaIcon} className="h-8 w-8" /> },
+  { key: 'pending', label: 'Tiêu chí', icon: <img src={pendingIcon} className="h-8 w-8" /> },
+  { key: 'community', label: 'Cộng đồng', icon: <img src={communityIcon} className="h-8 w-8" /> },
 ]
 
 function parseClassAndSchool(input: string): { className: string; schoolName: string } | null {
