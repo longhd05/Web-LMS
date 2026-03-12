@@ -57,6 +57,7 @@ model LibraryItem {
   content   String
   tags      String // JSON array
   level     String
+  type      String   @default("READING")
   createdAt DateTime @default(now())
 
   assignments Assignment[]
