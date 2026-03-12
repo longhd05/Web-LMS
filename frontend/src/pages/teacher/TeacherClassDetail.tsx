@@ -117,26 +117,18 @@ export default function TeacherClassDetail() {
     return Array.from({ length: 10 }, (_, idx) => ids[idx] ?? null)
   }, [cls])
 
-  const submittedStudents = useMemo(() => {
-    const byStudent = new Map<string, { id: string; name: string; email: string; firstSubmittedAt: number }>()
-
-    for (const s of submissions) {
-      const submittedAt = new Date(s.createdAt).getTime()
-      const existing = byStudent.get(s.student.id)
-      if (!existing || submittedAt < existing.firstSubmittedAt) {
-        byStudent.set(s.student.id, {
-          id: s.student.id,
-          name: s.student.name,
-          email: s.student.email,
-          firstSubmittedAt: submittedAt,
-        })
-      }
-    }
-
-    return Array.from(byStudent.values())
-      .sort((a, b) => a.firstSubmittedAt - b.firstSubmittedAt)
+  const studentsInClass = useMemo(() => {
+    if (!cls?.memberships) return []
+    return cls.memberships
+      .map((m) => ({
+        id: m.student.id,
+        name: m.student.name,
+        email: m.student.email,
+        joinedAt: new Date(m.joinedAt).getTime(),
+      }))
+      .sort((a, b) => a.joinedAt - b.joinedAt || a.name.localeCompare(b.name))
       .map(({ id, name, email }) => ({ id, name, email }))
-  }, [submissions])
+  }, [cls])
 
   const submissionStatusByStudentAssignment = useMemo(() => {
     const allowedAssignmentIds = new Set(assignmentIdsByColumn.filter((id): id is string => Boolean(id)))
@@ -165,10 +157,22 @@ export default function TeacherClassDetail() {
     return result
   }, [submissions, assignmentIdsByColumn])
 
-  const getSubmissionStatus = (studentId: string, assignmentId: string | null): SubmissionCellStatus => {
-    if (!assignmentId) return null
+  const getSubmissionStatus = (studentId: string | null, assignmentId: string | null): SubmissionCellStatus => {
+    if (!studentId || !assignmentId) return null
     return submissionStatusByStudentAssignment.get(`${studentId}:${assignmentId}`) ?? null
   }
+
+  const displayStudents = useMemo(() => {
+    const minRows = 10
+    if (studentsInClass.length >= minRows) return studentsInClass
+    const placeholders = Array.from({ length: minRows - studentsInClass.length }, (_, idx) => ({
+      id: `__placeholder__${idx}`,
+      name: '',
+      email: '',
+      placeholder: true,
+    }))
+    return [...studentsInClass, ...placeholders]
+  }, [studentsInClass])
 
   if (loading) {
     return (
@@ -332,21 +336,15 @@ export default function TeacherClassDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {submittedStudents.length === 0 && (
-                      <tr>
-                        <td colSpan={12} className="rounded-b-[20px] border border-[#7ea2e0] px-4 py-8 text-base font-semibold text-[#1f3f8f]">
-                          Chưa có học sinh nộp bài.
-                        </td>
-                      </tr>
-                    )}
-                    {submittedStudents.map((student, rowIdx) => {
-                      const isLastRow = rowIdx === submittedStudents.length - 1
+                    {displayStudents.map((student, rowIdx) => {
+                      const isLastRow = rowIdx === displayStudents.length - 1
+                      const studentId = student.placeholder ? null : student.id
                       return (
                         <tr key={student.id} className="text-sm font-semibold">
                           <td className={`${isLastRow ? 'rounded-bl-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>{rowIdx + 1}</td>
                           <td className="border border-[#7ea2e0] px-3 py-2 text-left">{student.name}</td>
                           {assignmentIdsByColumn.map((assignmentId, colIdx) => {
-                            const status = getSubmissionStatus(student.id, assignmentId)
+                            const status = getSubmissionStatus(studentId, assignmentId)
                             return (
                               <td key={colIdx} className={`${isLastRow && colIdx === 9 ? 'rounded-br-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>
                                 {!status && <span className="text-gray-300">•</span>}
