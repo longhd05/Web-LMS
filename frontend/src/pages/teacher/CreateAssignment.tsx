@@ -40,11 +40,23 @@ export default function CreateAssignment() {
   }, [classId])
 
   useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const res = await api.get('/library', { params: { search: search || undefined, limit: 20, type } })
+        setLibraryItems(res.data.data)
+      } catch {
+        // silent
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [search, type])
+
+  useEffect(() => {
     api
-      .get('/library', { params: { limit: 20 } })
+      .get('/library', { params: { limit: 20, type } })
       .then((res) => setLibraryItems(res.data.data))
       .catch(() => {})
-  }, [])
+  }, [type])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -141,10 +153,11 @@ export default function CreateAssignment() {
 
                 {typeOpen && (
                   <div className="absolute left-0 right-0 top-10 z-20 overflow-hidden rounded-b-[14px] border-2 border-t-0 border-[#6f8ed6] bg-[#b8dadd]">
-                    <button
+                     <button
                       type="button"
                       onClick={() => {
                         setType('READING')
+                        setSelectedItem(null)
                         setTypeOpen(false)
                       }}
                       className={`block w-full pl-6 py-1.5 text-left text-xl leading-none ${
@@ -157,6 +170,7 @@ export default function CreateAssignment() {
                       type="button"
                       onClick={() => {
                         setType('INTEGRATION')
+                        setSelectedItem(null)
                         setTypeOpen(false)
                       }}
                       className={`block w-full pl-6 py-1.5 text-left text-xl leading-none ${

@@ -25,6 +25,7 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER') => Promise<void>
   logout: () => Promise<void>
+  updateUser: (updates: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -80,6 +81,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }, [])
 
+  const updateUser = useCallback((updates: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return prev
+      const updated = { ...prev, ...updates }
+      localStorage.setItem('lms_user', JSON.stringify(updated))
+      return updated
+    })
+  }, [])
+
   // Default logic (adjust if your backend encodes this differently)
   const isClassStudent = !!user && user.role === 'STUDENT' && !!user.className
   const isIndependentStudent = !!user && user.role === 'STUDENT' && !user.className
@@ -93,7 +103,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isIndependentStudent,
       login,
       register,
-      logout
+      logout,
+      updateUser
     }}>
       {children}
     </AuthContext.Provider>
