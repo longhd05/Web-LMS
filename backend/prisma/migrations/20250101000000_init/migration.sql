@@ -49,8 +49,6 @@ CREATE TABLE "Assignment" (
     "dueAt" DATETIME,
     "createdBy" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "title" TEXT,
-    "description" TEXT,
     CONSTRAINT "Assignment_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Assignment_libraryItemId_fkey" FOREIGN KEY ("libraryItemId") REFERENCES "LibraryItem" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
