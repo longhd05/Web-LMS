@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import AvatarDropdown from './AvatarDropdown'
-import NotificationDropdown from './NotificationDropdown'
+import NotificationBell from '../../NotificationBell'
 
 const thuVienLogo = new URL('../../../img/1x/logo-thu-vien.png', import.meta.url).href
 const MAX_SEARCH_LENGTH = 120
@@ -55,7 +55,7 @@ export default function StudentTopNavBar() {
               Xin chào, {user.name}
             </span>
           )}
-          <NotificationDropdown />
+          <NotificationBell role="STUDENT" />
           <AvatarDropdown />
         </div>
       </div>

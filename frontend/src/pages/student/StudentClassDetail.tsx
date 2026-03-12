@@ -9,15 +9,19 @@ import { ClassInfo, Assignment } from '../../types/student'
 import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
 import suGiaHoaBinhImg from '../../img/1x/home-su-gia-hoa-binh.png'
 
+import assignmentsIcon from "../../../../SVG/hs-bai-tap.svg"
+import rubricIcon from "../../../../SVG/hs-tieu-chi.svg"
+import communityIcon from "../../../../SVG/hs-cong-dong.svg"
+
 type TaskType = 'READING' | 'INTEGRATION'
 type TabType = 'assignments' | 'rubric' | 'products' | 'community'
 type IconButtonItem = { key: TabType; label: string; icon: ReactNode }
 
 const iconButtons: IconButtonItem[] = [
-  { key: 'assignments', label: 'Bài tập', icon: <BookOpen className="h-8 w-8" /> },
-  { key: 'rubric', label: 'Tiêu chí', icon: <CheckSquare className="h-8 w-8" /> },
+  { key: 'assignments', label: 'Bài tập', icon: <img src={assignmentsIcon} className="h-8 w-8" /> },
+  { key: 'rubric', label: 'Tiêu chí', icon: <img src={rubricIcon} className="h-8 w-8" /> },
   { key: 'products', label: 'Sản phẩm', icon: <Award className="h-8 w-8" /> },
-  { key: 'community', label: 'Cộng đồng', icon: <Leaf className="h-8 w-8" /> },
+  { key: 'community', label: 'Cộng đồng', icon: <img src={communityIcon} className="h-8 w-8" /> },
 ]
 
 function parseClassAndSchool(input: string): { className: string; schoolName: string } | null {

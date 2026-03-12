@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import AvatarDropdownSimple from './AvatarDropdownSimple'
 import NotificationBell from '../../NotificationBell'
+import { useAuth } from '../../../contexts/AuthContext'
 
 const thuVienLogo = new URL('../../../img/1x/logo-thu-vien.png', import.meta.url).href
 const MAX_SEARCH_LENGTH = 120
 
 export default function CongDongTopNavBar() {
   const [search, setSearch] = useState('')
+  const { user } = useAuth()
 
   return (
     <header className="relative z-30 bg-[linear-gradient(180deg,#153177_0%,#1f849a_100%)] px-4 py-4 sm:px-6 lg:px-8">
@@ -48,7 +50,7 @@ export default function CongDongTopNavBar() {
         
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
-          <NotificationBell />
+          <NotificationBell role={user?.role ?? 'STUDENT'} />
           <AvatarDropdownSimple />
         </div>
       </div>
