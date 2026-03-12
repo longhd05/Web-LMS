@@ -102,6 +102,44 @@ npm run db:migrate   # Chạy migration tạo bảng
 npm run db:seed      # Thêm dữ liệu mẫu (tuỳ chọn)
 ```
 
+### ⚠️ Cập nhật database local khi có thay đổi từ Dev khác
+
+Mỗi khi một thành viên trong nhóm push thay đổi liên quan đến database (schema hoặc dữ liệu seed), các thành viên còn lại cần **thực hiện các bước sau** để đồng bộ:
+
+**1. Pull code mới nhất:**
+```bash
+git pull
+```
+
+**2. Kiểm tra xem có thay đổi schema không** (`backend/prisma/schema.prisma`).  
+Nếu có → chạy migration:
+```bash
+cd backend
+npm run db:migrate
+```
+
+**3. Kiểm tra xem có thay đổi seed không** (`backend/prisma/seed.ts`).  
+Nếu có → chạy lại seed:
+```bash
+cd backend
+npm run db:seed
+```
+
+> **Lưu ý:** Nếu cấu trúc database thay đổi lớn (xóa bảng, đổi tên cột…) và cần reset sạch:
+> ```bash
+> cd backend
+> npm run db:reset   # Xóa toàn bộ dữ liệu, chạy lại migration + seed
+> ```
+> ⚠️ Lệnh này **xóa toàn bộ dữ liệu** trong database local, chỉ dùng khi cần thiết.
+
+**Tóm tắt nhanh – quy trình làm việc nhóm:**
+| Tình huống | Lệnh cần chạy |
+|------------|---------------|
+| Dev khác thay đổi `schema.prisma` | `npm run db:migrate` |
+| Dev khác thay đổi `seed.ts` | `npm run db:seed` |
+| Cả hai thay đổi | `npm run db:migrate` rồi `npm run db:seed` |
+| Database bị lỗi / cần làm mới hoàn toàn | `npm run db:reset` |
+
 Khởi động server (development):
 
 ```bash

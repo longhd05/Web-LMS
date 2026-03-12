@@ -5,20 +5,30 @@ import { optionalAuth } from '../middleware/auth';
 const router = Router();
 
 router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
-  const { search, page = '1', limit = '10' } = req.query as Record<string, string>;
+  const { search, page = '1', limit = '10', type } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page, 10));
   const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10)));
   const skip = (pageNum - 1) * limitNum;
 
-  const where = search
-    ? {
-        OR: [
-          { title: { contains: search } },
-          { tags: { contains: search } },
-          { level: { contains: search } },
-        ],
-      }
-    : {};
+  const conditions: object[] = [];
+  if (search) {
+    conditions.push({
+      OR: [
+        { title: { contains: search } },
+        { tags: { contains: search } },
+        { level: { contains: search } },
+      ],
+    });
+  }
+  if (type) {
+    conditions.push({ type });
+  }
+  let where: object = {};
+  if (conditions.length === 1) {
+    where = conditions[0];
+  } else if (conditions.length > 1) {
+    where = { AND: conditions };
+  }
 
   const [items, total] = await Promise.all([
     prisma.libraryItem.findMany({ where, skip, take: limitNum, orderBy: { createdAt: 'desc' } }),
