@@ -42,6 +42,7 @@ type SubmissionCellStatus = 'APPROVED' | 'PENDING' | 'REJECTED' | null
 type MainTab = 'assignments' | 'students' | 'criteria' | 'pending' | 'community'
 type TaskType = 'READING' | 'INTEGRATION'
 type IconButtonItem = { key: MainTab; label: string; icon: ReactNode }
+type DisplayStudent = { id: string; name: string; email: string; placeholder?: boolean }
 
 const iconButtons: IconButtonItem[] = [
   { key: 'assignments', label: 'Bài tập', icon: <BookOpen className="h-8 w-8" /> },
@@ -117,17 +118,18 @@ export default function TeacherClassDetail() {
     return Array.from({ length: 10 }, (_, idx) => ids[idx] ?? null)
   }, [cls])
 
-  const studentsInClass = useMemo(() => {
+  const studentsInClass = useMemo<DisplayStudent[]>(() => {
     if (!cls?.memberships) return []
     return cls.memberships
       .map((m) => ({
         id: m.student.id,
         name: m.student.name,
         email: m.student.email,
+        placeholder: false,
         joinedAt: new Date(m.joinedAt).getTime(),
       }))
       .sort((a, b) => a.joinedAt - b.joinedAt || a.name.localeCompare(b.name))
-      .map(({ id, name, email }) => ({ id, name, email }))
+      .map(({ id, name, email, placeholder }) => ({ id, name, email, placeholder }))
   }, [cls])
 
   const submissionStatusByStudentAssignment = useMemo(() => {
