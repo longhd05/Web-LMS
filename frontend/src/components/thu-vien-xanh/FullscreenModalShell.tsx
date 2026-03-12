@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import NotificationBell from '../NotificationBell'
 
 interface FullscreenModalShellProps {
   titleLeft: string
@@ -194,16 +195,18 @@ export default function FullscreenModalShell({
       <div className="h-[calc(100vh-80px)] flex flex-col">
         <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
           <div className="relative">
-            <button
-              ref={backButtonRef}
-              onClick={requestClose}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#1f3f8f] text-white border border-cyan-200"
-              aria-label="Quay lại"
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
+          <button
+            ref={backButtonRef}
+            onClick={requestClose}
+            className="inline-flex items-center justify-center w-15 h-15"
+            aria-label="Quay lại"
+          >
+            <img
+              src="/src/img/SVG/back-button.svg"
+              alt="Back"
+              className="w-10 h-10 object-contain"
+            />
+          </button>
 
             {isPopoverOpen && (
               <div

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import AvatarDropdownSimple from './AvatarDropdownSimple'
-import NotificationDropdown from './NotificationDropdown'
+import NotificationBell from '../../NotificationBell'
 
 const thuVienLogo = new URL('../../../img/1x/logo-thu-vien.png', import.meta.url).href
 const MAX_SEARCH_LENGTH = 120
@@ -48,7 +48,7 @@ export default function CongDongTopNavBar() {
         
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
-          <NotificationDropdown />
+          <NotificationBell />
           <AvatarDropdownSimple />
         </div>
       </div>
