@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import AvatarDropdown from './AvatarDropdown'
 import NotificationBell from '../../NotificationBell'
@@ -9,7 +9,31 @@ const MAX_SEARCH_LENGTH = 120
 
 export default function StudentTopNavBar() {
   const [search, setSearch] = useState('')
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const [greetingOpen, setGreetingOpen] = useState(false)
+  const greetingRef = useRef<HTMLDivElement | null>(null)
+  const greetingButtonRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    if (!greetingOpen) return
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node
+      const isInsideButton = greetingButtonRef.current?.contains(target)
+      const isInsideDropdown = greetingRef.current?.contains(target)
+      if (!isInsideButton && !isInsideDropdown) {
+        setGreetingOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [greetingOpen])
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/dang-nhap')
+  }
 
   return (
     <header className="relative z-30 bg-[linear-gradient(180deg,#153177_0%,#1f849a_100%)] px-4 py-3 sm:px-6 lg:px-8">
@@ -51,9 +75,28 @@ export default function StudentTopNavBar() {
         {/* Right: Greeting + Actions */}
         <div className="flex items-center gap-3">
           {user && (
-            <span className="hidden text-sm font-semibold uppercase tracking-wide text-white sm:block">
-              Xin chào, {user.name}
-            </span>
+            <div className="relative hidden sm:block">
+              <button
+                ref={greetingButtonRef}
+                onClick={() => setGreetingOpen((v) => !v)}
+                className="text-sm font-semibold uppercase tracking-wide text-white hover:text-white/80"
+              >
+                Xin chào, {user.name}
+              </button>
+              {greetingOpen && (
+                <div
+                  ref={greetingRef}
+                  className="absolute left-0 top-full mt-2 min-w-[130px] rounded-xl border border-cyan-200 bg-white p-1 shadow-lg z-50"
+                >
+                  <button
+                    onClick={handleLogout}
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-blue-900 hover:bg-blue-50"
+                  >
+                    Đăng xuất
+                  </button>
+                </div>
+              )}
+            </div>
           )}
           <NotificationBell role="STUDENT" />
           <AvatarDropdown />
