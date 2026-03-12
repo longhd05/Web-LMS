@@ -4,7 +4,6 @@ import path from 'path';
 import fs from 'fs';
 import { prisma } from '../lib/prisma';
 import { authenticate } from '../middleware/auth';
-import { requireRole } from '../middleware/rbac';
 
 const router = Router();
 
@@ -45,7 +44,6 @@ const upload = multer({
 router.post(
   '/upload',
   authenticate,
-  requireRole('STUDENT'),
   (req: Request, res: Response): void => {
     upload.single('file')(req, res, async (err) => {
       if (err) {
