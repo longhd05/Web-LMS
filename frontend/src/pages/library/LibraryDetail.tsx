@@ -96,9 +96,7 @@ export default function LibraryDetail() {
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const uploadRes = await api.post('/files/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      const uploadRes = await api.post('/files/upload', formData)
       const fileId = uploadRes.data.data.id
 
       await api.post(`/assignments/${assignmentId}/submissions`, {
