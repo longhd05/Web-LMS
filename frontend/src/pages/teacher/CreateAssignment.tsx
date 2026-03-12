@@ -1,4 +1,4 @@
-﻿import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+﻿import { FormEvent, useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import api from '../../api/axios'
@@ -20,8 +20,6 @@ export default function CreateAssignment() {
   const [showDropdown, setShowDropdown] = useState(false)
   const [type, setType] = useState<'READING' | 'INTEGRATION'>('READING')
   const [typeOpen, setTypeOpen] = useState(false)
-  const [mode, setMode] = useState<'INDIVIDUAL' | 'GROUP'>('INDIVIDUAL')
-  const [modeOpen, setModeOpen] = useState(false)
   const [dueAt, setDueAt] = useState('')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -29,8 +27,6 @@ export default function CreateAssignment() {
   const [error, setError] = useState('')
   const [className, setClassName] = useState('')
   const typeDropdownRef = useRef<HTMLDivElement | null>(null)
-  const modeDropdownRef = useRef<HTMLDivElement | null>(null)
-  const textDropdownRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     api
@@ -40,29 +36,29 @@ export default function CreateAssignment() {
   }, [classId])
 
   useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const res = await api.get('/library', { params: { search: search || undefined, limit: 20 } })
+        setLibraryItems(res.data.data)
+      } catch {
+        // silent
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  useEffect(() => {
     api
-      .get('/library', { params: { limit: 200 } })
+      .get('/library', { params: { limit: 20 } })
       .then((res) => setLibraryItems(res.data.data))
       .catch(() => {})
   }, [])
 
-  const filteredLibraryItems = useMemo(() => {
-    const keyword = search.trim().toLowerCase()
-    if (!keyword) return libraryItems
-    return libraryItems.filter((item) => item.title.toLowerCase().includes(keyword))
-  }, [libraryItems, search])
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node
-      if (typeDropdownRef.current && !typeDropdownRef.current.contains(target)) {
+      if (!typeDropdownRef.current) return
+      if (!typeDropdownRef.current.contains(event.target as Node)) {
         setTypeOpen(false)
-      }
-      if (modeDropdownRef.current && !modeDropdownRef.current.contains(target)) {
-        setModeOpen(false)
-      }
-      if (textDropdownRef.current && !textDropdownRef.current.contains(target)) {
-        setShowDropdown(false)
       }
     }
 
@@ -92,7 +88,7 @@ export default function CreateAssignment() {
         classId,
         libraryItemId: selectedItem.id,
         type,
-        mode,
+        mode: 'INDIVIDUAL',
         dueAt: dueAt ? new Date(dueAt).toISOString() : null,
         title: title.trim() || undefined,
         description: description.trim() || undefined,
@@ -175,46 +171,9 @@ export default function CreateAssignment() {
                 <span className="mr-2 text-[#365aac]">•</span>
                 Hình thức:
               </label>
-              <div ref={modeDropdownRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => setModeOpen((v) => !v)}
-                  className={`flex h-10 w-full items-center justify-between border-2 border-[#6f8ed6] bg-[#c8e4e6] pl-6 pr-4 text-left text-lg font-semibold text-[#1f3f8f] ${
-                    modeOpen ? 'rounded-t-[18px] rounded-b-none border-b-0' : 'rounded-full'
-                  }`}
-                >
-                  <span>{mode === 'INDIVIDUAL' ? 'Cá nhân' : 'Nhóm'}</span>
-                  <ChevronDown className={`size-8 text-[#1f3f8f] transition-transform ${modeOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {modeOpen && (
-                  <div className="absolute left-0 right-0 top-10 z-20 overflow-hidden rounded-b-[14px] border-2 border-t-0 border-[#6f8ed6] bg-[#b8dadd]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode('INDIVIDUAL')
-                        setModeOpen(false)
-                      }}
-                      className={`block w-full pl-6 py-1.5 text-left text-xl leading-none ${
-                        mode === 'INDIVIDUAL' ? 'bg-[#25a3b1] text-[#163f8f]' : 'text-[#1f3f8f] hover:bg-[#9dcfd4]'
-                      }`}
-                    >
-                      Cá nhân
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMode('GROUP')
-                        setModeOpen(false)
-                      }}
-                      className={`block w-full pl-6 py-1.5 text-left text-xl leading-none ${
-                        mode === 'GROUP' ? 'bg-[#25a3b1] text-[#163f8f]' : 'text-[#1f3f8f] hover:bg-[#9dcfd4]'
-                      }`}
-                    >
-                      Nhóm
-                    </button>
-                  </div>
-                )}
+              <div className="flex h-10 w-full items-center justify-between rounded-full border-2 border-[#6f8ed6] bg-[#c8e4e6] pl-6 pr-4 text-lg font-semibold text-[#1f3f8f]">
+                <span>Cá nhân</span>
+                <ChevronDown className="size-8 text-[#1f3f8f]" />
               </div>
             </div>
 
@@ -223,56 +182,50 @@ export default function CreateAssignment() {
                 <span className="mr-2 text-[#365aac]">•</span>
                 Văn bản:
               </label>
-              <div ref={textDropdownRef} className="relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!showDropdown) setSearch('')
-                    setShowDropdown((v) => !v)
-                  }}
-                  className={`flex h-10 w-full items-center justify-between border-2 border-[#6f8ed6] bg-[#c8e4e6] pl-6 pr-4 text-left text-lg font-semibold text-[#1f3f8f] ${
-                    showDropdown ? 'rounded-t-[18px] rounded-b-none border-b-0' : 'rounded-full'
-                  }`}
-                >
-                  <span className={`truncate pr-2 ${selectedItem ? '' : 'text-[#4f6fa8]'}`}>{selectedItem?.title || 'Tên văn bản'}</span>
-                  <ChevronDown className={`size-8 text-[#1f3f8f] transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
-                </button>
-
-                {showDropdown && (
-                  <div className="absolute left-0 right-0 top-10 z-20 overflow-hidden rounded-b-[14px] border-2 border-t-0 border-[#6f8ed6] bg-[#b8dadd]">
-                    <div className="border-b border-[#7da3df] bg-[#c8e4e6] px-3 py-2">
-                      <input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Tìm tên văn bản..."
-                        className="h-9 w-full rounded-full border border-[#6f8ed6] bg-white px-4 text-base font-semibold text-[#1f3f8f] placeholder:text-[#4f6fa8] outline-none"
-                      />
+              {selectedItem ? (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedItem(null)}
+                    className="flex h-10 w-full items-center justify-between rounded-full border-2 border-[#6f8ed6] bg-[#c8e4e6] px-5 text-left text-lg font-semibold text-[#1f3f8f]"
+                  >
+                    <span className="truncate pr-2">{selectedItem.title}</span>
+                    <ChevronDown className="size-8 shrink-0 text-[#1f3f8f]" />
+                  </button>
+                </div>
+              ) : (
+                <div className="relative flex h-10 w-full items-center justify-between rounded-full border-2 border-[#6f8ed6] bg-[#c8e4e6] pl-6 pr-4 text-lg font-semibold text-[#1f3f8f]">
+                  <input
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value)
+                      setShowDropdown(true)
+                    }}
+                    onFocus={() => setShowDropdown(true)}
+                    placeholder="Tên văn bản"
+                    className="h-full w-full bg-transparent pr-2 text-lg font-semibold text-[#1f3f8f] placeholder:text-[#4f6fa8] outline-none"
+                  />
+                  <ChevronDown className="size-8 shrink-0 text-[#1f3f8f]" />
+                  {showDropdown && libraryItems.length > 0 && (
+                    <div className="absolute left-0 right-0 top-14 z-10 max-h-64 overflow-y-auto rounded-2xl border border-[#7da3df] bg-white">
+                      {libraryItems.map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedItem(item)
+                            setSearch('')
+                            setShowDropdown(false)
+                          }}
+                          className="block w-full border-b border-gray-100 px-5 py-3 text-left text-base font-semibold text-[#1f3f8f] hover:bg-cyan-50"
+                        >
+                          {item.title}
+                        </button>
+                      ))}
                     </div>
-                    <div className="max-h-64 overflow-y-auto bg-white">
-                      {filteredLibraryItems.length > 0 ? (
-                        filteredLibraryItems.map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedItem(item)
-                              setSearch('')
-                              setShowDropdown(false)
-                            }}
-                            className={`block w-full border-b border-gray-100 px-5 py-3 text-left text-base font-semibold ${
-                              selectedItem?.id === item.id ? 'bg-cyan-100 text-[#163f8f]' : 'text-[#1f3f8f] hover:bg-cyan-50'
-                            }`}
-                          >
-                            {item.title}
-                          </button>
-                        ))
-                      ) : (
-                        <p className="px-5 py-3 text-sm font-semibold text-[#4f6fa8]">Không tìm thấy văn bản phù hợp.</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div>

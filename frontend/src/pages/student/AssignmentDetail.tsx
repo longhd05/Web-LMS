@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import StudentTopNavBar from '../../components/student/Layout/StudentTopNavBar'
-import FullscreenModalShell from '../../components/thu-vien-xanh/FullscreenModalShell'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
 import api from '../../api/axios'
-
-const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
+import { backIn } from 'framer-motion'
+import { button } from 'framer-motion/client'
 
 interface ParsedContent {
   text: string
@@ -110,14 +109,6 @@ export default function AssignmentDetail() {
   const isReviewed = existingSub?.status === 'APPROVED' || existingSub?.status === 'REJECTED'
   const canEdit = !isSubmitted && !isReviewed
 
-  const dirty = useMemo(() => {
-    if (!canEdit) return false
-    if (assignment?.type === 'READING') {
-      return Object.keys(answers).some((k) => answers[k]?.trim())
-    }
-    return !!uploadedFileId
-  }, [assignment, answers, uploadedFileId, canEdit])
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -181,15 +172,10 @@ export default function AssignmentDetail() {
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen bg-center bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
-      >
+      <div className="min-h-screen bg-[#e0f5f5]">
         <StudentTopNavBar />
-        <div className="mx-auto max-w-3xl p-6">
-          <div className="rounded-2xl border border-cyan-200 bg-white p-6 text-slate-700 flex items-center justify-center">
-            <LoadingSpinner />
-          </div>
+        <div className="flex items-center justify-center py-20">
+          <LoadingSpinner />
         </div>
       </div>
     )
@@ -197,14 +183,11 @@ export default function AssignmentDetail() {
 
   if (error || !assignment || !content) {
     return (
-      <div
-        className="min-h-screen bg-center bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
-      >
+      <div className="min-h-screen bg-[#e0f5f5]">
         <StudentTopNavBar />
-        <div className="mx-auto max-w-3xl p-6">
-          <div className="rounded-2xl border border-cyan-200 bg-white p-6 text-red-600">
-            {error || 'Không tìm thấy bài tập'}
+        <div className="mx-auto max-w-2xl px-6 py-12">
+          <div className="rounded-2xl border-2 border-red-300 bg-red-50 px-5 py-4">
+            <p className="font-bold text-red-700">{error || 'Không tìm thấy bài tập'}</p>
           </div>
           <button
             onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
@@ -217,174 +200,214 @@ export default function AssignmentDetail() {
     )
   }
 
-  const leftPanel = (
-    <div>
-      <p className="font-bold text-blue-900 text-center">Ngữ liệu</p>
-      <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.text}</div>
-      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white">
-        {content.imageUrl ? (
-          <img src={content.imageUrl} alt="Ngữ liệu" className="w-full h-full rounded-2xl object-cover" />
-        ) : (
-          <span>Ảnh</span>
-        )}
+  return (
+    <div className="flex min-h-screen flex-col bg-[#e0f5f5]">
+      {/* Header */}
+      <StudentTopNavBar />
+
+      {/* Sub-header: Back arrow + Title + Type label */}
+      <div className="grid grid-cols-[64px_1fr_180px] items-center px-6 py-4">
+        {/* Back button */}
+        <div className="flex justify-start">
+          <button
+            onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
+            className="transition-transform hover:scale-110"
+            title="Quay lại"
+          >
+            <img src={'/src/img/SVG/back-button.svg'} alt="Quay lại" className="h-10 w-10 object-contain" />
+          </button>
+        </div>
+
+        {/* Title */}
+        <h1 className="text-center text-2xl font-black text-[#1f3f8f]">
+          {assignment.libraryItem.title}
+        </h1>
+
+        {/* Type */}
+        <div className="flex justify-end">
+          <h2 className="text-2xl font-black uppercase text-[#1f3f8f]">
+            {assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
+          </h2>
+        </div>
       </div>
-    </div>
-  )
 
-  const rightPanel = (
-    <div className="space-y-5 pr-5">
-      {isReviewed && (
-        <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800 font-bold">
-          ✓ Bài làm đã được chấm
-          {existingSub?.review?.comment && (
-            <p className="mt-1 text-sm font-normal">{existingSub.review.comment}</p>
-          )}
-        </div>
-      )}
+      {/* Main Content - Two Panel Layout */}
+      <div className="flex flex-1 gap-0 overflow-hidden px-4 pb-4">
+        {/* LEFT PANEL - Ngữ liệu (Material) */}
+        <div className="relative flex w-1/2 flex-col overflow-y-auto rounded-l-2xl bg-[#dff5f5] p-6">
+          {/* Decorative circle */}
+          <div className="absolute right-0 top-1/4 h-5 w-5 translate-x-1/2 rounded-full bg-[#3bbfb2]" />
 
-      {isSubmitted && !isReviewed && (
-        <div className="rounded-2xl border border-sky-300 bg-sky-50 px-4 py-3 text-sky-800 font-bold">
-          Đã nộp bài • Đang chờ chấm
-        </div>
-      )}
+          {/* Exit without saving button */}
+          <button
+            onClick={() => {
+              if (window.confirm('Bạn có chắc muốn thoát? Dữ liệu chưa lưu sẽ bị mất.')) {
+                navigate(`/hoc-sinh/lop-hoc/${classId}`)
+              }
+            }}
+            className="mb-6 self-start rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow transition-colors hover:bg-gray-400"
+          >
+            Thoát mà chưa lưu
+          </button>
 
-      {assignment.type === 'READING' && (
-        <section>
-          <h4 className="font-extrabold text-blue-900">Câu hỏi</h4>
-          <div className="mt-3 space-y-4">
-            {content.questions.map((question, idx) => (
-              <article key={question.id} className="rounded-2xl bg-white p-4 border border-cyan-200">
-                <p className="font-semibold text-slate-800">
-                  Câu {idx + 1}: {question.text}
-                  {question.maxMark && (
-                    <span className="ml-2 text-sm font-normal text-gray-500">({question.maxMark} điểm)</span>
-                  )}
-                </p>
-                <textarea
-                  value={answers[question.id] || ''}
-                  onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-                  disabled={!canEdit}
-                  rows={4}
-                  placeholder="Nhập câu trả lời của bạn..."
-                  className="mt-3 w-full rounded-2xl border border-cyan-200 bg-white px-4 py-3 resize-none outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-gray-100 disabled:text-gray-600"
+          {/* Ngữ liệu heading */}
+          <div className="flex flex-1 flex-col items-center justify-center">
+            <h3 className="mb-6 text-center text-2xl font-bold text-[#1f3f8f]">Ngữ liệu</h3>
+
+            {/* Reading text content */}
+            <div className="mb-6 w-full rounded-xl bg-white/70 p-5 text-base leading-relaxed text-gray-800">
+              {content.text}
+            </div>
+
+            {/* Image area */}
+            {content.imageUrl ? (
+              <div className="w-full overflow-hidden rounded-xl">
+                <img
+                  src={content.imageUrl}
+                  alt="Ngữ liệu"
+                  className="h-auto w-full rounded-xl object-cover"
                 />
-              </article>
-            ))}
+              </div>
+            ) : (
+              <div className="flex h-48 w-full items-center justify-center rounded-xl bg-[#1a2a5e] text-lg font-semibold text-white/80">
+                Ảnh
+              </div>
+            )}
           </div>
-          {canEdit && (
-            <div className="mt-5 flex justify-end gap-3">
+        </div>
+
+        {/* Divider with circle */}
+        <div className="relative w-1 bg-[#3bbfb2]">
+          <div className="absolute bottom-8 left-1/2 h-5 w-5 -translate-x-1/2 rounded-full bg-[#3bbfb2]" />
+        </div>
+
+        {/* RIGHT PANEL - Đề bài / Submission */}
+        <div className="relative flex w-1/2 flex-col overflow-y-auto rounded-r-2xl bg-[#dff5f5] p-6">
+          {/* Decorative circle */}
+          <div className="absolute right-4 top-1/4 h-5 w-5 rounded-full bg-[#3bbfb2]" />
+
+          {/* READING type: Show questions */}
+          {assignment.type === 'READING' && content.questions.length > 0 && (
+            <div className="space-y-5">
+              {content.questions.map((question, idx) => (
+                <div key={question.id} className="space-y-2">
+                  <p className="text-lg font-bold text-[#1f3f8f]">
+                    Câu {idx + 1}: {question.text}
+                    {question.maxMark && (
+                      <span className="ml-2 text-sm font-normal text-gray-500">
+                        ({question.maxMark} điểm)
+                      </span>
+                    )}
+                  </p>
+                  <textarea
+                    value={answers[question.id] || ''}
+                    onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
+                    disabled={!canEdit}
+                    rows={4}
+                    placeholder="Nhập câu trả lời của bạn..."
+                    className="w-full rounded-lg border-2 border-gray-300 bg-white p-4 text-base disabled:bg-gray-100 disabled:text-gray-600 focus:border-[#3bbfb2] focus:outline-none"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* INTEGRATION type: Show question + file upload */}
+          {assignment.type === 'INTEGRATION' && (
+            <div className="flex flex-1 flex-col items-center justify-center space-y-6">
+              {/* Đề bài */}
+              <p className="text-xl font-bold text-[#1f3f8f]">
+                Đề bài: {content.questions[0]?.text || content.text}
+              </p>
+
+              {/* File upload area */}
+              {uploadedFileUrl ? (
+                <div className="space-y-3 text-center">
+                  <div className="flex items-center justify-center gap-2 rounded-lg bg-green-50 px-4 py-3">
+                    <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="font-bold text-green-700">✓ {uploadedFileName || 'Đã tải lên file'}</span>
+                  </div>
+                  {canEdit && (
+                    <label className="inline-block cursor-pointer rounded-full bg-[#1f849a] px-5 py-2 font-bold text-white transition-all hover:bg-[#15607a]">
+                      Thay đổi file
+                      <input
+                        type="file"
+                        accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
+                        onChange={handleFileUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center">
+                  <label className="inline-flex cursor-pointer flex-col items-center">
+                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1f849a] text-3xl font-bold text-white shadow-lg transition-transform hover:scale-110">
+                      {uploading ? '...' : '+'}
+                    </span>
+                    <input
+                      type="file"
+                      accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
+                      onChange={handleFileUpload}
+                      disabled={!canEdit || uploading}
+                      className="hidden"
+                    />
+                  </label>
+                  <p className="mt-3 rounded-lg bg-gray-200 px-4 py-1 text-sm text-gray-600">
+                    doc, png, jpeg, mp4
+                  </p>
+                </div>
+              )}
+
+              {/* Submit button */}
+              {canEdit && (
+                <button
+                  onClick={() => handleSubmit('SUBMITTED')}
+                  disabled={submitting}
+                  className="mt-auto self-end rounded-full bg-[#1a2a5e] px-10 py-3 text-lg font-black uppercase text-white shadow-lg transition-all hover:bg-[#0f1d45] disabled:opacity-50"
+                >
+                  {submitting ? 'Đang nộp...' : 'Nộp bài'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* READING Submit button */}
+          {assignment.type === 'READING' && canEdit && (
+            <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => handleSubmit('DRAFT')}
                 disabled={submitting}
-                className="rounded-full bg-slate-400 hover:bg-slate-500 disabled:opacity-50 px-6 py-3 text-sm font-bold uppercase text-white"
+                className="rounded-full bg-gray-400 px-6 py-3 text-sm font-bold uppercase text-white shadow transition-all hover:bg-gray-500 disabled:opacity-50"
               >
                 Lưu nháp
               </button>
               <button
                 onClick={() => handleSubmit('SUBMITTED')}
                 disabled={submitting}
-                className="rounded-full bg-teal-700 hover:bg-teal-800 disabled:opacity-50 px-8 py-3 font-extrabold text-white"
+                className="rounded-full bg-[#1a2a5e] px-10 py-3 text-lg font-black uppercase text-white shadow-lg transition-all hover:bg-[#0f1d45] disabled:opacity-50"
               >
-                {submitting ? 'Đang nộp...' : 'NỘP BÀI'}
+                {submitting ? 'Đang nộp...' : 'Nộp bài'}
               </button>
             </div>
           )}
-        </section>
-      )}
 
-      {assignment.type === 'INTEGRATION' && (
-        <section className="space-y-5">
-          <div>
-            <p className="font-bold text-blue-900">Đề bài:</p>
-            <div className="mt-2 whitespace-pre-wrap text-slate-700 leading-relaxed">
-              {content.questions[0]?.text || content.text}
-            </div>
-          </div>
-
-          {canEdit && (
-            <div>
-              <label className="block font-semibold text-slate-800 mb-2">Tải file bài làm</label>
-              {uploadedFileUrl ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3">
-                    <svg className="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="font-bold text-emerald-700">✓ {uploadedFileName || 'Đã tải lên file'}</span>
-                  </div>
-                  <label className="inline-block cursor-pointer rounded-full bg-teal-700 hover:bg-teal-800 px-5 py-2 font-bold text-white">
-                    Thay đổi file
-                    <input
-                      type="file"
-                      accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
-                      onChange={handleFileUpload}
-                      disabled={uploading}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center w-full">
-                  <label className="flex flex-col items-center justify-center w-full h-48 rounded-2xl border border-dashed cursor-pointer border-cyan-300 bg-white/80 text-slate-600 hover:bg-slate-50 transition-colors">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                      <svg className="w-8 h-8 mb-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
-                      </svg>
-                      <p className="mb-2 text-sm">
-                        <span className="font-semibold">{uploading ? 'Đang tải...' : 'Click để tải file'}</span>
-                        {!uploading && ' hoặc kéo thả vào đây'}
-                      </p>
-                      <p className="text-xs">Định dạng: doc, png, jpeg, mp4</p>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
-                      onChange={handleFileUpload}
-                      disabled={uploading}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
+          {/* Reviewed status */}
+          {isReviewed && (
+            <div className="mt-6 rounded-xl border-2 border-green-300 bg-green-50 p-4 text-center">
+              <p className="font-bold text-green-700">
+                ✓ Bài làm đã được chấm
+              </p>
+              {existingSub?.review?.comment && (
+                <p className="mt-2 text-gray-700">{existingSub.review.comment}</p>
               )}
             </div>
           )}
-
-          {!canEdit && uploadedFileName && (
-            <div className="flex items-center gap-2 rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3">
-              <span className="font-bold text-emerald-700">✓ {uploadedFileName}</span>
-            </div>
-          )}
-
-          {canEdit && (
-            <div className="flex justify-end">
-              <button
-                onClick={() => handleSubmit('SUBMITTED')}
-                disabled={submitting}
-                className="rounded-full bg-teal-700 hover:bg-teal-800 disabled:opacity-50 px-8 py-3 font-extrabold text-white"
-              >
-                {submitting ? 'Đang nộp...' : 'NỘP BÀI'}
-              </button>
-            </div>
-          )}
-        </section>
-      )}
-    </div>
-  )
-
-  return (
-    <div
-      className="min-h-screen bg-center bg-cover bg-no-repeat"
-      style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
-    >
-      <StudentTopNavBar />
-      <FullscreenModalShell
-        titleLeft={assignment.libraryItem.title}
-        titleRight={assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
-        dirty={dirty}
-        onClose={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
-        leftPanel={leftPanel}
-        rightPanel={rightPanel}
-      />
+        </div>
+      </div>
     </div>
   )
 }
