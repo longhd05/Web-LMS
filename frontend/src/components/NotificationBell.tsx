@@ -121,11 +121,11 @@ export default function NotificationBell({ role, theme = 'default' }: Notificati
             </button>
           )}
         </div>
-        {!isTeacherTheme && (
+        {/* {!isTeacherTheme && (
           <Link to={notifPath} onClick={() => setOpen(false)} className="text-xs text-blue-700 hover:underline">
             Xem tất cả
           </Link>
-        )}
+        )} */}
       </div>
       <div className={isTeacherTheme ? 'max-h-72 overflow-y-auto bg-[#c5e5ec]' : 'max-h-72 overflow-y-auto'}>
         {notifications.length === 0 ? (
@@ -152,11 +152,7 @@ export default function NotificationBell({ role, theme = 'default' }: Notificati
       <button
         ref={buttonRef}
         onClick={() => setOpen((v) => !v)}
-        className={
-          isTeacherTheme
-            ? 'relative z-10 p-2 text-white transition-colors hover:text-cyan-100'
-            : 'relative z-10 p-2 text-gray-600 transition-colors hover:text-green-600'
-        }
+        className="relative z-10 p-2 text-white transition-colors hover:text-gray-200"
         aria-label="Thông báo"
       >
         <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
