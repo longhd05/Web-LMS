@@ -4,6 +4,7 @@ import TopNavBar, { type ThuVienXanhSearchResult } from '../../components/thu-vi
 import LibraryContent from '../../components/thu-vien-xanh/LibraryContent'
 import { useThuVienXanhLibrary } from '../../hooks/useThuVienXanhLibrary'
 import { type LibraryItem, type ThuVienXanhMode } from '../../types/thuVienXanh'
+import { useAuth } from '../../contexts/AuthContext'
 
 const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
 const allowedCategoryIds = new Set(['env', 'peace'])
@@ -12,6 +13,8 @@ export default function ThuVienXanhLibraryPage() {
   const [searchValue, setSearchValue] = useState('')
   const [mode, setMode] = useState<ThuVienXanhMode>('doc-hieu')
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const isLoggedIn = !!user
   const { categories: shelfCategories, loading } = useThuVienXanhLibrary(searchValue)
 
   const categories = useMemo(() => {
@@ -60,11 +63,23 @@ export default function ThuVienXanhLibraryPage() {
 
   const handleOpenItem = (item: LibraryItem) => {
     const preferredMode: ThuVienXanhMode = mode
+    if (preferredMode === 'tich-hop' && !isLoggedIn) {
+      navigate('/dang-nhap')
+      return
+    }
     const params = new URLSearchParams({ itemId: item.id })
     if (item.coverUrl) {
       params.set('imageUrl', item.coverUrl)
     }
     navigate(`/thu-vien-xanh/${preferredMode}?${params.toString()}`)
+  }
+
+  const handleModeChange = (newMode: ThuVienXanhMode) => {
+    if (newMode === 'tich-hop' && !isLoggedIn) {
+      navigate('/dang-nhap')
+      return
+    }
+    setMode(newMode)
   }
 
   const handleSearchSubmit = () => {
@@ -80,6 +95,10 @@ export default function ThuVienXanhLibraryPage() {
     mode: ThuVienXanhMode
     imageUrl?: string | null
   }) => {
+    if (nextMode === 'tich-hop' && !isLoggedIn) {
+      navigate('/dang-nhap')
+      return
+    }
     const params = new URLSearchParams({ itemId })
     if (imageUrl) {
       params.set('imageUrl', imageUrl)
@@ -103,7 +122,8 @@ export default function ThuVienXanhLibraryPage() {
       <LibraryContent
         categories={categories}
         mode={mode}
-        onModeChange={setMode}
+        isLoggedIn={isLoggedIn}
+        onModeChange={handleModeChange}
         onOpenItem={handleOpenItem}
       />
     </div>
