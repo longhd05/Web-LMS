@@ -182,7 +182,7 @@ export default function TeacherClassDetail() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12 text-center">
         <p className="text-red-600">{error}</p>
-        <Link to="/teacher/dashboard" className="mt-4 inline-block text-[#1f3f8f] hover:underline">← Quay lại</Link>
+        <Link to="/giao-vien/trang-chu" className="mt-4 inline-block text-[#1f3f8f] hover:underline">← Quay lại</Link>
       </div>
     )
   }
@@ -290,7 +290,7 @@ export default function TeacherClassDetail() {
         {activeTab === 'assignments' && (
           <div>
             <Link
-              to={`/teacher/create-assignment/${classId}`}
+              to={`/giao-vien/create-assignment/${classId}`}
               className="mb-10 mt-12 inline-flex h-16 items-center gap-3 rounded-[20px] border-2 border-[#1f3f8f] bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-5 text-lg font-bold text-white shadow-[inset_0_0_0_1px_#39bfd0] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_0_0_1px_#39bfd0,0_8px_14px_rgba(31,63,143,0.25)] active:translate-y-0 active:scale-[0.98]"
             >
               <span className="text-2xl leading-none">+</span>
@@ -432,7 +432,7 @@ export default function TeacherClassDetail() {
                     {selectedPending.map((s) => (
                       <button
                         key={s.id}
-                        onClick={() => navigate(`/teacher/review/${s.id}`)}
+                        onClick={() => navigate(`/giao-vien/review/${s.id}`)}
                         className="relative rounded-full bg-[#cbeff2] px-6 py-3 text-base font-bold text-[#1f3f8f]"
                       >
                         {s.student.name}

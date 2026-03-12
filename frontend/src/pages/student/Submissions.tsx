@@ -70,7 +70,7 @@ export default function Submissions() {
         <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
           <div className="text-5xl mb-4">📭</div>
           <p className="text-gray-500 text-lg">Bạn chưa nộp bài tập nào</p>
-          <Link to="/student/dashboard" className="text-green-600 hover:underline mt-3 inline-block">
+          <Link to="/hoc-sinh/trang-chu" className="text-green-600 hover:underline mt-3 inline-block">
             Xem lớp học của bạn
           </Link>
         </div>

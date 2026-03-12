@@ -190,7 +190,7 @@ export default function ProductsPage() {
 
                   <button
                     onClick={() => {
-                      navigate(`/student/class/${selectedSubmission.classId}/assignment/${selectedSubmission.id}`)
+                      navigate(`/hoc-sinh/class/${selectedSubmission.classId}/assignment/${selectedSubmission.id}`)
                       setSelectedSubmission(null)
                     }}
                     className="w-full rounded-lg bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-4 py-3 font-bold text-white transition-all hover:shadow-lg"

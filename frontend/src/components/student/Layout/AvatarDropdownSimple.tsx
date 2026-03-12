@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 
-export default function AvatarDropdown() {
+export default function AvatarDropdownSimple() {
   const { user, logout } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -42,22 +42,8 @@ export default function AvatarDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-cyan-200 bg-white shadow-lg z-50">
-          <div className="p-4 border-b border-cyan-200">
-            <p className="font-bold text-[#1f3f8f] truncate">{user.name}</p>
-            <p className="text-sm text-gray-600 truncate">{user.email}</p>
-          </div>
-          
+        <div className="absolute right-0 top-full mt-2 w-40 rounded-2xl border border-cyan-200 bg-white shadow-lg z-50">
           <div className="py-2">
-            <button
-              onClick={() => {
-                navigate('/hoc-sinh/profile')
-                setIsOpen(false)
-              }}
-              className="w-full px-4 py-2 text-left text-[#1f3f8f] font-semibold hover:bg-cyan-50 transition"
-            >
-              Thông tin cá nhân
-            </button>
             <button
               onClick={handleLogout}
               className="w-full px-4 py-2 text-left text-red-600 font-semibold hover:bg-red-50 transition"

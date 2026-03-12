@@ -133,12 +133,12 @@ export default function Header() {
               <Link to="/community" className="font-medium text-gray-600 transition-colors hover:text-green-600">Cộng đồng</Link>
               {user?.role === 'STUDENT' && (
                 <>
-                  <Link to="/student/dashboard" className="font-medium text-gray-600 transition-colors hover:text-green-600">Lớp học</Link>
-                  <Link to="/student/submissions" className="font-medium text-gray-600 transition-colors hover:text-green-600">Bài đã nộp</Link>
+                  <Link to="/hoc-sinh/trang-chu" className="font-medium text-gray-600 transition-colors hover:text-green-600">Lớp học</Link>
+                  <Link to="/hoc-sinh/submissions" className="font-medium text-gray-600 transition-colors hover:text-green-600">Bài đã nộp</Link>
                 </>
               )}
               {isTeacher && (
-                <Link to="/teacher/dashboard" className="font-medium text-gray-600 transition-colors hover:text-green-600">Lớp học</Link>
+                <Link to="/giao-vien/trang-chu" className="font-medium text-gray-600 transition-colors hover:text-green-600">Lớp học</Link>
               )}
             </nav>
           )}
@@ -189,12 +189,12 @@ export default function Header() {
             <Link to="/community" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Cộng đồng</Link>
             {user?.role === 'STUDENT' && (
               <>
-                <Link to="/student/dashboard" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
-                <Link to="/student/submissions" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Bài đã nộp</Link>
+                <Link to="/hoc-sinh/trang-chu" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
+                <Link to="/hoc-sinh/submissions" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Bài đã nộp</Link>
               </>
             )}
             {isTeacher && (
-              <Link to="/teacher/dashboard" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
+              <Link to="/giao-vien/trang-chu" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
             )}
             {!user && (
               <>

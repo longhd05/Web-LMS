@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import StudentTopNavBar from '../../components/student/Layout/StudentTopNavBar'
+import CongDongTopNavBar from '../../components/student/Layout/CongDongTopNavBar'
 
 export interface LessonItem {
     id: string
@@ -86,7 +86,7 @@ export default function CongDongTemplate({
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: secondaryColor }}>
-            <StudentTopNavBar />
+            <CongDongTopNavBar />
             <style dangerouslySetInnerHTML={{
                 __html: `
                     .background-image-section {

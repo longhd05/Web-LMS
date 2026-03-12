@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import AvatarDropdown from './AvatarDropdown'
+import AvatarDropdownSimple from './AvatarDropdownSimple'
 import NotificationDropdown from './NotificationDropdown'
 
 const thuVienLogo = new URL('../../../img/1x/logo-thu-vien.png', import.meta.url).href
 const MAX_SEARCH_LENGTH = 120
 
-export default function StudentTopNavBar() {
+export default function CongDongTopNavBar() {
   const [search, setSearch] = useState('')
 
   return (
@@ -18,7 +18,7 @@ export default function StudentTopNavBar() {
       <div className="mx-auto flex max-w-7xl items-center gap-4">
         {/* Left: Logo */}
         <Link 
-          to="/trang-chu" 
+          to="/student/dashboard" 
           className="flex items-center gap-3 text-white transition-opacity hover:opacity-90"
         >
           <img src={thuVienLogo} alt="Logo" className="h-12 w-12 object-contain sm:h-15 sm:w-15" />
@@ -49,7 +49,7 @@ export default function StudentTopNavBar() {
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
           <NotificationDropdown />
-          <AvatarDropdown />
+          <AvatarDropdownSimple />
         </div>
       </div>
     </header>

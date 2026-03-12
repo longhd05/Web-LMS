@@ -7,12 +7,21 @@ export interface User {
   email: string
   role: 'STUDENT' | 'TEACHER'
   avatarUrl?: string | null
+
+  // Added to match UI usage
+  className?: string | null
+  studentType?: 'CLASS' | 'INDEPENDENT' | null
 }
 
 interface AuthContextValue {
   user: User | null
   token: string | null
   loading: boolean
+
+  // Added to match UI usage
+  isClassStudent: boolean
+  isIndependentStudent: boolean
+
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER') => Promise<void>
   logout: () => Promise<void>
@@ -26,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Restore from localStorage
     const storedToken = localStorage.getItem('lms_token')
     const storedUser = localStorage.getItem('lms_user')
     if (storedToken && storedUser) {
@@ -41,13 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false)
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post('/auth/login', { email, password })
+  const login = useCallback(async (email: string, password: string, role: 'STUDENT' | 'TEACHER') => {
+    const res = await api.post('/auth/login', { email, password, role })
     const { accessToken, user: userData } = res.data.data
     localStorage.setItem('lms_token', accessToken)
     localStorage.setItem('lms_user', JSON.stringify(userData))
     setToken(accessToken)
     setUser(userData)
+    return userData as User
   }, [])
 
   const register = useCallback(async (
@@ -56,12 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     role: 'STUDENT' | 'TEACHER'
   ) => {
-    const res = await api.post('/auth/register', { name, email, password, role })
-    const { accessToken, user: userData } = res.data.data
-    localStorage.setItem('lms_token', accessToken)
-    localStorage.setItem('lms_user', JSON.stringify(userData))
-    setToken(accessToken)
-    setUser(userData)
+    await api.post('/auth/register', { name, email, password, role })
   }, [])
 
   const logout = useCallback(async () => {
@@ -76,8 +80,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }, [])
 
+  // Default logic (adjust if your backend encodes this differently)
+  const isClassStudent = !!user && user.role === 'STUDENT' && !!user.className
+  const isIndependentStudent = !!user && user.role === 'STUDENT' && !user.className
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      loading,
+      isClassStudent,
+      isIndependentStudent,
+      login,
+      register,
+      logout
+    }}>
       {children}
     </AuthContext.Provider>
   )
