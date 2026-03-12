@@ -75,6 +75,90 @@ const libraryItems = [
     level: 'advanced',
   },
   {
+    title: 'Giáo dục và phát triển bản thân',
+    content: JSON.stringify({
+      text: 'Giáo dục không chỉ là việc truyền đạt kiến thức mà còn là quá trình phát triển toàn diện của mỗi cá nhân. Trong thời đại 4.0, việc tự học và nâng cao năng lực bản thân trở thành yếu tố quyết định sự thành công của mỗi người.',
+      questions: [
+        { id: 'q1', text: 'Giáo dục đóng vai trò gì trong sự phát triển của mỗi cá nhân?', maxMark: 25 },
+        { id: 'q2', text: 'Kể tên 3 kỹ năng quan trọng nhất cần phát triển trong thế kỷ 21.', maxMark: 25 },
+        { id: 'q3', text: 'Làm thế nào để duy trì thói quen tự học hiệu quả?', maxMark: 25 },
+        { id: 'q4', text: 'Em đã làm gì để cải thiện bản thân trong năm vừa qua?', maxMark: 25 },
+      ],
+    }),
+    tags: JSON.stringify(['giáo dục', 'phát triển bản thân', 'kỹ năng', 'tự học']),
+    level: 'intermediate',
+  },
+  {
+    title: 'Bình đẳng giới và vai trò phụ nữ',
+    content: JSON.stringify({
+      text: 'Bình đẳng giới là một trong những mục tiêu phát triển bền vững quan trọng nhất. Phụ nữ Việt Nam trong suốt chiều dài lịch sử đã đóng góp to lớn cho sự phát triển của đất nước. Ngày nay, phụ nữ ngày càng khẳng định vị thế quan trọng trong mọi lĩnh vực của xã hội.',
+      questions: [
+        { id: 'q1', text: 'Bình đẳng giới có nghĩa là gì trong xã hội hiện đại?', maxMark: 25 },
+        { id: 'q2', text: 'Phụ nữ Việt Nam đã đóng góp như thế nào cho sự nghiệp bảo vệ và xây dựng đất nước?', maxMark: 25 },
+        { id: 'q3', text: 'Những rào cản nào mà phụ nữ vẫn đang phải đối mặt trong xã hội ngày nay?', maxMark: 25 },
+        { id: 'q4', text: 'Em có thể làm gì để thúc đẩy bình đẳng giới trong cuộc sống hàng ngày?', maxMark: 25 },
+      ],
+    }),
+    tags: JSON.stringify(['bình đẳng giới', 'phụ nữ', 'xã hội', 'quyền con người']),
+    level: 'intermediate',
+  },
+  {
+    title: 'Năng lượng tái tạo và tương lai xanh',
+    content: JSON.stringify({
+      text: 'Năng lượng tái tạo như điện mặt trời, điện gió và thủy điện đang trở thành xu hướng tất yếu trong bối cảnh nguồn năng lượng hóa thạch ngày càng cạn kiệt và ô nhiễm môi trường ngày càng nghiêm trọng. Việt Nam với điều kiện tự nhiên thuận lợi có tiềm năng lớn để phát triển năng lượng tái tạo.',
+      questions: [
+        { id: 'q1', text: 'Năng lượng tái tạo là gì và tại sao nó quan trọng?', maxMark: 25 },
+        { id: 'q2', text: 'Liệt kê và giải thích 4 loại năng lượng tái tạo phổ biến.', maxMark: 25 },
+        { id: 'q3', text: 'Việt Nam có những lợi thế gì trong việc phát triển năng lượng tái tạo?', maxMark: 25 },
+        { id: 'q4', text: 'Theo em, chúng ta cần làm gì để đẩy nhanh chuyển đổi sang năng lượng sạch?', maxMark: 25 },
+      ],
+    }),
+    tags: JSON.stringify(['năng lượng tái tạo', 'môi trường', 'phát triển bền vững', 'công nghệ xanh']),
+    level: 'advanced',
+  },
+  {
+    title: 'Toàn cầu hóa và hội nhập kinh tế',
+    content: JSON.stringify({
+      text: 'Toàn cầu hóa là quá trình hội nhập và tương tác giữa các quốc gia thông qua thương mại, đầu tư, công nghệ và văn hóa. Việt Nam đã tích cực tham gia vào quá trình hội nhập kinh tế quốc tế qua nhiều hiệp định thương mại tự do như CPTPP, EVFTA.',
+      questions: [
+        { id: 'q1', text: 'Toàn cầu hóa mang lại những cơ hội và thách thức gì cho Việt Nam?', maxMark: 25 },
+        { id: 'q2', text: 'Hội nhập kinh tế quốc tế ảnh hưởng như thế nào đến cuộc sống người dân Việt Nam?', maxMark: 25 },
+        { id: 'q3', text: 'Việt Nam cần chuẩn bị những gì để cạnh tranh trong nền kinh tế toàn cầu?', maxMark: 25 },
+        { id: 'q4', text: 'Em muốn đóng góp gì cho sự phát triển kinh tế của đất nước trong tương lai?', maxMark: 25 },
+      ],
+    }),
+    tags: JSON.stringify(['toàn cầu hóa', 'kinh tế', 'hội nhập', 'thương mại quốc tế']),
+    level: 'advanced',
+  },
+  {
+    title: 'Nghệ thuật và âm nhạc dân tộc Việt Nam',
+    content: JSON.stringify({
+      text: 'Âm nhạc và nghệ thuật truyền thống Việt Nam là kho báu văn hóa vô giá, được hun đúc qua hàng nghìn năm lịch sử. Từ những làn điệu dân ca, hò vè đến các loại hình nghệ thuật như chèo, tuồng, cải lương, đều mang đậm bản sắc văn hóa dân tộc.',
+      questions: [
+        { id: 'q1', text: 'Kể tên 5 thể loại âm nhạc và nghệ thuật truyền thống Việt Nam mà em biết.', maxMark: 25 },
+        { id: 'q2', text: 'Tại sao cần bảo tồn và phát huy nghệ thuật truyền thống trong thời đại hiện nay?', maxMark: 25 },
+        { id: 'q3', text: 'Âm nhạc dân tộc Việt Nam có những đặc điểm gì nổi bật so với âm nhạc phương Tây?', maxMark: 25 },
+        { id: 'q4', text: 'Em đã từng tham gia hoặc thưởng thức loại hình nghệ thuật truyền thống nào? Cảm nhận của em như thế nào?', maxMark: 25 },
+      ],
+    }),
+    tags: JSON.stringify(['nghệ thuật', 'âm nhạc', 'truyền thống', 'văn hóa dân tộc', 'Việt Nam']),
+    level: 'beginner',
+  },
+  {
+    title: 'Khoa học và công nghệ trong cuộc sống',
+    content: JSON.stringify({
+      text: 'Khoa học và công nghệ đang thay đổi thế giới với tốc độ chưa từng có. Từ trí tuệ nhân tạo, robot đến công nghệ sinh học và vũ trụ, những tiến bộ khoa học đang tạo ra những cơ hội và thách thức mới cho nhân loại.',
+      questions: [
+        { id: 'q1', text: 'Hãy nêu 3 phát minh khoa học quan trọng nhất trong thế kỷ 21 và tác động của chúng.', maxMark: 25 },
+        { id: 'q2', text: 'Trí tuệ nhân tạo (AI) sẽ thay đổi thị trường lao động như thế nào?', maxMark: 25 },
+        { id: 'q3', text: 'Công nghệ sinh học có thể giúp giải quyết những vấn đề gì của nhân loại?', maxMark: 25 },
+        { id: 'q4', text: 'Em muốn theo đuổi ngành khoa học hoặc công nghệ nào trong tương lai? Tại sao?', maxMark: 25 },
+      ],
+    }),
+    tags: JSON.stringify(['khoa học', 'công nghệ', 'AI', 'đổi mới', 'tương lai']),
+    level: 'intermediate',
+  },
+  {
     title: 'Sức khỏe tâm thần và lối sống lành mạnh',
     content: JSON.stringify({
       text: 'Sức khỏe tâm thần là một phần thiết yếu của sức khỏe tổng thể. Trong xã hội hiện đại với nhiều áp lực từ học tập, công việc và cuộc sống, việc chăm sóc sức khỏe tâm thần ngày càng trở nên quan trọng hơn bao giờ hết.',

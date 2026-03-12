@@ -71,6 +71,8 @@ model Assignment {
   dueAt         DateTime?
   createdBy     String
   createdAt     DateTime  @default(now())
+  title         String?
+  description   String?
 
   class       Class       @relation(fields: [classId], references: [id])
   libraryItem LibraryItem @relation(fields: [libraryItemId], references: [id])
