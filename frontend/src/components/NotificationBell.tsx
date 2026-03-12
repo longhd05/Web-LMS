@@ -100,6 +100,7 @@ export default function NotificationBell({ role, theme = 'default' }: Notificati
     SUBMISSION_RECEIVED: 'Bài làm mới',
     SUBMISSION_REVIEWED: 'Bài đã được chấm',
     SUBMISSION_PUBLISHED: 'Bài được đăng cộng đồng',
+    ASSIGNMENT_CREATED: 'Bài tập mới được giao',
   }
 
   const dropdownNode = open ? (

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { authenticate } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
+import { createNotification } from '../lib/notifications';
 
 const router = Router();
 
@@ -49,6 +50,22 @@ router.post('/', authenticate, requireRole('TEACHER'), async (req: Request, res:
     },
     include: { libraryItem: true, class: true },
   });
+
+  // Notify all students in the class about the new assignment
+  const memberships = await prisma.membership.findMany({
+    where: { classId },
+    select: { studentId: true },
+  });
+  await Promise.all(
+    memberships.map((m) =>
+      createNotification(m.studentId, 'ASSIGNMENT_CREATED', {
+        assignmentId: assignment.id,
+        classId,
+        className: cls!.name,
+        libraryItemTitle: assignment.libraryItem.title,
+      })
+    )
+  );
 
   res.status(201).json({ data: assignment });
 });
