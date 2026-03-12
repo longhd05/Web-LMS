@@ -1,9 +1,14 @@
-﻿import { BadgeCheck, BookOpen, CheckSquare, Clock3, Leaf, ListChecks } from 'lucide-react'
+﻿import { BadgeCheck } from 'lucide-react'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import api from '../../api/axios'
 import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
 import suGiaHoaBinhImg from '../../img/1x/home-su-gia-hoa-binh.png'
+import assignmentsIcon from "../../../../SVG/hs-bai-tap.svg"
+import studentsIcon from "../../../../SVG/hs-danh-sach.svg"
+import criteriaIcon from "../../../../SVG/hs-bai-cho-duyet.svg"
+import pendingIcon from "../../../../SVG/hs-tieu-chi.svg"
+import communityIcon from "../../../../SVG/hs-cong-dong.svg"
 
 interface Assignment {
   id: string
@@ -41,7 +46,6 @@ interface ClassDetail {
 
 const MOCK_STUDENTS_COUNT = 10
 const ENABLE_MOCK_STUDENTS = true
-type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | null
 
 function buildMockStudents(count: number) {
   return Array.from({ length: count }).map((_, index) => {
@@ -54,25 +58,10 @@ function buildMockStudents(count: number) {
   })
 }
 
-const MOCK_ATTENDANCE: Record<number, Record<number, AttendanceStatus>> = {
-  1: { 1: 'PRESENT', 2: 'PRESENT', 3: 'PRESENT', 4: 'ABSENT', 5: 'ABSENT', 6: 'PRESENT', 7: 'LATE', 8: 'PRESENT', 9: 'ABSENT', 10: 'PRESENT' },
-  2: { 1: 'ABSENT' },
-  3: { 1: 'LATE' },
-}
-
-function getAttendanceStatus(rowNumber: number, sessionNumber: number): AttendanceStatus {
-  return MOCK_ATTENDANCE[rowNumber]?.[sessionNumber] ?? null
-}
-
 type MainTab = 'assignments' | 'students' | 'criteria' | 'pending' | 'community'
 type TaskType = 'READING' | 'INTEGRATION'
 type IconButtonItem = { key: MainTab; label: string; icon: ReactNode }
 
-import assignmentsIcon from "../../../../SVG/hs-bai-tap.svg"
-import studentsIcon from "../../../../SVG/hs-danh-sach.svg"
-import criteriaIcon from "../../../../SVG/hs-bai-cho-duyet.svg"
-import pendingIcon from "../../../../SVG/hs-tieu-chi.svg"
-import communityIcon from "../../../../SVG/hs-cong-dong.svg"
 
 const iconButtons: IconButtonItem[] = [
   { key: 'assignments', label: 'Bài tập', icon: <img src={assignmentsIcon} className="h-8 w-8" /> },
@@ -101,6 +90,29 @@ export default function TeacherClassDetail() {
   const [activeTab, setActiveTab] = useState<MainTab>('assignments')
   const [taskType, setTaskType] = useState<TaskType>('READING')
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null)
+
+  const studentSubmissionByStudentAndAssignment = useMemo(() => {
+    const byStudent: Record<string, Record<string, Submission>> = {}
+    submissions.forEach((submission) => {
+      const studentId = submission.student?.id
+      const assignmentId = submission.assignment?.id
+      if (!studentId || !assignmentId) return
+      if (!byStudent[studentId]) byStudent[studentId] = {}
+      const current = byStudent[studentId][assignmentId]
+      if (!current || new Date(submission.createdAt).getTime() > new Date(current.createdAt).getTime()) {
+        byStudent[studentId][assignmentId] = submission
+      }
+    })
+    return byStudent
+  }, [submissions])
+
+  const getStudentStatus = (studentId: string, assignmentId: string) => {
+    const submission = studentSubmissionByStudentAndAssignment[studentId]?.[assignmentId]
+    if (!submission) return 'NONE'
+    if (submission.review?.resultStatus === 'PASSED') return 'PASSED'
+    if (submission.review?.resultStatus === 'FAILED') return 'FAILED'
+    return 'PENDING'
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -166,6 +178,7 @@ export default function TeacherClassDetail() {
   const parsedClass = parseClassAndSchool(cls.name)
   const classLabel = parsedClass?.className ?? cls.name
   const schoolLabel = parsedClass?.schoolName ?? 'Chưa có'
+
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
@@ -282,7 +295,7 @@ export default function TeacherClassDetail() {
                   <div key={a.id} className="rounded-[20px] bg-[#cbeff2] px-6 py-5 text-[#1f3f8f]">
                     <div className="mb-2 flex items-start justify-between gap-3">
                       <h3 className="text-2xl font-extrabold">{a.title || `Bài tập ${idx + 1}`}</h3>
-                      <button className="text-2xl">⋮</button>
+                      {/* <button className="text-2xl">⋮</button> */}
                     </div>
                     {a.description && <p className="mb-2 text-base text-[#1f3f8f]">{a.description}</p>}
                     <p className="text-lg font-semibold">{a.mode === 'INDIVIDUAL' ? 'Cá nhân' : 'Nhóm'}: {a.libraryItem.title}</p>
@@ -303,7 +316,7 @@ export default function TeacherClassDetail() {
                   <thead>
                     <tr className="text-lg font-bold">
                       <th className="rounded-tl-[20px] border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2">STT</th>
-                      <th className="border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2">Họ và tên</th>
+                      <th className="border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2 text-left">Họ và tên</th>
                       {Array.from({ length: 10 }).map((_, i) => (
                         <th key={i} className={`${i === 9 ? 'rounded-tr-[20px] ' : ''}border border-[#7ea2e0] bg-[#cbeff2] px-3 py-2`}>{i + 1}</th>
                       ))}
@@ -312,23 +325,26 @@ export default function TeacherClassDetail() {
                   <tbody>
                   {Array.from({ length: Math.max(10, students.length) }).map((_, rowIdx) => {
                       const student = students[rowIdx]
+                      const assignmentSlots = cls.assignments.slice(0, 10)
                       const isLastRow = rowIdx === Math.max(10, students.length) - 1
                       return (
                         <tr key={rowIdx} className="text-sm font-semibold">
                           <td className={`${isLastRow ? 'rounded-bl-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>{rowIdx + 1}</td>
                           <td className="border border-[#7ea2e0] px-3 py-2 text-left">{student?.name ?? ''}</td>
                           {Array.from({ length: 10 }).map((__, colIdx) => {
-                            const status = getAttendanceStatus(rowIdx + 1, colIdx + 1)
+                            const assignment = assignmentSlots[colIdx]
+                            const status = student && assignment ? getStudentStatus(student.id, assignment.id) : 'NONE'
                             return (
                               <td key={colIdx} className={`${isLastRow && colIdx === 9 ? 'rounded-br-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>
-                                {!status && <span className="text-gray-300">•</span>}
-                                {status === 'PRESENT' && (
+                                {student && assignment && status === 'PASSED' && (
                                   <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#7bd85e] text-[11px] font-black leading-none text-white">✓</span>
                                 )}
-                                {status === 'ABSENT' && (
+                                {student && assignment && status === 'FAILED' && (
                                   <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#ef4444] text-[11px] font-black leading-none text-white">✕</span>
                                 )}
-                                {status === 'LATE' && <span className="mx-auto inline-block h-3.5 w-3.5 rounded-full border-2 border-[#e6d335] bg-[#fff9cf]" />}
+                                {student && assignment && status === 'PENDING' && (
+                                  <span className="mx-auto inline-block h-3.5 w-3.5 rounded-full border-2 border-[#e6d335] bg-[#fff9cf]" />
+                                )}
                               </td>
                             )
                           })}
