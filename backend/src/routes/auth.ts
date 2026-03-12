@@ -30,7 +30,17 @@ const loginSchema = z.object({
 
 const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),
-  avatarUrl: z.string().url().nullable().optional(),
+  avatarUrl: z
+    .string()
+    .refine(
+      (value) => {
+        if (value.startsWith('/')) return true;
+        return z.string().url().safeParse(value).success;
+      },
+      { message: 'avatarUrl must be an absolute URL or a server file path' }
+    )
+    .nullable()
+    .optional(),
 });
 
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
