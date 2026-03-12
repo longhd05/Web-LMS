@@ -2,7 +2,6 @@ node_modules/
 dist/
 *.db
 *.db-journal
-prisma/migrations/
 .env
 uploads/*
 !uploads/.gitkeep
