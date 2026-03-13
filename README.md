@@ -8,12 +8,12 @@ Hệ thống quản lý học tập (Learning Management System) dành cho giáo
 
 | Đối tượng | Tính năng |
 |-----------|-----------|
-| **Chung** | Đăng ký / Đăng nhập (JWT), xem thông báo |
-| **Học sinh** | Tham gia lớp học, xem & nộp bài tập, theo dõi kết quả, xem thư viện tài liệu, đọc bài cộng đồng |
+| **Chung** | Đăng ký / Đăng nhập (JWT), xem thông báo, cập nhật hồ sơ |
+| **Học sinh** | Tham gia lớp học, xem & nộp bài tập (đọc hiểu + tích hợp), theo dõi kết quả, xem sản phẩm, đọc bài cộng đồng |
 | **Giáo viên** | Tạo & quản lý lớp học, tạo bài tập từ thư viện, chấm bài nộp, publish bài lên cộng đồng |
-| **Thư viện** | Kho tài liệu học tập phân theo cấp độ và thẻ tag |
-| **Cộng đồng** | Chia sẻ bài nộp xuất sắc để học sinh khác tham khảo |
-| **File** | Upload / download file bài nộp |
+| **Thư viện xanh** | Kho tài liệu học tập (đọc hiểu & tích hợp) phân theo cấp độ và thẻ tag, giao diện fullscreen |
+| **Cộng đồng trách nhiệm** | Hai kênh cộng đồng: Hiệp sĩ xanh & Sứ giả hòa bình — chia sẻ bài nộp xuất sắc |
+| **File** | Upload / download file bài nộp tích hợp |
 
 ---
 
@@ -28,6 +28,8 @@ Hệ thống quản lý học tập (Learning Management System) dành cho giáo
 | [Tailwind CSS](https://tailwindcss.com/) | 3 | Utility-first styling |
 | [React Router](https://reactrouter.com/) | 6 | Client-side routing |
 | [Axios](https://axios-http.com/) | 1 | HTTP client |
+| [Framer Motion](https://www.framer.com/motion/) | 12 | Hiệu ứng animation |
+| [Lucide React](https://lucide.dev/) | 0.5+ | Icon library |
 
 ### Backend
 | Công nghệ | Phiên bản | Mục đích |
@@ -42,6 +44,7 @@ Hệ thống quản lý học tập (Learning Management System) dành cho giáo
 | [Zod](https://zod.dev/) | 3 | Validate dữ liệu đầu vào |
 | [Multer](https://github.com/expressjs/multer) | 2 | Upload file |
 | [Helmet](https://helmetjs.github.io/) | 7 | HTTP security headers |
+| [express-rate-limit](https://github.com/express-rate-limit/express-rate-limit) | 7 | Rate limiting |
 
 ---
 
@@ -49,20 +52,71 @@ Hệ thống quản lý học tập (Learning Management System) dành cho giáo
 
 ```
 Web-LMS/
-├── backend/          # Express + Prisma API server
-│   ├── prisma/       # Schema & seed database
+├── backend/                  # Express + Prisma API server
+│   ├── prisma/               # Schema & seed database
 │   ├── src/
-│   │   ├── routes/   # auth, classes, assignments, submissions, library, community, notifications, files
-│   │   ├── middleware/  # JWT auth, RBAC
-│   │   └── index.ts  # Entry point (port 3000)
-│   └── uploads/      # Thư mục lưu file upload
-└── frontend/         # React + Vite SPA
+│   │   ├── routes/           # auth, classes, assignments, submissions, library, community, notifications, files
+│   │   ├── middleware/       # JWT auth, RBAC
+│   │   ├── lib/              # prisma client, config, constants, notifications helper
+│   │   └── index.ts          # Entry point (port 3000)
+│   └── uploads/              # Thư mục lưu file upload
+└── frontend/                 # React + Vite SPA
     └── src/
-        ├── pages/    # Landing, Login, Register, Student, Teacher, Library, Community
+        ├── pages/
+        │   ├── student/      # StudentDashboard, StudentClassDetail, AssignmentDetail, ...
+        │   ├── teacher/      # TeacherDashboard, TeacherClassDetail, CreateAssignment, ...
+        │   ├── thu-vien-xanh/  # ThuVienXanhLibraryPage, DocHieuFullscreenModal, TichHopFullscreenModal
+        │   ├── cong-dong/    # HiepSiXanhPage, SuGiaHoaBinhPage
+        │   └── library/      # LibraryList, LibraryDetail
         ├── components/
-        ├── api/
-        └── contexts/
+        │   ├── student/      # Layout (StudentTopNavBar, StudentLayout, ...), Common, Assignment, Class
+        │   ├── thu-vien-xanh/  # TopNavBar, LibraryContent, DocHieuBody, TichHopBody, ...
+        │   └── library/      # IntegratedTaskModal, ReadingComprehensionModal
+        ├── api/              # axios instance, thuVienXanhLibrary, integratedTask, readingComprehension
+        ├── hooks/            # useThuVienXanhLibrary, useIntegratedTask, useReadingComprehension
+        ├── contexts/         # AuthContext
+        ├── types/            # TypeScript type definitions
+        ├── data/             # Mock/static data
+        └── utils/            # stringHelper và các helper khác
 ```
+
+---
+
+## Đường dẫn (Routes) Frontend
+
+### Public
+| Đường dẫn | Trang |
+|-----------|-------|
+| `/` | Tự động chuyển sang `/trang-chu` |
+| `/trang-chu` | Trang chủ |
+| `/dang-nhap` | Đăng nhập |
+| `/dang-ky` | Đăng ký |
+| `/thu-vien-xanh` | Thư viện xanh |
+| `/thu-vien-xanh/doc-hieu` | Đọc hiểu fullscreen |
+| `/thu-vien-xanh/tich-hop` | Tích hợp fullscreen |
+| `/cong-dong/hiep-si-xanh` | Cộng đồng – Hiệp sĩ xanh |
+| `/cong-dong/su-gia-hoa-binh` | Cộng đồng – Sứ giả hòa bình |
+| `*` (catch-all) | Tự động chuyển về `/trang-chu` |
+
+### Học sinh (yêu cầu đăng nhập với role `STUDENT`)
+| Đường dẫn | Trang |
+|-----------|-------|
+| `/hoc-sinh/trang-chu` | Dashboard học sinh |
+| `/hoc-sinh/lop-hoc/:classId` | Chi tiết lớp học |
+| `/hoc-sinh/lop-hoc/:classId/bai-tap/:assignmentId` | Chi tiết bài tập |
+| `/hoc-sinh/san-pham` | Sản phẩm |
+| `/hoc-sinh/ho-so` | Hồ sơ |
+| `/hoc-sinh/bai-nop` | Bài nộp |
+| `/hoc-sinh/thong-bao` | Thông báo |
+
+### Giáo viên (yêu cầu đăng nhập với role `TEACHER`)
+| Đường dẫn | Trang |
+|-----------|-------|
+| `/giao-vien/trang-chu` | Dashboard giáo viên |
+| `/giao-vien/lop-hoc/:classId` | Chi tiết lớp học |
+| `/giao-vien/tao-bai-tap/:classId` | Tạo bài tập |
+| `/giao-vien/xem-bai/:submissionId` | Chấm bài nộp |
+| `/giao-vien/thong-bao` | Thông báo |
 
 ---
 
@@ -173,15 +227,60 @@ cd frontend && npm run build
 
 ## API chính
 
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| POST | `/auth/register` | Đăng ký tài khoản |
-| POST | `/auth/login` | Đăng nhập |
-| GET | `/me` | Thông tin người dùng hiện tại |
-| GET/POST | `/classes` | Danh sách / tạo lớp học |
-| GET/POST | `/assignments` | Bài tập |
-| POST | `/assignments/:id/submissions` | Nộp bài |
-| GET | `/library` | Thư viện tài liệu |
-| GET | `/community` | Bài cộng đồng |
-| GET | `/notifications` | Thông báo |
-| GET | `/health` | Health check |
+> **Rate limiting:** Tất cả các API bị giới hạn **200 request / 15 phút / IP**. Riêng `/auth/login` giới hạn thêm **10 lần đăng nhập / 15 phút / IP**.
+
+### Xác thực
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| POST | `/auth/register` | — | Đăng ký tài khoản (`STUDENT` / `TEACHER`) |
+| POST | `/auth/login` | — | Đăng nhập, trả về `accessToken` |
+| POST | `/auth/logout` | — | Đăng xuất |
+| GET | `/auth/me` | ✅ | Thông tin người dùng hiện tại |
+| PUT | `/auth/profile` | ✅ | Cập nhật tên / avatar |
+| GET | `/me` | ✅ | Alias thông tin người dùng hiện tại |
+
+### Lớp học
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| GET | `/classes` | ✅ | Danh sách lớp học của người dùng |
+| POST | `/classes` | ✅ Teacher | Tạo lớp học mới |
+| POST | `/classes/join` | ✅ Student | Tham gia lớp bằng mã |
+| GET | `/classes/:classId` | ✅ | Chi tiết lớp (kèm danh sách bài tập & thành viên) |
+| GET | `/classes/:classId/assignments` | ✅ | Bài tập của lớp |
+| GET | `/classes/:classId/submissions` | ✅ Teacher | Tất cả bài nộp của lớp |
+
+### Bài tập
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| POST | `/assignments` | ✅ Teacher | Tạo bài tập từ thư viện |
+| GET | `/assignments/:id` | ✅ | Chi tiết bài tập |
+| DELETE | `/assignments/:id` | ✅ Teacher | Xóa bài tập |
+
+### Bài nộp
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| POST | `/assignments/:assignmentId/submissions` | ✅ Student | Nộp bài (tạo hoặc cập nhật) |
+| GET | `/submissions` | ✅ | Danh sách bài nộp của học sinh hiện tại |
+| GET | `/submissions/:id` | ✅ | Chi tiết bài nộp |
+| POST | `/submissions/:id/review` | ✅ Teacher | Chấm bài nộp |
+| POST | `/submissions/:id/publish` | ✅ Teacher | Publish bài lên cộng đồng |
+
+### Thư viện
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| GET | `/library` | — | Danh sách tài liệu (hỗ trợ `search`, `page`, `limit`, `type`) |
+
+### Cộng đồng
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| GET | `/community/:communityKey/posts` | — | Danh sách bài đăng theo kênh |
+| GET | `/community/:communityKey/posts/:postId` | — | Chi tiết bài đăng |
+
+### File & Khác
+| Method | Endpoint | Auth | Mô tả |
+|--------|----------|------|-------|
+| POST | `/files` | ✅ | Upload file bài nộp |
+| GET | `/notifications` | ✅ | Danh sách thông báo |
+| POST | `/notifications/read` | ✅ | Đánh dấu đã đọc |
+| GET | `/uploads/:filename` | — | Truy cập file đã upload |
+| GET | `/health` | — | Health check |
