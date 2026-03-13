@@ -94,4 +94,32 @@ router.get('/:id', authenticate, async (req: Request, res: Response): Promise<vo
   res.json({ data: assignment });
 });
 
+router.delete('/:id', authenticate, requireRole('TEACHER'), async (req: Request, res: Response): Promise<void> => {
+  const assignment = await prisma.assignment.findUnique({
+    where: { id: req.params.id },
+    include: { class: true, submissions: { select: { id: true } } },
+  });
+
+  if (!assignment) {
+    res.status(404).json({ error: 'Assignment not found' });
+    return;
+  }
+
+  if (assignment.class.teacherId !== req.user!.userId) {
+    res.status(403).json({ error: 'You are not the teacher of this class' });
+    return;
+  }
+
+  const submissionIds = assignment.submissions.map((s) => s.id);
+
+  await prisma.$transaction([
+    prisma.communityPost.deleteMany({ where: { submissionId: { in: submissionIds } } }),
+    prisma.review.deleteMany({ where: { submissionId: { in: submissionIds } } }),
+    prisma.submission.deleteMany({ where: { assignmentId: assignment.id } }),
+    prisma.assignment.delete({ where: { id: assignment.id } }),
+  ]);
+
+  res.json({ data: { id: assignment.id } });
+});
+
 export default router;
