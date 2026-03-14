@@ -31,6 +31,14 @@ router.post('/', authenticate, requireRole('TEACHER'), async (req: Request, res:
     return;
   }
 
+  // Ensure the authenticated user exists in DB (avoid FK violation on teacherId)
+  const teacherId = req.user!.userId;
+  const teacher = await prisma.user.findUnique({ where: { id: teacherId } });
+  if (!teacher) {
+    res.status(401).json({ error: 'Authenticated user not found' });
+    return;
+  }
+
   let code: string;
   let attempts = 0;
   do {
@@ -42,12 +50,17 @@ router.post('/', authenticate, requireRole('TEACHER'), async (req: Request, res:
     }
   } while (await prisma.class.findUnique({ where: { code } }));
 
-  const newClass = await prisma.class.create({
-    data: { name: parsed.data.name, code, teacherId: req.user!.userId },
-    include: { teacher: { select: { id: true, name: true, email: true } } },
-  });
+  try {
+    const newClass = await prisma.class.create({
+      data: { name: parsed.data.name, code, teacherId },
+      include: { teacher: { select: { id: true, name: true, email: true } } },
+    });
 
-  res.status(201).json({ data: newClass });
+    res.status(201).json({ data: newClass });
+  } catch (e: any) {
+    // FK errors usually mean the teacherId doesn't exist (race/seed mismatch)
+    res.status(409).json({ error: 'Failed to create class', detail: e?.message });
+  }
 });
 
 router.post('/join', authenticate, requireRole('STUDENT'), async (req: Request, res: Response): Promise<void> => {
