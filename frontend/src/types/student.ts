@@ -3,6 +3,7 @@ export interface Assignment {
   type: 'READING' | 'INTEGRATION'
   mode: 'INDIVIDUAL' | 'GROUP'
   title: string
+  description?: string | null
   dueAt: string | null
   createdAt: string
   classId: string
@@ -18,7 +19,7 @@ export interface Assignment {
   }
   submission?: {
     id: string
-    status: 'PENDING' | 'REVIEWED'
+    status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'
     createdAt: string
     answers?: Record<number, string>
     fileUrl?: string
@@ -37,7 +38,7 @@ export interface Assignment {
 
 export interface Submission {
   id: string
-  status: 'PENDING' | 'REVIEWED'
+  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'
   createdAt: string
   assignment: {
     id: string
@@ -84,7 +85,7 @@ export interface Product {
   assignmentTitle: string
   assignmentType: 'READING' | 'INTEGRATION'
   className: string
-  status: 'PENDING' | 'REVIEWED'
+  status: 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'
   score?: number | null
   imageUrl?: string | null
   hasFeedback: boolean
@@ -93,14 +94,13 @@ export interface Product {
 
 export interface Notification {
   id: string
-  title: string
-  message: string
-  targetUrl: string
-  read: boolean
+  type: string
+  payload: Record<string, unknown>
+  readAt: string | null
   createdAt: string
 }
 
-export type SubmissionStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'SUBMITTED' | 'PENDING_REVIEW' | 'REVIEWED'
+export type SubmissionStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED'
 
 export interface ReadingQuestion {
   id: string
