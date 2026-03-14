@@ -1,9 +1,11 @@
-﻿import { BadgeCheck } from 'lucide-react'
+﻿import { BadgeCheck, Trash2 } from 'lucide-react'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import api from '../../api/axios'
 import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
 import suGiaHoaBinhImg from '../../img/1x/home-su-gia-hoa-binh.png'
+import CreateAssignment from './CreateAssignment'
+import ReviewSubmission from './ReviewSubmission'
 import assignmentsIcon from "../../../../SVG/hs-bai-tap.svg"
 import studentsIcon from "../../../../SVG/hs-danh-sach.svg"
 import criteriaIcon from "../../../../SVG/hs-bai-cho-duyet.svg"
@@ -66,8 +68,8 @@ type IconButtonItem = { key: MainTab; label: string; icon: ReactNode }
 const iconButtons: IconButtonItem[] = [
   { key: 'assignments', label: 'Bài tập', icon: <img src={assignmentsIcon} className="h-8 w-8" /> },
   { key: 'students', label: 'Danh sách', icon: <img src={studentsIcon} className="h-8 w-8" /> },
-  { key: 'criteria', label: 'Bài chờ duyệt', icon: <img src={criteriaIcon} className="h-8 w-8" /> },
-  { key: 'pending', label: 'Tiêu chí', icon: <img src={pendingIcon} className="h-8 w-8" /> },
+  { key: 'pending', label: 'Bài chờ duyệt', icon: <img src={criteriaIcon} className="h-8 w-8" /> },
+  { key: 'criteria', label: 'Tiêu chí', icon: <img src={pendingIcon} className="h-8 w-8" /> },
   { key: 'community', label: 'Cộng đồng', icon: <img src={communityIcon} className="h-8 w-8" /> },
 ]
 
@@ -82,7 +84,6 @@ function parseClassAndSchool(input: string): { className: string; schoolName: st
 
 export default function TeacherClassDetail() {
   const { classId } = useParams<{ classId: string }>()
-  const navigate = useNavigate()
   const [cls, setCls] = useState<ClassDetail | null>(null)
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(true)
@@ -90,6 +91,11 @@ export default function TeacherClassDetail() {
   const [activeTab, setActiveTab] = useState<MainTab>('assignments')
   const [taskType, setTaskType] = useState<TaskType>('READING')
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null)
+  const [openAssignmentMenuId, setOpenAssignmentMenuId] = useState<string | null>(null)
+  const [popupMessage, setPopupMessage] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [openReviewSubmissionId, setOpenReviewSubmissionId] = useState<string | null>(null)
 
   const studentSubmissionByStudentAndAssignment = useMemo(() => {
     const byStudent: Record<string, Record<string, Submission>> = {}
@@ -147,6 +153,31 @@ export default function TeacherClassDetail() {
     }
   }, [typedAssignments, selectedAssignmentId])
 
+  useEffect(() => {
+    if (!openAssignmentMenuId) return
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target?.closest('[data-assignment-menu]')) return
+      setOpenAssignmentMenuId(null)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [openAssignmentMenuId])
+
+  const handleDeleteAssignment = async (assignmentId: string) => {
+    try {
+      await api.delete(`/assignments/${assignmentId}`)
+      setCls((prev) => {
+        if (!prev) return prev
+        return { ...prev, assignments: prev.assignments.filter((a) => a.id !== assignmentId) }
+      })
+      setSubmissions((prev) => prev.filter((s) => s.assignment?.id !== assignmentId))
+      setOpenAssignmentMenuId((prev) => (prev === assignmentId ? null : prev))
+    } catch {
+      setPopupMessage('Không thể xóa bài tập. Vui lòng thử lại.')
+    }
+  }
+
   const pendingByTaskType = useMemo(() => submissions.filter((s) => s.assignment && s.assignment.type === taskType), [submissions, taskType])
 
   const selectedPending = useMemo(() => {
@@ -183,6 +214,92 @@ export default function TeacherClassDetail() {
   return (
     <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-6xl">
+        {popupMessage && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/30 px-4">
+            <div className="w-full max-w-sm rounded-2xl border border-[#9dc7de] bg-white p-5 text-[#1f3f8f] shadow-[0_12px_30px_rgba(31,63,143,0.25)]">
+              <p className="text-base font-semibold">{popupMessage}</p>
+              <div className="mt-4 flex justify-end">
+                <button
+                  className="rounded-full border-2 border-[#1f3f8f] px-4 py-1.5 text-sm font-bold text-[#1f3f8f] hover:bg-[#eef5ff]"
+                  onClick={() => setPopupMessage(null)}
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {confirmDelete && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/40 px-4">
+            <div className="w-full max-w-sm rounded-2xl border border-[#9dc7de] bg-white p-5 text-[#1f3f8f] shadow-[0_12px_30px_rgba(31,63,143,0.25)]">
+              <p className="text-base font-semibold">
+                Bạn có chắc muốn xóa {confirmDelete.title}?
+              </p>
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <button
+                  className="rounded-full border-2 border-[#1f3f8f] px-4 py-1.5 text-sm font-bold text-[#1f3f8f] hover:bg-[#eef5ff]"
+                  onClick={() => setConfirmDelete(null)}
+                >
+                  Hủy
+                </button>
+                <button
+                  className="rounded-full border-2 border-[#1f3f8f] bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-4 py-1.5 text-sm font-bold text-white shadow-[inset_0_0_0_1px_#39bfd0]"
+                  onClick={() => {
+                    const id = confirmDelete.id
+                    setConfirmDelete(null)
+                    handleDeleteAssignment(id)
+                  }}
+                >
+                  Xóa
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {isCreateModalOpen && (
+          <div
+            className="fixed inset-0 z-[1800] flex items-center justify-center bg-black/40 px-4"
+            onClick={() => setIsCreateModalOpen(false)}
+          >
+            <div
+              className="relative w-full max-w-5xl rounded-[28px]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <CreateAssignment
+                embedded
+                onCancel={() => setIsCreateModalOpen(false)}
+                onCreated={(assignment) => {
+                  setCls((prev) => {
+                    if (!prev) return prev
+                    return { ...prev, assignments: [assignment, ...prev.assignments] }
+                  })
+                  setIsCreateModalOpen(false)
+                }}
+              />
+            </div>
+          </div>
+        )}
+        {openReviewSubmissionId && (
+          <div
+            className="fixed inset-0 z-[1800] flex items-center justify-center bg-black/40 px-4"
+            onClick={() => setOpenReviewSubmissionId(null)}
+          >
+            <div
+              className="relative max-h-[85vh] w-full max-w-[720px] overflow-y-auto rounded-[28px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* <button
+                type="button"
+                onClick={() => setOpenReviewSubmissionId(null)}
+                className="absolute right-6 top-3 z-10 text-3xl font-bold text-[#1f3f8f]"
+                aria-label="Đóng"
+              >
+                ×
+              </button> */}
+              <ReviewSubmission embedded submissionId={openReviewSubmissionId} />
+            </div>
+          </div>
+        )}
         <div className="space-y-4">
           {/* ROW 1: LỚP + TRƯỜNG + ICON */}
           <div className="flex items-center justify-between">
@@ -279,13 +396,14 @@ export default function TeacherClassDetail() {
 
         {activeTab === 'assignments' && (
           <div>
-            <Link
-              to={`/giao-vien/tao-bai-tap/${classId}`}
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
               className="mb-10 mt-12 inline-flex h-16 items-center gap-3 rounded-[20px] border-2 border-[#1f3f8f] bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-5 text-lg font-bold text-white shadow-[inset_0_0_0_1px_#39bfd0] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[inset_0_0_0_1px_#39bfd0,0_8px_14px_rgba(31,63,143,0.25)] active:translate-y-0 active:scale-[0.98]"
             >
               <span className="text-2xl leading-none">+</span>
               Tải bài tập mới lên
-            </Link>
+            </button>
 
             {cls.assignments.length === 0 ? (
               <div className="rounded-[20px] bg-[#cbeff2] px-6 py-20 text-center text-lg text-[#1f3f8f]">Chưa có bài tập nào.</div>
@@ -293,13 +411,38 @@ export default function TeacherClassDetail() {
               <div className="space-y-4">
                 {cls.assignments.map((a, idx) => (
                   <div key={a.id} className="rounded-[20px] bg-[#cbeff2] px-6 py-5 text-[#1f3f8f]">
-                    <div className="mb-2 flex items-start justify-between gap-3">
-                      <h3 className="text-2xl font-extrabold">{a.title || `Bài tập ${idx + 1}`}</h3>
-                      {/* <button className="text-2xl">⋮</button> */}
+                    <div className="mb-0 flex items-center justify-between gap-3">
+                      <h3 className="text-lg font-extrabold">{a.title || `Bài tập ${idx + 1}`}:</h3>
+                      <div className="relative" data-assignment-menu>
+                        <button
+                          className="rounded p-2 text-3xl leading-none"
+                          onClick={() => setOpenAssignmentMenuId((prev) => (prev === a.id ? null : a.id))}
+                          aria-label="Mở menu bài tập"
+                          title="Tùy chọn"
+                        >
+                          ⋮
+                        </button>
+                        {openAssignmentMenuId === a.id && (
+                          <div className="absolute right-2 top-10 z-10 min-w-[140px] rounded-md border border-[#9dc7de] bg-white p-1 shadow-[0_6px_20px_rgba(31,63,143,0.15)]">
+                            <button
+                              className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm font-semibold text-[#1f3f8f] hover:bg-[#eef5ff]"
+                              onClick={() => {
+                                const displayTitle = (a.title ?? `Bài tập ${idx + 1}`).trim()
+                                setConfirmDelete({ id: a.id, title: displayTitle })
+                                setOpenAssignmentMenuId(null)
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-[#1f3f8f]" />
+                              Xóa bài
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    {a.description && <p className="mb-2 text-base text-[#1f3f8f]">{a.description}</p>}
-                    <p className="text-lg font-semibold">{a.mode === 'INDIVIDUAL' ? 'Cá nhân' : 'Nhóm'}: {a.libraryItem.title}</p>
-                    {a.dueAt && <p className="mt-1 text-sm font-semibold">Ngày hoàn thành: {new Date(a.dueAt).toLocaleDateString('vi-VN')}</p>}
+                    <p className="mb-1 pl-10 text-sm font-semibold text-[#1f3f8f]">
+                      {a.mode === 'INDIVIDUAL' ? 'Cá nhân' : 'Nhóm'}: Đọc văn bản “{a.libraryItem.title}” và thực hiện bài tập {a.type === 'READING' ? 'đọc hiểu' : 'tích hợp'}
+                    </p>
+                    {a.description && <p className="pl-10 text-sm font-semibold text-[#1f3f8f]">{a.description}</p>}
                   </div>
                 ))}
               </div>
@@ -418,7 +561,7 @@ export default function TeacherClassDetail() {
                     {selectedPending.map((s) => (
                       <button
                         key={s.id}
-                        onClick={() => navigate(`/giao-vien/xem-bai/${s.id}`)}
+                        onClick={() => setOpenReviewSubmissionId(s.id)}
                         className="relative rounded-full bg-[#cbeff2] px-6 py-3 text-base font-bold text-[#1f3f8f]"
                       >
                         {s.student.name}
@@ -436,5 +579,8 @@ export default function TeacherClassDetail() {
     </div>
   )
 }
+
+
+
 
 

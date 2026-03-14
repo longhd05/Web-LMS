@@ -10,7 +10,24 @@ interface LibraryItem {
   tags: string[]
 }
 
-export default function CreateAssignment() {
+type CreatedAssignment = {
+  id: string
+  type: 'READING' | 'INTEGRATION'
+  mode: 'INDIVIDUAL' | 'GROUP'
+  dueAt: string | null
+  createdAt: string
+  title: string | null
+  description: string | null
+  libraryItem: { id: string; title: string }
+}
+
+type CreateAssignmentProps = {
+  embedded?: boolean
+  onCancel?: () => void
+  onCreated?: (assignment: CreatedAssignment) => void
+}
+
+export default function CreateAssignment({ embedded, onCancel, onCreated }: CreateAssignmentProps) {
   const { classId } = useParams<{ classId: string }>()
   const navigate = useNavigate()
 
@@ -100,7 +117,7 @@ export default function CreateAssignment() {
     setError('')
 
     try {
-      await api.post('/assignments', {
+      const res = await api.post('/assignments', {
         classId,
         libraryItemId: selectedItem.id,
         type,
@@ -109,6 +126,10 @@ export default function CreateAssignment() {
         title: title.trim() || undefined,
         description: description.trim() || undefined,
       })
+      if (embedded) {
+        onCreated?.(res.data.data)
+        return
+      }
       navigate(`/giao-vien/lop-hoc/${classId}`)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
@@ -118,17 +139,25 @@ export default function CreateAssignment() {
     }
   }
 
-  return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex w-fit items-center overflow-hidden rounded-full border-2 border-[#8be9a0] bg-[#f5fffd]">
-          <span className="rounded-full border-r border-cyan-300 bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-4 py-1.5 text-sm font-bold uppercase text-white sm:text-base">
-            Lớp
-          </span>
-          <span className="px-4 text-lg font-bold text-[#1f3f8f] sm:text-xl">{className || '...'}</span>
-        </div>
+  const content = (
+    <div>
+        {!embedded && (
+          <div className="mb-6 flex w-fit items-center overflow-hidden rounded-full border-2 border-[#8be9a0] bg-[#f5fffd]">
+            <span className="rounded-full border-r border-cyan-300 bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] px-4 py-1.5 text-sm font-bold uppercase text-white sm:text-base">
+              Lớp
+            </span>
+            <span className="px-4 text-lg font-bold text-[#1f3f8f] sm:text-xl">{className || '...'}</span>
+          </div>
+        )}
 
-        <div className="relative mx-auto max-w-4xl rounded-[28px] border-2 border-[#8bee9f] bg-gradient-to-b from-white to-[#dff2ea] p-6 shadow-[0_0_0_2px_rgba(63,98,170,0.7)] sm:p-8">
+        <div className="mx-auto max-w-4xl rounded-[36px] bg-white p-2">
+          <div
+            className="relative rounded-[30px] border-2 border-transparent bg-gradient-to-b from-white to-[#dff2ea] p-6 sm:p-8"
+            style={{
+              background:
+                'linear-gradient(#f3fffb, #f3fffb) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+            }}
+          >
           <h1 className="mb-6 text-3xl font-black text-[#1f3f8f] sm:text-4xl">Tạo bài tập mới</h1>
 
           {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
@@ -307,8 +336,8 @@ export default function CreateAssignment() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="VD: Hạn nộp, lưu ý, yêu cầu thêm..."
-                rows={4}
-                className="w-full resize-none rounded-xl bg-[#cbeff2] px-5 py-4 text-lg italic text-[#1f3f8f] placeholder:text-[#6f8dbc]"
+                rows={3}
+                className="w-full resize-none rounded-xl bg-[#cbeff2] px-5 py-3 text-lg italic text-[#1f3f8f] placeholder:text-[#6f8dbc]"
               />
             </div>
 
@@ -323,12 +352,22 @@ export default function CreateAssignment() {
             </div> */}
 
             <div className="grid grid-cols-2 gap-4 pt-2 sm:gap-6">
-              <Link
-                to={`/giao-vien/lop-hoc/${classId}`}
-                className="mx-auto w-full max-w-[190px] rounded-[18px] border-2 border-[#cfd4d9] bg-[#a8aaad] py-2.5 text-center text-base font-bold uppercase text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
-              >
-                Hủy
-              </Link>
+              {embedded ? (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="mx-auto w-full max-w-[190px] rounded-[18px] border-2 border-[#cfd4d9] bg-[#a8aaad] py-2.5 text-center text-base font-bold uppercase text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
+                >
+                  Hủy
+                </button>
+              ) : (
+                <Link
+                  to={`/giao-vien/lop-hoc/${classId}`}
+                  className="mx-auto w-full max-w-[190px] rounded-[18px] border-2 border-[#cfd4d9] bg-[#a8aaad] py-2.5 text-center text-base font-bold uppercase text-white transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 hover:shadow-md active:translate-y-0 active:scale-[0.98]"
+                >
+                  Hủy
+                </Link>
+              )}
               <button
                 type="submit"
                 disabled={loading}
@@ -338,8 +377,22 @@ export default function CreateAssignment() {
               </button>
             </div>
           </form>
+          </div>
         </div>
+    </div>
+  )
+
+  if (embedded) {
+    return (
+      <div>
+        {content}
       </div>
+    )
+  }
+
+  return (
+    <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
+      {content}
     </div>
   )
 }
