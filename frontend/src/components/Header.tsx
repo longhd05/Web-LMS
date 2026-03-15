@@ -27,6 +27,8 @@ export default function Header() {
   const MAX_TEACHER_SEARCH_LENGTH = 120
 
   const isTeacher = (user?.role ?? '').toUpperCase() === 'TEACHER'
+  const isStudent = (user?.role ?? '').toUpperCase() === 'STUDENT'
+  const isPortalUser = isTeacher || isStudent
 
   const handleLogout = async () => {
     await logout()
@@ -188,12 +190,12 @@ export default function Header() {
   return (
     <header
       className={
-        isTeacher
+        isPortalUser
           ? 'relative sticky top-0 z-[200] bg-[linear-gradient(180deg,#153177_0%,#1f849a_100%)] shadow-sm py-2'
           : 'sticky top-0 z-[200] border-b border-gray-200 bg-white shadow-sm'
       }
     >
-      {isTeacher && (
+      {isPortalUser && (
         <>
           <div className="absolute left-0 right-0 top-1 h-[2px] bg-[#1297b0]" />
           <div className="absolute left-0 right-0 bottom-1 h-[2px] bg-[#1297b0]" />
@@ -205,7 +207,7 @@ export default function Header() {
             <img src={logoThuVien} alt="Logo thư viện" className="h-12 w-12 object-contain" />
             <span
               className={
-                isTeacher
+                isPortalUser
                   ? 'hidden text-l font-bold uppercase tracking-wide text-white/95 sm:block'
                   : 'hidden text-base font-bold text-gray-900 sm:block'
               }
@@ -214,7 +216,7 @@ export default function Header() {
             </span>
           </Link>
 
-          {isTeacher && (
+          {isPortalUser && (
             <div className="hidden flex-1 justify-start md:flex">
               <div className="flex w-full max-w-[520px] items-center gap-2 rounded-full bg-white px-4 py-2 text-gray-500">
                 <svg className="h-5 w-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,16 +234,10 @@ export default function Header() {
             </div>
           )}
 
-          {!isTeacher && (
+          {!isPortalUser && (
             <nav className="hidden items-center gap-6 md:flex">
               <Link to="/thu-vien-xanh" className="font-medium text-gray-600 transition-colors hover:text-green-600">Thư viện</Link>
               <Link to="/cong-dong/hiep-si-xanh" className="font-medium text-gray-600 transition-colors hover:text-green-600">Cộng đồng</Link>
-              {user?.role === 'STUDENT' && (
-                <>
-                  <Link to="/hoc-sinh/trang-chu" className="font-medium text-gray-600 transition-colors hover:text-green-600">Lớp học</Link>
-                  <Link to="/hoc-sinh/bai-nop" className="font-medium text-gray-600 transition-colors hover:text-green-600">Bài đã nộp</Link>
-                </>
-              )}
               {isTeacher && (
                 <Link to="/giao-vien/trang-chu" className="font-medium text-gray-600 transition-colors hover:text-green-600">Lớp học</Link>
               )}
@@ -256,7 +252,7 @@ export default function Header() {
               </>
             ) : (
               <>
-                {isTeacher && (
+                {isPortalUser && (
                   <button
                     ref={greetingButtonRef}
                     onClick={() => setGreetingOpen((v) => !v)}
@@ -265,11 +261,11 @@ export default function Header() {
                     Xin chào, {user.name}
                   </button>
                 )}
-                <NotificationBell role={user.role} theme={isTeacher ? 'teacher' : 'default'} />
+                <NotificationBell role={user.role} theme={isPortalUser ? 'teacher' : 'default'} />
                 <button
                   onClick={() => setAvatarModalOpen(true)}
                   className={
-                    isTeacher
+                    isPortalUser
                       ? 'relative flex h-9 w-9 items-center justify-center rounded-full border border-white/70 text-white overflow-hidden'
                       : 'relative flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 text-gray-600 overflow-hidden'
                   }
@@ -288,7 +284,7 @@ export default function Header() {
 
             <button
               onClick={() => setMenuOpen((v) => !v)}
-              className={isTeacher ? 'p-2 text-white md:hidden' : 'p-2 text-gray-600 hover:text-green-600 md:hidden'}
+              className={isPortalUser ? 'p-2 text-white md:hidden' : 'p-2 text-gray-600 hover:text-green-600 md:hidden'}
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -298,26 +294,26 @@ export default function Header() {
         </div>
 
         {menuOpen && (
-          <div className={isTeacher ? 'mt-2 flex flex-col gap-2 border-t border-white/20 pb-3 pt-3 md:hidden' : 'mt-2 flex flex-col gap-2 border-t border-gray-100 pb-3 pt-3 md:hidden'}>
-            <Link to="/thu-vien-xanh" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Thư viện</Link>
-            <Link to="/cong-dong/hiep-si-xanh" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Cộng đồng</Link>
-            {user?.role === 'STUDENT' && (
+          <div className={isPortalUser ? 'mt-2 flex flex-col gap-2 border-t border-white/20 pb-3 pt-3 md:hidden' : 'mt-2 flex flex-col gap-2 border-t border-gray-100 pb-3 pt-3 md:hidden'}>
+            <Link to="/thu-vien-xanh" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Thư viện</Link>
+            <Link to="/cong-dong/hiep-si-xanh" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Cộng đồng</Link>
+            {isStudent && (
               <>
-                <Link to="/hoc-sinh/trang-chu" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
-                <Link to="/hoc-sinh/bai-nop" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Bài đã nộp</Link>
+                <Link to="/hoc-sinh/trang-chu" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
+                <Link to="/hoc-sinh/bai-nop" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Bài đã nộp</Link>
               </>
             )}
             {isTeacher && (
-              <Link to="/giao-vien/trang-chu" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
+              <Link to="/giao-vien/trang-chu" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
             )}
             {!user && (
               <>
-                <Link to="/dang-nhap" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Đăng nhập</Link>
-                <Link to="/dang-ky" onClick={() => setMenuOpen(false)} className={isTeacher ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Đăng ký</Link>
+                <Link to="/dang-nhap" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Đăng nhập</Link>
+                <Link to="/dang-ky" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Đăng ký</Link>
               </>
             )}
             {user && (
-              <button onClick={handleLogout} className={isTeacher ? 'px-2 py-1.5 text-left text-white/90' : 'px-2 py-1.5 text-left text-gray-700 hover:text-green-600'}>
+              <button onClick={handleLogout} className={isPortalUser ? 'px-2 py-1.5 text-left text-white/90' : 'px-2 py-1.5 text-left text-gray-700 hover:text-green-600'}>
                 Đăng xuất
               </button>
             )}
