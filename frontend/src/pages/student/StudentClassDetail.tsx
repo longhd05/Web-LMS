@@ -121,14 +121,20 @@ export default function ClassDetail() {
               </div>
             ) : (
               <div className="space-y-4">
-                {assignments.map((assignment, idx) => (
-                  <AssignmentCard
-                    key={assignment.id}
-                    assignment={assignment}
-                    index={idx}
-                    onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}/bai-tap/${assignment.id}`)}
-                  />
-                ))}
+                {assignments.map((assignment, idx) => {
+                  const matchedSub = classSubmissions.find((s) => s.assignment.id === assignment.id)
+                  const enrichedAssignment: Assignment = matchedSub
+                    ? { ...assignment, submission: { id: matchedSub.id, status: matchedSub.status, createdAt: matchedSub.updatedAt } }
+                    : assignment
+                  return (
+                    <AssignmentCard
+                      key={assignment.id}
+                      assignment={enrichedAssignment}
+                      index={idx}
+                      onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}/bai-tap/${assignment.id}`)}
+                    />
+                  )
+                })}
               </div>
             )}
           </div>

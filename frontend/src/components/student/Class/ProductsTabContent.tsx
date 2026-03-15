@@ -148,7 +148,7 @@ export default function ProductsTabContent({ submissions }: ProductsTabContentPr
     <div className="space-y-6">
       <div>
         <h3 className="text-2xl font-black text-[#1f3f8f]">SẢN PHẨM CỦA TÔI</h3>
-        <p className="mt-2 text-sm text-gray-600">Tất cả bài làm đã nộp ngay trong lớp học này.</p>
+        {/* <p className="mt-2 text-sm text-gray-600">Tất cả bài làm đã nộp ngay trong lớp học này.</p> */}
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -217,7 +217,7 @@ export default function ProductsTabContent({ submissions }: ProductsTabContentPr
                       </span>
                     )}
                     {stats.passed === 0 && stats.failed === 0 && (
-                      <Badge variant={reviewed ? 'success' : 'pending'}>{getSubmissionStateLabel(item)}</Badge>
+                      <Badge variant={item.status === 'REJECTED' ? 'warning' : (reviewed ? 'success' : 'pending')}>{getSubmissionStateLabel(item)}</Badge>
                     )}
                   </div>
                 </div>

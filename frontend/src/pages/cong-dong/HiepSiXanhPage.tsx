@@ -1,4 +1,6 @@
-import CongDongTemplate, { LessonItem, CommunityCardItem } from './CongDongTemplate'
+import { useEffect, useState } from 'react'
+import api from '../../api/axios'
+import CongDongTemplate, { CommunityCardItem, LessonItem } from './CongDongTemplate'
 import hiepSiXanhImg from '../../img/1x/cong-dong-bg-hiep-si-xanh.svg'
 
 const lessons: LessonItem[] = [
@@ -6,7 +8,7 @@ const lessons: LessonItem[] = [
         id: 'lesson-1',
         title: 'Tên bài học',
         description: 'Mô tả ngắn về bài học và nội dung chính',
-        imageUrl: undefined, // Có thể thêm URL ảnh ở đây
+        imageUrl: undefined,
     },
     {
         id: 'lesson-2',
@@ -22,151 +24,60 @@ const lessons: LessonItem[] = [
     },
 ]
 
-const communityCards: CommunityCardItem[] = [
-    {
-        id: 'card-1',
-        name: 'NGUYỄN VĂN A',
-        className: '11A',
-        school: 'TRƯỜNG THCS ABC',
-        date: '15/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-2',
-        name: 'NGUYỄN VĂN B',
-        className: '10A',
-        school: 'TRƯỜNG THCS ABC',
-        date: '14/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-3',
-        name: 'TRẦN THỊ C',
-        className: '12B',
-        school: 'TRƯỜNG THCS ABC',
-        date: '13/03/2026',
-        completed: false,
-    },
-    {
-        id: 'card-4',
-        name: 'LÊ VĂN D',
-        className: '11C',
-        school: 'TRƯỜNG THCS ABC',
-        date: '12/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-5',
-        name: 'PHẠM THỊ E',
-        className: '10D',
-        school: 'TRƯỜNG THCS ABC',
-        date: '11/03/2026',
-        completed: false,
-    },
-    {
-        id: 'card-6',
-        name: 'HOÀNG VĂN F',
-        className: '12A',
-        school: 'TRƯỜNG THCS ABC',
-        date: '10/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-7',
-        name: 'NGUYỄN THỊ G',
-        className: '11B',
-        school: 'TRƯỜNG THCS ABC',
-        date: '09/03/2026',
-        completed: false,
-    },
-    {
-        id: 'card-8',
-        name: 'TRẦN VĂN H',
-        className: '10E',
-        school: 'TRƯỜNG THCS ABC',
-        date: '08/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-9',
-        name: 'LÊ THỊ I',
-        className: '10A',
-        school: 'TRƯỜNG THCS ABC',
-        date: '07/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-10',
-        name: 'VÕ VĂN K',
-        className: '11D',
-        school: 'TRƯỜNG THCS ABC',
-        date: '06/03/2026',
-        completed: false,
-    },
-    {
-        id: 'card-11',
-        name: 'BÙI THỊ L',
-        className: '12C',
-        school: 'TRƯỜNG THCS ABC',
-        date: '05/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-12',
-        name: 'ĐỖ VĂN M',
-        className: '10B',
-        school: 'TRƯỜNG THCS ABC',
-        date: '04/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-13',
-        name: 'HỒ THỊ N',
-        className: '11A',
-        school: 'TRƯỜNG THCS ABC',
-        date: '03/03/2026',
-        completed: false,
-    },
-    {
-        id: 'card-14',
-        name: 'DƯƠNG VĂN O',
-        className: '12D',
-        school: 'TRƯỜNG THCS ABC',
-        date: '02/03/2026',
-        completed: true,
-    },
-    {
-        id: 'card-15',
-        name: 'LÝ THỊ P',
-        className: '10C',
-        school: 'TRƯỜNG THCS ABC',
-        date: '01/03/2026',
-        completed: false,
-    },
-    {
-        id: 'card-16',
-        name: 'NGUYỄN VĂN Q',
-        className: '11E',
-        school: 'TRƯỜNG THCS ABC',
-        date: '28/02/2026',
-        completed: true,
-    },
-]
+interface CommunityPost {
+    id: string
+    publishedAt: string
+    submission: {
+        student: { id: string; name: string }
+        assignment: {
+            class: { id: string; name: string }
+        }
+        review?: { resultStatus: string } | null
+    }
+}
+
+function formatDate(iso: string): string {
+    const d = new Date(iso)
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yyyy = d.getFullYear()
+    return `${dd}/${mm}/${yyyy}`
+}
 
 export default function HiepSiXanhPage() {
+    const [communityCards, setCommunityCards] = useState<CommunityCardItem[]>([])
+
+    useEffect(() => {
+        api.get('/community/hieu-si-xanh/posts', { params: { limit: 100 } })
+            .then((res) => {
+                const posts: CommunityPost[] = res.data.data ?? []
+                const cards: CommunityCardItem[] = posts.map((post) => ({
+                    id: post.id,
+                    name: post.submission.student.name.toUpperCase(),
+                    className: post.submission.assignment.class.name,
+                    date: formatDate(post.publishedAt),
+                    completed: post.submission.review?.resultStatus === 'PASSED',
+                }))
+                setCommunityCards(cards)
+            })
+            .catch(() => {
+                setCommunityCards([])
+            })
+    }, [])
+
     return (
         <CongDongTemplate
             title="HIỆP SĨ XANH"
             subtitle="Tiêu chí, giới thiệu về cộng đồng hiệp sĩ xanh"
             backgroundImage={hiepSiXanhImg}
-            backgroundSize="115%" // Tùy chỉnh theo page này
-            backgroundSizeMobile="200%" // Tùy chỉnh cho mobile
-            backgroundPaddingTop="50px" // Thêm khoảng cách trên cho background để chữ không bị cắt
+            backgroundSize="115%"
+            backgroundSizeMobile="200%"
+            backgroundPaddingTop="50px"
             subtitleBoxBottom="80px"
-            primaryColor="#1e3a8a" // Navy blue
+            primaryColor="#1e3a8a"
             secondaryColor="#a9f9d1"
             accentColor="#baedb3"
-            videoUrl="https://example.com/video" // URL video nếu có
+            videoUrl="https://example.com/video"
             lessons={lessons}
             communityCards={communityCards}
             communityKey="hieu-si-xanh"

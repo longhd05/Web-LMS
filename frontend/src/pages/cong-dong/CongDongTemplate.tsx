@@ -15,7 +15,7 @@ export interface CommunityCardItem {
     id: string
     name: string
     className: string
-    school: string
+    school?: string
     date: string
     likes?: number
     completed?: boolean
@@ -551,9 +551,11 @@ export default function CongDongTemplate({
                                                             <h3 className="text-[17px] font-bold leading-tight uppercase" style={{ color: primaryColor }}>
                                                                 {card.name}{card.className ? ` - ${card.className}` : ''}
                                                             </h3>
+                                                            {card.school && (
                                                             <p className="text-[17px] font-bold" style={{ color: primaryColor }}>
                                                                 {card.school}
                                                             </p>
+                                                            )}
                                                             <p className="text-xs text-gray-500 font-semibold" style={{ color: primaryColor }}>
                                                                 {card.date}
                                                             </p>
