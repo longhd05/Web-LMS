@@ -80,6 +80,7 @@ export default function HiepSiXanhPage() {
             videoUrl="https://example.com/video"
             lessons={lessons}
             communityCards={communityCards}
+            communityKey="hieu-si-xanh"
         />
     )
 }

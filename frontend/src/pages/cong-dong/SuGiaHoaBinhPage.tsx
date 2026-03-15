@@ -81,6 +81,7 @@ export default function SuGiaHoaBinhPage() {
             videoUrl="https://example.com/video"
             lessons={lessons}
             communityCards={communityCards}
+            communityKey="su-gia-hoa-binh"
         />
     )
 }
