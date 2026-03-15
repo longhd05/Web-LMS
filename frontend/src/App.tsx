@@ -28,14 +28,13 @@ import { HiepSiXanhPage, SuGiaHoaBinhPage } from './pages/cong-dong'
 function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const isThuVienXanh = location.pathname.startsWith('/thu-vien-xanh')
-  const isStudentPortal = location.pathname.startsWith('/hoc-sinh')
   const isHomePage = location.pathname === '/trang-chu'
   const isCongDong = location.pathname.startsWith('/cong-dong')
   const isAuthPage = location.pathname === '/dang-nhap' || location.pathname === '/dang-ky'
 
   return (
     <div className={isThuVienXanh ? 'min-h-screen' : 'min-h-screen bg-gray-50'}>
-      {!isThuVienXanh && !isStudentPortal && !isHomePage && !isCongDong && !isAuthPage && <Header />}
+      {!isThuVienXanh && !isHomePage && !isCongDong && !isAuthPage && <Header />}
       <main>{children}</main>
     </div>
   )
