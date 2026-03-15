@@ -1,11 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
-import TopNavBar from '../../components/thu-vien-xanh/TopNavBar'
 import FullscreenModalShell from '../../components/thu-vien-xanh/FullscreenModalShell'
 import api from '../../api/axios'
-
-const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
 
 interface ParsedContent {
   text: string
@@ -178,36 +175,24 @@ export default function AssignmentDetail() {
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen bg-center bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
-      >
-        <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
-        <div className="flex items-center justify-center py-16">
-          <LoadingSpinner />
-        </div>
+      <div className="flex items-center justify-center py-16">
+        <LoadingSpinner />
       </div>
     )
   }
 
   if (error || !assignment || !content) {
     return (
-      <div
-        className="min-h-screen bg-center bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
-      >
-        <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
-        <div className="mx-auto max-w-2xl px-6 py-12">
-          <div className="rounded-2xl border-2 border-red-300 bg-red-50 px-5 py-4">
-            <p className="font-bold text-red-700">{error || 'Không tìm thấy bài tập'}</p>
-          </div>
-          <button
-            onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
-            className="mt-4 font-bold text-[#1f3f8f] hover:underline"
-          >
-            ← Quay lại
-          </button>
+      <div className="mx-auto max-w-2xl px-6 py-12">
+        <div className="rounded-2xl border-2 border-red-300 bg-red-50 px-5 py-4">
+          <p className="font-bold text-red-700">{error || 'Không tìm thấy bài tập'}</p>
         </div>
+        <button
+          onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
+          className="mt-4 font-bold text-[#1f3f8f] hover:underline"
+        >
+          ← Quay lại
+        </button>
       </div>
     )
   }
@@ -358,23 +343,13 @@ export default function AssignmentDetail() {
   )
 
   return (
-    <div
-      className="min-h-screen bg-center bg-cover bg-no-repeat"
-      style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
-    >
-      <TopNavBar
-        searchValue=""
-        onSearchChange={() => undefined}
-        onSearchSubmit={() => undefined}
-      />
-      <FullscreenModalShell
-        titleLeft={assignment.libraryItem.title}
-        titleRight={assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
-        dirty={dirty}
-        onClose={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
-        leftPanel={leftPanel}
-        rightPanel={assignment.type === 'READING' ? readingPanel : integrationPanel}
-      />
-    </div>
+    <FullscreenModalShell
+      titleLeft={assignment.libraryItem.title}
+      titleRight={assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
+      dirty={dirty}
+      onClose={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
+      leftPanel={leftPanel}
+      rightPanel={assignment.type === 'READING' ? readingPanel : integrationPanel}
+    />
   )
 }
