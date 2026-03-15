@@ -1,14 +1,16 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import StudentTopNavBar from '../../components/student/Layout/StudentTopNavBar'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
+import TopNavBar from '../../components/thu-vien-xanh/TopNavBar'
+import FullscreenModalShell from '../../components/thu-vien-xanh/FullscreenModalShell'
 import api from '../../api/axios'
-import { backIn } from 'framer-motion'
-import { button } from 'framer-motion/client'
+
+const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
 
 interface ParsedContent {
   text: string
   questions: Array<{ id: string; text: string; maxMark?: number }>
+  integrationPrompt?: string
   imageUrl?: string | null
 }
 
@@ -38,6 +40,7 @@ function parseContent(raw: string): ParsedContent {
     return {
       text: parsed.text || raw,
       questions: Array.isArray(parsed.questions) ? parsed.questions : [],
+      integrationPrompt: typeof parsed.integrationPrompt === 'string' ? parsed.integrationPrompt : undefined,
       imageUrl: parsed.imageUrl || null,
     }
   } catch {
@@ -108,6 +111,9 @@ export default function AssignmentDetail() {
   const isSubmitted = existingSub?.status === 'SUBMITTED' || existingSub?.status === 'APPROVED'
   const isReviewed = existingSub?.status === 'APPROVED' || existingSub?.status === 'REJECTED'
   const canEdit = !isSubmitted && !isReviewed
+  const dirty = canEdit && (assignment?.type === 'READING'
+    ? Object.values(answers).some((value) => value.trim().length > 0)
+    : Boolean(uploadedFileId))
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -172,9 +178,12 @@ export default function AssignmentDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#e0f5f5]">
-        <StudentTopNavBar />
-        <div className="flex items-center justify-center py-20">
+      <div
+        className="min-h-screen bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+      >
+        <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
+        <div className="flex items-center justify-center py-16">
           <LoadingSpinner />
         </div>
       </div>
@@ -183,8 +192,11 @@ export default function AssignmentDetail() {
 
   if (error || !assignment || !content) {
     return (
-      <div className="min-h-screen bg-[#e0f5f5]">
-        <StudentTopNavBar />
+      <div
+        className="min-h-screen bg-center bg-cover bg-no-repeat"
+        style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+      >
+        <TopNavBar searchValue="" onSearchChange={() => undefined} onSearchSubmit={() => undefined} />
         <div className="mx-auto max-w-2xl px-6 py-12">
           <div className="rounded-2xl border-2 border-red-300 bg-red-50 px-5 py-4">
             <p className="font-bold text-red-700">{error || 'Không tìm thấy bài tập'}</p>
@@ -200,214 +212,169 @@ export default function AssignmentDetail() {
     )
   }
 
-  return (
-    <div className="flex min-h-screen flex-col bg-[#e0f5f5]">
-      {/* Header */}
-      <StudentTopNavBar />
+  const leftPanel = (
+    <div>
+      <p className="text-center font-bold text-blue-900">Ngữ liệu</p>
+      <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">
+        {content.text}
+      </div>
+      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white overflow-hidden">
+        {content.imageUrl ? (
+          <img src={content.imageUrl} alt={assignment.libraryItem.title} className="h-full w-full object-cover" />
+        ) : (
+          <span>Ảnh</span>
+        )}
+      </div>
+    </div>
+  )
 
-      {/* Sub-header: Back arrow + Title + Type label */}
-      <div className="grid grid-cols-[64px_1fr_180px] items-center px-6 py-4">
-        {/* Back button */}
-        <div className="flex justify-start">
-          <button
-            onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
-            className="transition-transform hover:scale-110"
-            title="Quay lại"
-          >
-            <img src={'/src/img/SVG/back-button.svg'} alt="Quay lại" className="h-10 w-10 object-contain" />
-          </button>
+  const readingPanel = (
+    <div className="space-y-5 pr-5">
+      {content.questions.length === 0 ? (
+        <article className="rounded-2xl bg-white p-4 border border-cyan-200">
+          <p className="font-semibold text-slate-800">Bài tập chưa có câu hỏi đọc hiểu.</p>
+        </article>
+      ) : (
+        content.questions.map((question, idx) => (
+          <article key={question.id} className="rounded-2xl bg-white p-4 border border-cyan-200">
+            <p className="font-semibold text-slate-800 text-lg">
+              Câu {idx + 1}: {question.text}
+              {question.maxMark && (
+                <span className="ml-2 text-sm font-normal text-slate-500">({question.maxMark} điểm)</span>
+              )}
+            </p>
+            <textarea
+              value={answers[question.id] || ''}
+              onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
+              disabled={!canEdit}
+              rows={4}
+              placeholder="Nhập câu trả lời của bạn..."
+              className="mt-3 h-32 w-full resize-none rounded-xl border border-cyan-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-500"
+            />
+          </article>
+        ))
+      )}
+
+      {isReviewed && (
+        <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800">
+          <p className="font-bold">Đã chấm bài</p>
+          {existingSub?.review?.comment && (
+            <p className="mt-1 text-sm text-slate-700">{existingSub.review.comment}</p>
+          )}
         </div>
+      )}
 
-        {/* Title */}
-        <h1 className="text-center text-2xl font-black text-[#1f3f8f]">
-          {assignment.libraryItem.title}
-        </h1>
-
-        {/* Type */}
+      {canEdit && (
         <div className="flex justify-end">
-          <h2 className="text-2xl font-black uppercase text-[#1f3f8f]">
-            {assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
-          </h2>
-        </div>
-      </div>
-
-      {/* Main Content - Two Panel Layout */}
-      <div className="flex flex-1 gap-0 overflow-hidden px-4 pb-4">
-        {/* LEFT PANEL - Ngữ liệu (Material) */}
-        <div className="relative flex w-1/2 flex-col overflow-y-auto rounded-l-2xl bg-[#dff5f5] p-6">
-          {/* Decorative circle */}
-          <div className="absolute right-0 top-1/4 h-5 w-5 translate-x-1/2 rounded-full bg-[#3bbfb2]" />
-
-          {/* Exit without saving button */}
           <button
-            onClick={() => {
-              if (window.confirm('Bạn có chắc muốn thoát? Dữ liệu chưa lưu sẽ bị mất.')) {
-                navigate(`/hoc-sinh/lop-hoc/${classId}`)
-              }
-            }}
-            className="mb-6 self-start rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 shadow transition-colors hover:bg-gray-400"
+            onClick={() => handleSubmit('SUBMITTED')}
+            disabled={submitting}
+            className="rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-400 text-white font-extrabold"
           >
-            Thoát mà chưa lưu
+            {submitting ? 'ĐANG NỘP...' : 'NỘP BÀI'}
           </button>
+        </div>
+      )}
+    </div>
+  )
 
-          {/* Ngữ liệu heading */}
-          <div className="flex flex-1 flex-col items-center justify-center">
-            <h3 className="mb-6 text-center text-2xl font-bold text-[#1f3f8f]">Ngữ liệu</h3>
+  const integrationPrompt = content.integrationPrompt || content.text
 
-            {/* Reading text content */}
-            <div className="mb-6 w-full rounded-xl bg-white/70 p-5 text-base leading-relaxed text-gray-800">
-              {content.text}
-            </div>
+  const integrationPanel = (
+    <div className="space-y-5 pr-5">
+      <section>
+        <p className="font-bold text-blue-900">Đề bài:</p>
+        <div className="mt-2 whitespace-pre-wrap text-slate-700 leading-relaxed font-semibold">{integrationPrompt}</div>
+      </section>
 
-            {/* Image area */}
-            {content.imageUrl ? (
-              <div className="w-full overflow-hidden rounded-xl">
-                <img
-                  src={content.imageUrl}
-                  alt="Ngữ liệu"
-                  className="h-auto w-full rounded-xl object-cover"
-                />
-              </div>
-            ) : (
-              <div className="flex h-48 w-full items-center justify-center rounded-xl bg-[#1a2a5e] text-lg font-semibold text-white/80">
-                Ảnh
-              </div>
-            )}
+      <section>
+        {uploadedFileUrl ? (
+          <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3">
+            <p className="font-semibold text-emerald-800">✓ Đã tải lên: {uploadedFileName || 'Tệp đính kèm'}</p>
+            <a
+              href={`http://localhost:3000${uploadedFileUrl}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-block text-sm font-semibold text-blue-700 hover:underline"
+            >
+              Mở tệp
+            </a>
           </div>
-        </div>
+        ) : (
+          <div className="flex justify-center">
+            <label className="inline-flex cursor-pointer flex-col items-center">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1f849a] text-3xl font-bold text-white shadow-lg transition-transform hover:scale-110">
+                {uploading ? '...' : '+'}
+              </span>
+              <input
+                type="file"
+                accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
+                onChange={handleFileUpload}
+                disabled={!canEdit || uploading}
+                className="hidden"
+              />
+            </label>
+          </div>
+        )}
+        <p className="mt-2 text-center text-xs text-slate-500">doc, png, jpeg, mp4</p>
 
-        {/* Divider with circle */}
-        <div className="relative w-1 bg-[#3bbfb2]">
-          <div className="absolute bottom-8 left-1/2 h-5 w-5 -translate-x-1/2 rounded-full bg-[#3bbfb2]" />
-        </div>
+        {canEdit && uploadedFileUrl && (
+          <div className="mt-3 text-center">
+            <label className="inline-block cursor-pointer rounded-full bg-[#1f849a] px-5 py-2 font-bold text-white transition-all hover:bg-[#15607a]">
+              {uploading ? 'Đang tải...' : 'Thay đổi file'}
+              <input
+                type="file"
+                accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
+          </div>
+        )}
+      </section>
 
-        {/* RIGHT PANEL - Đề bài / Submission */}
-        <div className="relative flex w-1/2 flex-col overflow-y-auto rounded-r-2xl bg-[#dff5f5] p-6">
-          {/* Decorative circle */}
-          <div className="absolute right-4 top-1/4 h-5 w-5 rounded-full bg-[#3bbfb2]" />
-
-          {/* READING type: Show questions */}
-          {assignment.type === 'READING' && content.questions.length > 0 && (
-            <div className="space-y-5">
-              {content.questions.map((question, idx) => (
-                <div key={question.id} className="space-y-2">
-                  <p className="text-lg font-bold text-[#1f3f8f]">
-                    Câu {idx + 1}: {question.text}
-                    {question.maxMark && (
-                      <span className="ml-2 text-sm font-normal text-gray-500">
-                        ({question.maxMark} điểm)
-                      </span>
-                    )}
-                  </p>
-                  <textarea
-                    value={answers[question.id] || ''}
-                    onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-                    disabled={!canEdit}
-                    rows={4}
-                    placeholder="Nhập câu trả lời của bạn..."
-                    className="w-full rounded-lg border-2 border-gray-300 bg-white p-4 text-base disabled:bg-gray-100 disabled:text-gray-600 focus:border-[#3bbfb2] focus:outline-none"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* INTEGRATION type: Show question + file upload */}
-          {assignment.type === 'INTEGRATION' && (
-            <div className="flex flex-1 flex-col items-center justify-center space-y-6">
-              {/* Đề bài */}
-              <p className="text-xl font-bold text-[#1f3f8f]">
-                Đề bài: {content.questions[0]?.text || content.text}
-              </p>
-
-              {/* File upload area */}
-              {uploadedFileUrl ? (
-                <div className="space-y-3 text-center">
-                  <div className="flex items-center justify-center gap-2 rounded-lg bg-green-50 px-4 py-3">
-                    <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="font-bold text-green-700">✓ {uploadedFileName || 'Đã tải lên file'}</span>
-                  </div>
-                  {canEdit && (
-                    <label className="inline-block cursor-pointer rounded-full bg-[#1f849a] px-5 py-2 font-bold text-white transition-all hover:bg-[#15607a]">
-                      Thay đổi file
-                      <input
-                        type="file"
-                        accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
-                        onChange={handleFileUpload}
-                        disabled={uploading}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center">
-                  <label className="inline-flex cursor-pointer flex-col items-center">
-                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1f849a] text-3xl font-bold text-white shadow-lg transition-transform hover:scale-110">
-                      {uploading ? '...' : '+'}
-                    </span>
-                    <input
-                      type="file"
-                      accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
-                      onChange={handleFileUpload}
-                      disabled={!canEdit || uploading}
-                      className="hidden"
-                    />
-                  </label>
-                  <p className="mt-3 rounded-lg bg-gray-200 px-4 py-1 text-sm text-gray-600">
-                    doc, png, jpeg, mp4
-                  </p>
-                </div>
-              )}
-
-              {/* Submit button */}
-              {canEdit && (
-                <button
-                  onClick={() => handleSubmit('SUBMITTED')}
-                  disabled={submitting}
-                  className="mt-auto self-end rounded-full bg-[#1a2a5e] px-10 py-3 text-lg font-black uppercase text-white shadow-lg transition-all hover:bg-[#0f1d45] disabled:opacity-50"
-                >
-                  {submitting ? 'Đang nộp...' : 'Nộp bài'}
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* READING Submit button */}
-          {assignment.type === 'READING' && canEdit && (
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => handleSubmit('DRAFT')}
-                disabled={submitting}
-                className="rounded-full bg-gray-400 px-6 py-3 text-sm font-bold uppercase text-white shadow transition-all hover:bg-gray-500 disabled:opacity-50"
-              >
-                Lưu nháp
-              </button>
-              <button
-                onClick={() => handleSubmit('SUBMITTED')}
-                disabled={submitting}
-                className="rounded-full bg-[#1a2a5e] px-10 py-3 text-lg font-black uppercase text-white shadow-lg transition-all hover:bg-[#0f1d45] disabled:opacity-50"
-              >
-                {submitting ? 'Đang nộp...' : 'Nộp bài'}
-              </button>
-            </div>
-          )}
-
-          {/* Reviewed status */}
-          {isReviewed && (
-            <div className="mt-6 rounded-xl border-2 border-green-300 bg-green-50 p-4 text-center">
-              <p className="font-bold text-green-700">
-                ✓ Bài làm đã được chấm
-              </p>
-              {existingSub?.review?.comment && (
-                <p className="mt-2 text-gray-700">{existingSub.review.comment}</p>
-              )}
-            </div>
+      {isReviewed && (
+        <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800">
+          <p className="font-bold">Đã chấm bài</p>
+          {existingSub?.review?.comment && (
+            <p className="mt-1 text-sm text-slate-700">{existingSub.review.comment}</p>
           )}
         </div>
-      </div>
+      )}
+
+      {canEdit && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => handleSubmit('SUBMITTED')}
+            disabled={submitting || !uploadedFileId}
+            className="rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-400 text-white font-extrabold"
+          >
+            {submitting ? 'ĐANG NỘP...' : 'NỘP BÀI'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
+  return (
+    <div
+      className="min-h-screen bg-center bg-cover bg-no-repeat"
+      style={{ backgroundImage: `url(${thuVienXanhBackground})` }}
+    >
+      <TopNavBar
+        searchValue=""
+        onSearchChange={() => undefined}
+        onSearchSubmit={() => undefined}
+      />
+      <FullscreenModalShell
+        titleLeft={assignment.libraryItem.title}
+        titleRight={assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
+        dirty={dirty}
+        onClose={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
+        leftPanel={leftPanel}
+        rightPanel={assignment.type === 'READING' ? readingPanel : integrationPanel}
+      />
     </div>
   )
 }

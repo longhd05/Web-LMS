@@ -23,7 +23,7 @@ interface AuthContextValue {
   isClassStudent: boolean
   isIndependentStudent: boolean
 
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string, role: 'STUDENT' | 'TEACHER') => Promise<User>
   register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER') => Promise<void>
   logout: () => Promise<void>
   updateUser: (updates: Partial<User>) => void
