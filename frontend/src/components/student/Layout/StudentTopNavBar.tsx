@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import AvatarDropdown from './AvatarDropdown'
@@ -15,7 +16,9 @@ export default function StudentTopNavBar() {
   const [greetingOpen, setGreetingOpen] = useState(false)
   const greetingRef = useRef<HTMLDivElement | null>(null)
   const greetingButtonRef = useRef<HTMLButtonElement | null>(null)
+  const [greetingPos, setGreetingPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
 
+  // Close greeting dropdown on outside click
   useEffect(() => {
     if (!greetingOpen) return
     const handleClickOutside = (event: MouseEvent) => {
@@ -30,10 +33,42 @@ export default function StudentTopNavBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [greetingOpen])
 
+  // Position greeting dropdown below the button
+  useEffect(() => {
+    if (!greetingOpen) return
+    const update = () => {
+      if (!greetingButtonRef.current) return
+      const rect = greetingButtonRef.current.getBoundingClientRect()
+      setGreetingPos({ top: rect.bottom + 6, left: rect.left })
+    }
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [greetingOpen])
+
   const handleLogout = async () => {
     await logout()
     navigate('/dang-nhap')
   }
+
+  const greetingDropdownNode = greetingOpen ? (
+    <div
+      ref={greetingRef}
+      style={{ top: greetingPos.top, left: greetingPos.left }}
+      className="fixed z-[9999] min-w-[130px] rounded-xl border border-cyan-200 bg-white p-1 shadow-lg"
+    >
+      <button
+        onClick={handleLogout}
+        className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-blue-900 hover:bg-blue-50"
+      >
+        Đăng xuất
+      </button>
+    </div>
+  ) : null
 
   return (
     <header className="relative z-30 bg-[linear-gradient(180deg,#153177_0%,#1f849a_100%)] px-4 py-3 sm:px-6 lg:px-8">
@@ -75,33 +110,19 @@ export default function StudentTopNavBar() {
         {/* Right: Greeting + Actions */}
         <div className="flex items-center gap-3">
           {user && (
-            <div className="relative hidden sm:block">
-              <button
-                ref={greetingButtonRef}
-                onClick={() => setGreetingOpen((v) => !v)}
-                className="text-sm font-semibold uppercase tracking-wide text-white hover:text-white/80"
-              >
-                Xin chào, {user.name}
-              </button>
-              {greetingOpen && (
-                <div
-                  ref={greetingRef}
-                  className="absolute left-0 top-full mt-2 min-w-[130px] rounded-xl border border-cyan-200 bg-white p-1 shadow-lg z-50"
-                >
-                  <button
-                    onClick={handleLogout}
-                    className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-blue-900 hover:bg-blue-50"
-                  >
-                    Đăng xuất
-                  </button>
-                </div>
-              )}
-            </div>
+            <button
+              ref={greetingButtonRef}
+              onClick={() => setGreetingOpen((v) => !v)}
+              className="hidden text-sm font-semibold uppercase tracking-wide text-white hover:text-white/80 sm:block"
+            >
+              Xin chào, {user.name}
+            </button>
           )}
           <NotificationBell role="STUDENT" />
           <AvatarDropdown />
         </div>
       </div>
+      {greetingOpen && createPortal(greetingDropdownNode, document.body)}
     </header>
   )
 }
