@@ -170,6 +170,7 @@ export default function SuGiaHoaBinhPage() {
             videoUrl="https://example.com/video" // URL video nếu có
             lessons={lessons}
             communityCards={communityCards}
+            communityKey="su-gia-hoa-binh"
         />
     )
 }

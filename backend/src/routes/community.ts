@@ -21,6 +21,7 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
             student: { select: { id: true, name: true, avatarUrl: true } },
             assignment: { include: { libraryItem: true } },
             review: true,
+            integrationFile: true,
           },
         },
       },
