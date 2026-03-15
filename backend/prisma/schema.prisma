@@ -32,6 +32,7 @@ model Class {
   name      String
   code      String   @unique
   teacherId String
+  school    String   @default("")
   teacher   User     @relation(fields: [teacherId], references: [id])
   createdAt DateTime @default(now())
 

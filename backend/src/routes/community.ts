@@ -19,7 +19,7 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
         submission: {
           include: {
             student: { select: { id: true, name: true, avatarUrl: true } },
-            assignment: { include: { libraryItem: true } },
+            assignment: { include: { libraryItem: true, class: { select: { id: true, name: true, school: true } } } },
             review: true,
           },
         },
@@ -47,7 +47,7 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
       submission: {
         include: {
           student: { select: { id: true, name: true, avatarUrl: true } },
-          assignment: { include: { libraryItem: true } },
+      assignment: { include: { libraryItem: true, class: { select: { id: true, name: true, school: true } } } },
           review: { include: { teacher: { select: { id: true, name: true } } } },
           integrationFile: true,
         },
