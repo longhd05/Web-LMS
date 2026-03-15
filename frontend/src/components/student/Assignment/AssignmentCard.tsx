@@ -34,7 +34,7 @@ export default function AssignmentCard({ assignment, index, onClick }: Assignmen
   const modeLabel = assignment.mode === 'INDIVIDUAL' ? 'Cá nhân' : 'Nhóm'
 
   return (
-    <div className={`rounded-[20px] px-6 py-5 text-[#1f3f8f] transition-all hover:shadow-lg ${isCompleted ? 'bg-[#d4f5c4]' : 'bg-[#cbeff2]'}`}>
+    <div className="rounded-[20px] px-6 py-5 text-[#1f3f8f] transition-all hover:shadow-lg bg-[#cbeff2]">
       {/* Left Content */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
