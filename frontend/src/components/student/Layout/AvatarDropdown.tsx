@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import api from '../../../api/axios'
 
 export default function AvatarDropdown() {
-  const { user, logout, updateUser } = useAuth()
+  const { user, updateUser } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const navigate = useNavigate()
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
@@ -34,11 +32,6 @@ export default function AvatarDropdown() {
       setAvatarPreview(null)
     }
   }, [isOpen])
-
-  const handleLogout = async () => {
-    await logout()
-    navigate('/dang-nhap')
-  }
 
   const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
