@@ -217,7 +217,7 @@ export default function ProductsTabContent({ submissions }: ProductsTabContentPr
                       </span>
                     )}
                     {stats.passed === 0 && stats.failed === 0 && (
-                      <Badge variant={reviewed ? 'success' : 'pending'}>{getSubmissionStateLabel(item)}</Badge>
+                      <Badge variant={item.status === 'REJECTED' ? 'warning' : (reviewed ? 'success' : 'pending')}>{getSubmissionStateLabel(item)}</Badge>
                     )}
                   </div>
                 </div>
