@@ -1,7 +1,8 @@
-import { ReactNode, useState, useEffect } from 'react'
+import { ReactNode, useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import CongDongTopNavBar from '../../components/student/Layout/CongDongTopNavBar'
+import api from '../../api/axios'
 
 export interface LessonItem {
     id: string
@@ -20,6 +21,33 @@ export interface CommunityCardItem {
     completed?: boolean
 }
 
+interface CommunityPostSubmission {
+    id: string
+    status: string
+    readingAnswersJson?: string | null
+    integrationFile?: { url: string; filename: string; mimetype: string } | null
+    student: { id: string; name: string; avatarUrl?: string | null }
+    assignment: {
+        id: string
+        type: 'READING' | 'INTEGRATION'
+        libraryItem: {
+            id: string
+            title: string
+            content: string
+            readingQuestionsJson?: string | null
+        }
+    }
+    review?: { resultStatus: 'PASSED' | 'FAILED' } | null
+}
+
+interface CommunityPostData {
+    id: string
+    communityKey: string
+    publishedAt: string
+    publisher: { id: string; name: string; avatarUrl?: string | null }
+    submission: CommunityPostSubmission
+}
+
 export interface CongDongTemplateProps {
     title: string
     subtitle: string
@@ -36,6 +64,7 @@ export interface CongDongTemplateProps {
     videoUrl?: string
     lessons: LessonItem[]
     communityCards: CommunityCardItem[]
+    communityKey?: string
 }
 
 export default function CongDongTemplate({
@@ -54,15 +83,33 @@ export default function CongDongTemplate({
     videoUrl,
     lessons,
     communityCards,
+    communityKey,
 }: CongDongTemplateProps) {
     const [currentPage, setCurrentPage] = useState(0)
     const [slideDirection, setSlideDirection] = useState(0)
     const [showScroll, setShowScroll] = useState(true)
+    const [apiPosts, setApiPosts] = useState<CommunityPostData[]>([])
+    const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
+
+    const displayCards = useMemo<CommunityCardItem[]>(() => {
+        if (communityKey && apiPosts.length > 0) {
+            return apiPosts.map(post => ({
+                id: post.id,
+                name: post.submission.student.name,
+                className: '',
+                school: post.submission.assignment.libraryItem.title,
+                date: new Date(post.publishedAt).toLocaleDateString('vi-VN'),
+                completed: post.submission.review?.resultStatus === 'PASSED',
+            }))
+        }
+        return communityCards
+    }, [communityKey, apiPosts, communityCards])
+
     const cardsPerPage = 8
-    const totalPages = Math.ceil(communityCards.length / cardsPerPage)
+    const totalPages = Math.ceil(displayCards.length / cardsPerPage)
     const startIndex = currentPage * cardsPerPage
     const endIndex = startIndex + cardsPerPage
-    const currentCards = communityCards.slice(startIndex, endIndex)
+    const currentCards = displayCards.slice(startIndex, endIndex)
 
     const handlePrevPage = () => {
         if (currentPage > 0) {
@@ -83,6 +130,53 @@ export default function CongDongTemplate({
         window.addEventListener('scroll', onScroll)
         return () => window.removeEventListener('scroll', onScroll)
     }, [])
+
+    useEffect(() => {
+        if (!communityKey) return
+        const fetchPosts = async () => {
+            try {
+                const res = await api.get(`/community/${communityKey}/posts?limit=100`)
+                setApiPosts(res.data.data || [])
+            } catch {
+                // silent fail – keep static placeholder cards
+            }
+        }
+        fetchPosts()
+    }, [communityKey])
+
+    const selectedPost = useMemo(
+        () => apiPosts.find(p => p.id === selectedPostId) ?? null,
+        [apiPosts, selectedPostId]
+    )
+
+    const handleCardClick = (cardId: string) => {
+        if (!communityKey) return
+        setSelectedPostId(cardId)
+    }
+
+    const handleCloseModal = () => setSelectedPostId(null)
+
+    const parseReadingAnswers = (sub: CommunityPostSubmission) => {
+        const questions: Array<{ id: string; text: string; options?: string[] }> = (() => {
+            try {
+                const p = JSON.parse(sub.assignment.libraryItem.content)
+                return Array.isArray(p.questions) ? p.questions : []
+            } catch {
+                return []
+            }
+        })()
+        const answers: Record<string, number | string> = (() => {
+            if (!sub.readingAnswersJson) return {}
+            try {
+                const p = JSON.parse(sub.readingAnswersJson)
+                if (Array.isArray(p)) {
+                    return p.reduce<Record<string, number | string>>((acc, v, i) => { acc[String(i)] = v; return acc }, {})
+                }
+                return p as Record<string, number | string>
+            } catch { return {} }
+        })()
+        return { questions, answers }
+    }
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: secondaryColor }}>
@@ -433,11 +527,12 @@ export default function CongDongTemplate({
                                     {currentCards.map((card) => (
                                         <div
                                             key={card.id}
-                                            className="relative rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+                                            className="relative rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-pointer"
                                             style={{
                                                 backgroundColor: primaryColor,
                                                 padding: '2px'
                                             }}
+                                            onClick={() => handleCardClick(card.id)}
                                         >
                                             {/* White spacing layer */}
                                             <div className="bg-white rounded-3xl" style={{ padding: '2.5px' }}>
@@ -454,7 +549,7 @@ export default function CongDongTemplate({
                                                         {/* Top section with name, class, and school */}
                                                         <div className="mb-3 text-center">
                                                             <h3 className="text-[17px] font-bold leading-tight uppercase" style={{ color: primaryColor }}>
-                                                                {card.name} - {card.className}
+                                                                {card.name}{card.className ? ` - ${card.className}` : ''}
                                                             </h3>
                                                             <p className="text-[17px] font-bold" style={{ color: primaryColor }}>
                                                                 {card.school}
@@ -513,6 +608,96 @@ export default function CongDongTemplate({
                     </div>
                 </motion.div>
             </div>
+
+            {/* Submission View Modal */}
+            {selectedPostId && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    onClick={handleCloseModal}
+                >
+                    <div
+                        className="relative max-h-[85vh] w-full max-w-[720px] overflow-y-auto rounded-[28px] mx-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {selectedPost ? (() => {
+                            const sub = selectedPost.submission
+                            const { questions, answers } = parseReadingAnswers(sub)
+                            return (
+                                <div className="mx-auto w-full">
+                                    <div className="mx-auto rounded-[36px] bg-white p-2 w-full">
+                                        <div
+                                            className="rounded-[30px] border-2 border-transparent bg-[#f3fffb]"
+                                            style={{
+                                                background: 'linear-gradient(#f3fffb, #f3fffb) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+                                            }}
+                                        >
+                                            <div className="overflow-y-auto p-6 sm:p-8">
+                                                <div className="flex items-center justify-between mb-5">
+                                                    <h1 className="text-3xl font-black text-[#1f3f8f] sm:text-4xl">{sub.student.name}</h1>
+                                                    <button
+                                                        onClick={handleCloseModal}
+                                                        className="text-3xl font-bold text-[#1f3f8f] hover:opacity-70 ml-4 leading-none"
+                                                        aria-label="Đóng"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+
+                                                {sub.assignment.type === 'READING' ? (
+                                                    <div className="mb-7 space-y-5 text-[#1f3f8f]">
+                                                        {questions.length > 0 ? (
+                                                            questions.map((q, idx) => (
+                                                                <div key={idx} className="text-base font-semibold leading-relaxed sm:text-lg">
+                                                                    <p className="font-bold">
+                                                                        Câu {idx + 1}: {q.text} {q.options?.length ? '(câu trắc nghiệm)' : '(câu tự luận ngắn)'}
+                                                                    </p>
+                                                                    <p className="pl-4 sm:pl-8">
+                                                                        {'=> '}Đáp án của học sinh
+                                                                        {(() => {
+                                                                            const answer = answers[q.id]
+                                                                            if (answer === undefined || answer === null) return ': (chưa trả lời)'
+                                                                            if (typeof answer === 'number' && q.options?.length) return `: ${q.options[answer] ?? '(chưa trả lời)'}`
+                                                                            return `: ${String(answer)}`
+                                                                        })()}
+                                                                    </p>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <p className="text-base font-semibold sm:text-lg">
+                                                                Không có câu hỏi để hiển thị.
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="mb-7 text-[#1f3f8f]">
+                                                        <p className="text-xl font-semibold sm:text-2xl">{sub.assignment.libraryItem.title}</p>
+                                                        <p className="mt-1 text-base sm:text-lg">{'→ '}File mà học sinh tải lên (Word / Hình ảnh / Video)</p>
+                                                        {sub.integrationFile ? (
+                                                            <a
+                                                                href={`${api.defaults.baseURL}${sub.integrationFile.url}`}
+                                                                download={sub.integrationFile.filename}
+                                                                className="mt-3 inline-flex items-center gap-2 rounded-xl bg-[#cbeff2] px-4 py-2 text-base font-bold text-[#1f3f8f] sm:text-lg hover:bg-[#a8e8ee] transition-colors"
+                                                            >
+                                                                ⬇ Tải file: {sub.integrationFile.filename}
+                                                            </a>
+                                                        ) : (
+                                                            <p className="mt-3 text-base text-gray-500">Không có file đính kèm.</p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })() : (
+                            <div className="bg-white rounded-[28px] p-12 flex justify-center">
+                                <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-[#1f3f8f]" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

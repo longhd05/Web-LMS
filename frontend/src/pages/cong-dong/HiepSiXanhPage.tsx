@@ -169,6 +169,7 @@ export default function HiepSiXanhPage() {
             videoUrl="https://example.com/video" // URL video nếu có
             lessons={lessons}
             communityCards={communityCards}
+            communityKey="hieu-si-xanh"
         />
     )
 }
