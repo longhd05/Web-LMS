@@ -159,7 +159,11 @@ export default function TopNavBar({
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white font-bold text-sm transition-all hover:scale-105 hover:bg-white/30"
               >
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={user.name} className="h-full w-full rounded-full object-cover" />
+                  <img
+                    src={`${user.avatarUrl}${user.avatarUrl.includes('?') ? '&' : '?'}v=${user.avatarVersion ?? 0}`}
+                    alt={user.name}
+                    className="h-full w-full rounded-full object-cover"
+                  />
                 ) : (
                   <span>{user.name.charAt(0).toUpperCase()}</span>
                 )}

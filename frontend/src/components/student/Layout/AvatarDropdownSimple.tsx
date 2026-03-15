@@ -35,7 +35,11 @@ export default function AvatarDropdownSimple() {
         className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] text-white font-bold text-lg transition-all hover:scale-105"
       >
         {user.avatarUrl ? (
-          <img src={user.avatarUrl} alt={user.name} className="h-full w-full rounded-full object-cover" />
+          <img
+            src={`${user.avatarUrl}${user.avatarUrl.includes('?') ? '&' : '?'}v=${user.avatarVersion ?? 0}`}
+            alt={user.name}
+            className="h-full w-full rounded-full object-cover"
+          />
         ) : (
           <span>{initials}</span>
         )}
