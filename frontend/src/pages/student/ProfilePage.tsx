@@ -14,8 +14,18 @@ interface UserProfile {
   createdAt: string
 }
 
+const normalizeAvatarUrl = (url?: string | null) => {
+  if (!url) return url ?? null
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+    return url
+  }
+  const baseUrl = api.defaults.baseURL ?? ''
+  if (!baseUrl) return url
+  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
+}
+
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
@@ -31,8 +41,9 @@ export default function ProfilePage() {
       try {
         const res = await api.get('/auth/me')
         const data = res.data.data
-        setProfile(data)
-        setName(data.name)
+        const normalized = { ...data, avatarUrl: normalizeAvatarUrl(data.avatarUrl) }
+        setProfile(normalized)
+        setName(normalized.name)
       } catch {
         setMessage('Không thể tải thông tin cá nhân.')
       } finally {
@@ -51,19 +62,14 @@ export default function ProfilePage() {
       const formData = new FormData()
       formData.append('file', file)
       const res = await api.post('/files/upload', formData)
-      const avatarUrl = res.data.data.url
+      const avatarUrl = normalizeAvatarUrl(res.data.data.url)
       
       // Update profile with new avatar
       await api.put('/auth/profile', { avatarUrl })
       
       setProfile(prev => prev ? { ...prev, avatarUrl } : null)
       
-      // Update localStorage
-      const storedUser = localStorage.getItem('lms_user')
-      if (storedUser) {
-        const userData = JSON.parse(storedUser)
-        localStorage.setItem('lms_user', JSON.stringify({ ...userData, avatarUrl }))
-      }
+      updateUser({ avatarUrl })
       
       setMessage('✓ Cập nhật ảnh đại diện thành công!')
     } catch {
@@ -85,12 +91,7 @@ export default function ProfilePage() {
       const updated = res.data.data
       setProfile(updated)
       
-      // Update localStorage
-      const storedUser = localStorage.getItem('lms_user')
-      if (storedUser) {
-        const userData = JSON.parse(storedUser)
-        localStorage.setItem('lms_user', JSON.stringify({ ...userData, name: updated.name }))
-      }
+      updateUser({ name: updated.name })
       
       setEditing(false)
       setMessage('✓ Cập nhật thông tin thành công!')

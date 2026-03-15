@@ -120,6 +120,10 @@ export default function Header() {
       ? avatarPreview
       : user?.avatarUrl ?? null
 
+  const avatarSrc = user?.avatarUrl
+    ? `${user.avatarUrl}${user.avatarUrl.includes('?') ? '&' : '?'}v=${user.avatarVersion ?? 0}`
+    : null
+
   const greetingDropdownNode = greetingOpen ? (
     <div
       ref={greetingRef}
@@ -275,8 +279,8 @@ export default function Header() {
                   }
                   aria-label="Đổi ảnh đại diện"
                 >
-                  {user.avatarUrl ? (
-                    <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+                  {avatarSrc ? (
+                    <img src={avatarSrc} alt={user.name} className="h-full w-full object-cover" />
                   ) : (
                     <svg className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z" />

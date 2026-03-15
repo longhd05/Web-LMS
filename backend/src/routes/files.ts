@@ -13,6 +13,8 @@ const ALLOWED_MIME_TYPES = [
   'image/jpeg',
   'image/png',
   'image/gif',
+  'image/jfif',
+  'image/webp',
   'video/mp4',
 ];
 
