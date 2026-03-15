@@ -212,7 +212,7 @@ export default function TeacherClassDetail() {
 
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
+    <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6" z-index={-1}>
       <div className="mx-auto max-w-6xl">
         {popupMessage && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/30 px-4">
@@ -347,7 +347,7 @@ export default function TeacherClassDetail() {
                 const isActive = activeTab === item.key
 
                 return (
-                  <div key={item.key} className="relative z-[1000] flex items-center gap-1">
+                  <div key={item.key} className="relative flex items-center gap-1">
                     <button
                       onClick={() => setActiveTab(item.key)}
                       className={`group p-1 sm:p-2 transition-opacity ${
