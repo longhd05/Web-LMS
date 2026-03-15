@@ -20,7 +20,7 @@ export default function CongDongTopNavBar() {
       <div className="mx-auto flex max-w-7xl items-center gap-4">
         {/* Left: Logo */}
         <Link 
-          to="/student/dashboard" 
+          to="/hoc-sinh/trang-chu" 
           className="flex items-center gap-3 text-white transition-opacity hover:opacity-90"
         >
           <img src={thuVienLogo} alt="Logo" className="h-12 w-12 object-contain sm:h-15 sm:w-15" />

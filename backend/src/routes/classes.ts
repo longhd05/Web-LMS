@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { authenticate } from '../middleware/auth';
@@ -76,6 +77,15 @@ router.post('/join', authenticate, requireRole('STUDENT'), async (req: Request, 
     return;
   }
 
+  const student = await prisma.user.findUnique({
+    where: { id: req.user!.userId },
+    select: { id: true, role: true },
+  });
+  if (!student || student.role !== 'STUDENT') {
+    res.status(401).json({ error: 'Session is invalid. Please log in again.' });
+    return;
+  }
+
   const existing = await prisma.membership.findUnique({
     where: { classId_studentId: { classId: cls.id, studentId: req.user!.userId } },
   });
@@ -84,10 +94,19 @@ router.post('/join', authenticate, requireRole('STUDENT'), async (req: Request, 
     return;
   }
 
-  const membership = await prisma.membership.create({
-    data: { classId: cls.id, studentId: req.user!.userId },
-    include: { class: true, student: { select: { id: true, name: true, email: true } } },
-  });
+  let membership;
+  try {
+    membership = await prisma.membership.create({
+      data: { classId: cls.id, studentId: req.user!.userId },
+      include: { class: true, student: { select: { id: true, name: true, email: true } } },
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2003') {
+      res.status(409).json({ error: 'Cannot join class because account or class data is no longer valid. Please refresh and log in again.' });
+      return;
+    }
+    throw error;
+  }
 
   // Notify teacher that a student joined
   await createNotification(cls.teacherId, 'STUDENT_JOINED', {
