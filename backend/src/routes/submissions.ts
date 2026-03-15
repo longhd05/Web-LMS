@@ -14,10 +14,13 @@ const submitSchema = z.object({
   status: z.enum(['DRAFT', 'SUBMITTED']).default('SUBMITTED'),
 });
 
+const VALID_COMMUNITY_KEYS = ['hieu-si-xanh', 'su-gia-hoa-binh'] as const;
+
 const reviewSchema = z.object({
   perQuestionMarksJson: z.string().optional(),
   comment: z.string().optional(),
   resultStatus: z.enum(['PASSED', 'FAILED']),
+  communityKey: z.enum([...VALID_COMMUNITY_KEYS, 'none']).optional(),
 });
 
 const publishSchema = z.object({
@@ -186,6 +189,24 @@ export const reviewSubmission = async (req: Request, res: Response): Promise<voi
       data: { status: newStatus },
     }),
   ]);
+
+  // Handle community post for integration assignments
+  const communityKey = parsed.data.communityKey;
+  if (communityKey && communityKey !== 'none') {
+    await prisma.communityPost.upsert({
+      where: { submissionId: submission.id },
+      update: { communityKey },
+      create: {
+        communityKey,
+        submissionId: submission.id,
+        publishedBy: req.user!.userId,
+      },
+    });
+  } else if (communityKey === 'none') {
+    await prisma.communityPost.deleteMany({
+      where: { submissionId: submission.id },
+    });
+  }
 
   // Notify student
   await createNotification(submission.studentId, 'SUBMISSION_REVIEWED', {

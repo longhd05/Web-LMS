@@ -28,7 +28,7 @@ interface Submission {
     reviewedAt: string
     teacher?: { id: string; name: string }
   } | null
-  communityPost?: { id: string } | null
+  communityPost?: { id: string; communityKey: string } | null
 }
 
 interface ParsedContent {
@@ -63,7 +63,7 @@ export default function ReviewSubmission({ embedded, submissionId: submissionIdP
   const [reviewError, setReviewError] = useState('')
   const [reviewSuccess, setReviewSuccess] = useState(false)
 
-  const [selectedCommunity, setSelectedCommunity] = useState(communities[0].key)
+  const [selectedCommunity, setSelectedCommunity] = useState('none')
   const [communityOpen, setCommunityOpen] = useState(false)
   const communityDropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -86,6 +86,9 @@ export default function ReviewSubmission({ embedded, submissionId: submissionIdP
             // noop
           }
         }
+      }
+      if (data.communityPost?.communityKey) {
+        setSelectedCommunity(data.communityPost.communityKey)
       }
     } catch {
       setError('Không thể tải bài nộp.')
@@ -151,11 +154,15 @@ export default function ReviewSubmission({ embedded, submissionId: submissionIdP
     setSubmitting(true)
     setReviewError('')
     try {
-      await api.post(`/submissions/${submissionId}/review`, {
+      const payload: Record<string, unknown> = {
         comment,
         resultStatus,
         perQuestionMarksJson: Object.keys(perQuestionMarks).length > 0 ? JSON.stringify(perQuestionMarks) : undefined,
-      })
+      }
+      if (submission?.assignment.type === 'INTEGRATION') {
+        payload.communityKey = selectedCommunity
+      }
+      await api.post(`/submissions/${submissionId}/review`, payload)
       setReviewSuccess(true)
       await fetchSubmission()
     } catch (err: unknown) {
