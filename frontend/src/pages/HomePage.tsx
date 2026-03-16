@@ -110,8 +110,8 @@ export default function HomePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Bằng cách đọc tác phẩm văn học, chúng ta có thể hòa thiện vào nhiều hành trình sống, 
-            để rồi hiểu cảm nhận những giá trị sống, tự đa hóa cách sống của bản thân, người khác và môi trường.
+            Bằng cách đọc tác phẩm văn học, chúng ta có thể hóa thân vào nhiều hành trình sống, 
+            để rồi thấu cảm những giá trị sống, từ đó biết cách tôn trọng bản thân, người khác và môi trường.
           </motion.p>
         </div>
         
