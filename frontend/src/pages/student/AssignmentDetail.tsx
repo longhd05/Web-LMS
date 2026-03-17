@@ -6,7 +6,14 @@ import api from '../../api/axios'
 
 interface ParsedContent {
   text: string
-  questions: Array<{ id: string; text: string; maxMark?: number }>
+  questions: Array<{
+    id: string
+    text: string
+    type?: string
+    options?: string[]
+    correctAnswer?: string | null
+    maxMark?: number
+  }>
   integrationPrompt?: string
   imageUrl?: string | null
 }
@@ -112,6 +119,22 @@ export default function AssignmentDetail() {
     ? Object.values(answers).some((value) => value.trim().length > 0)
     : Boolean(uploadedFileId))
 
+  const mcQuestions = useMemo(() => {
+    if (!content) return []
+    return content.questions.filter((q) => q.options?.length || q.type === 'multiple-choice')
+  }, [content])
+
+  const score = useMemo(() => {
+    if (!content) return null
+    if (mcQuestions.length === 0) return 0
+    let correctCount = 0
+    mcQuestions.forEach((q) => {
+      if (!q.correctAnswer) return
+      if (answers[q.id] === q.correctAnswer) correctCount += 1
+    })
+    return Math.round((correctCount / mcQuestions.length) * 100)
+  }, [content, mcQuestions, answers])
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -137,7 +160,14 @@ export default function AssignmentDetail() {
 
     if (status === 'SUBMITTED') {
       if (assignment.type === 'READING' && content) {
-        const allAnswered = content.questions.every((q) => answers[q.id]?.trim())
+        const allAnswered = content.questions.every((q) => {
+          const value = answers[q.id]
+          if (!value) return false
+          if (q.options?.length || q.type === 'multiple-choice') {
+            return value.trim().length > 0
+          }
+          return value.trim().length > 0
+        })
         if (!allAnswered) {
           alert('Vui lòng trả lời tất cả các câu hỏi.')
           return
@@ -215,6 +245,11 @@ export default function AssignmentDetail() {
 
   const readingPanel = (
     <div className="space-y-5 pr-5">
+      {isSubmitted && (
+        <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800 font-bold">
+          Đã nộp bài • Điểm: {score ?? 0}/100
+        </div>
+      )}
       {content.questions.length === 0 ? (
         <article className="rounded-2xl bg-white p-4 border border-cyan-200">
           <p className="font-semibold text-slate-800">Bài tập chưa có câu hỏi đọc hiểu.</p>
@@ -228,14 +263,54 @@ export default function AssignmentDetail() {
                 <span className="ml-2 text-sm font-normal text-slate-500">({question.maxMark} điểm)</span>
               )}
             </p>
-            <textarea
-              value={answers[question.id] || ''}
-              onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
-              disabled={!canEdit}
-              rows={4}
-              placeholder="Nhập câu trả lời của bạn..."
-              className="mt-3 h-32 w-full resize-none rounded-xl border border-cyan-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-500"
-            />
+            {question.options?.length || question.type === 'multiple-choice' ? (
+              <>
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {(question.options || []).map((option) => {
+                    const selected = answers[question.id] === option
+                    const correctAnswer = question.correctAnswer ?? null
+                    const showResult = !canEdit && !!correctAnswer
+                    const isCorrectOption = showResult && option === correctAnswer
+                    const isWrongSelected = showResult && selected && option !== correctAnswer
+                    return (
+                      <button
+                        key={`${question.id}-${option}`}
+                        type="button"
+                        disabled={!canEdit}
+                        onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: option }))}
+                        className={`rounded-xl border px-3 py-2 text-left font-medium transition ${
+                          showResult
+                            ? isCorrectOption
+                              ? 'border-emerald-500 bg-emerald-100 text-emerald-900'
+                              : isWrongSelected
+                                ? 'border-red-500 bg-red-100 text-red-900'
+                                : 'border-cyan-200 bg-white text-slate-700'
+                            : selected
+                              ? 'border-teal-600 bg-teal-50 text-teal-800'
+                              : 'border-cyan-200 bg-white text-slate-700 hover:bg-cyan-50'
+                        } ${!canEdit ? 'cursor-not-allowed opacity-70' : ''}`}
+                      >
+                        {option}
+                      </button>
+                    )
+                  })}
+                </div>
+                {!canEdit && question.correctAnswer && (
+                  <p className={`mt-2 text-sm font-semibold ${answers[question.id] === question.correctAnswer ? 'text-emerald-700' : 'text-red-600'}`}>
+                    {answers[question.id] === question.correctAnswer ? '✓ Đúng' : '✕ Sai'} • Đáp án đúng: {question.correctAnswer}
+                  </p>
+                )}
+              </>
+            ) : (
+              <textarea
+                value={answers[question.id] || ''}
+                onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
+                disabled={!canEdit}
+                rows={4}
+                placeholder="Nhap cau tra loi cua ban..."
+                className="mt-3 h-32 w-full resize-none rounded-xl border border-cyan-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-500"
+              />
+            )}
           </article>
         ))
       )}
