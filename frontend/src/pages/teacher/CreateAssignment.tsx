@@ -130,6 +130,9 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
               const questions = (detail.readingQuestions || []).map((q) => ({
                 id: q.id,
                 text: q.question,
+                type: q.type,
+                options: q.options ?? [],
+                correctAnswer: q.correctAnswer ?? null,
               }))
               return {
                 text: detail.content,

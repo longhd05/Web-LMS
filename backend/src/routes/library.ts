@@ -28,7 +28,15 @@ router.post('/sync', authenticate, requireRole('TEACHER', 'ADMIN'), async (req: 
   });
 
   if (existing) {
-    res.json({ data: { ...existing, tags: JSON.parse(existing.tags) } });
+    const updated = await prisma.libraryItem.update({
+      where: { id: existing.id },
+      data: {
+        content,
+        level: level ?? existing.level,
+        tags: JSON.stringify(tags ?? JSON.parse(existing.tags)),
+      },
+    });
+    res.json({ data: { ...updated, tags: JSON.parse(updated.tags) } });
     return;
   }
 

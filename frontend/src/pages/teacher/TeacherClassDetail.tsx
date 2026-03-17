@@ -1,5 +1,6 @@
 ﻿import { BadgeCheck, Trash2 } from 'lucide-react'
 import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 import api from '../../api/axios'
 import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
@@ -96,6 +97,7 @@ export default function TeacherClassDetail() {
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [openReviewSubmissionId, setOpenReviewSubmissionId] = useState<string | null>(null)
+  const [tooltip, setTooltip] = useState<{ label: string; x: number; y: number } | null>(null)
 
   const studentSubmissionByStudentAndAssignment = useMemo(() => {
     const byStudent: Record<string, Record<string, Submission>> = {}
@@ -212,8 +214,9 @@ export default function TeacherClassDetail() {
 
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6" z-index={-1}>
-      <div className="mx-auto max-w-6xl">
+    <>
+      <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6" z-index={-1}>
+        <div className="mx-auto max-w-6xl">
         {popupMessage && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/30 px-4">
             <div className="w-full max-w-sm rounded-2xl border border-[#9dc7de] bg-white p-5 text-[#1f3f8f] shadow-[0_12px_30px_rgba(31,63,143,0.25)]">
@@ -347,9 +350,14 @@ export default function TeacherClassDetail() {
                 const isActive = activeTab === item.key
 
                 return (
-                  <div key={item.key} className="relative z-[300] flex items-center gap-1">
+                  <div key={item.key} className="relative flex items-center gap-1">
                     <button
                       onClick={() => setActiveTab(item.key)}
+                      onMouseEnter={(e) => {
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                        setTooltip({ label: item.label, x: rect.left + rect.width / 2, y: rect.top })
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
                       className={`group p-1 sm:p-2 transition-opacity ${
                         isActive ? "opacity-100" : "opacity-80 hover:opacity-100"
                       }`}
@@ -359,11 +367,6 @@ export default function TeacherClassDetail() {
                         {item.icon}
                       </span>
 
-                      {/* Tooltip: chỉ hiện từ sm trở lên */}
-                        <span className="pointer-events-none absolute -top-10 left-1/2 z-[9999] -translate-x-1/2 whitespace-nowrap rounded-full border border-[#9dc7de] bg-[#f4f8fc] px-4 py-1.5 text-sm font-extrabold text-[#1f3f8f] shadow-[0_2px_8px_rgba(31,63,143,0.18)] opacity-0 transition-opacity duration-75 sm:group-hover:opacity-100">
-                          {item.label}
-                          <span className="absolute -bottom-[6px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-[#9dc7de] bg-[#f4f8fc]"/>
-                        </span>
                     </button>
 
                     {/* Divider: mảnh hơn trên mobile */}
@@ -575,8 +578,25 @@ export default function TeacherClassDetail() {
             )}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    {tooltip &&
+      createPortal(
+        <div
+          className="pointer-events-none z-[9999] rounded-full border border-[#9dc7de] bg-[#f4f8fc] px-4 py-1.5 text-sm font-extrabold text-[#1f3f8f] shadow-[0_2px_8px_rgba(31,63,143,0.18)]"
+          style={{
+            position: 'fixed',
+            left: tooltip.x,
+            top: tooltip.y - 8,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          {tooltip.label}
+          <span className="absolute -bottom-[6px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-[#9dc7de] bg-[#f4f8fc]" />
+        </div>,
+        document.body
+      )}
+    </>
   )
 }
 
