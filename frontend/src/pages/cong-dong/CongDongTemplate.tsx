@@ -90,6 +90,7 @@ export default function CongDongTemplate({
     const [showScroll, setShowScroll] = useState(true)
     const [apiPosts, setApiPosts] = useState<CommunityPostData[]>([])
     const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
+    const [likedByCardId, setLikedByCardId] = useState<Record<string, boolean>>({})
 
     const displayCards = useMemo<CommunityCardItem[]>(() => {
         if (communityKey && apiPosts.length > 0) {
@@ -155,6 +156,9 @@ export default function CongDongTemplate({
     }
 
     const handleCloseModal = () => setSelectedPostId(null)
+    const toggleLike = (cardId: string) => {
+        setLikedByCardId((prev) => ({ ...prev, [cardId]: !prev[cardId] }))
+    }
 
     const parseReadingAnswers = (sub: CommunityPostSubmission) => {
         const questions: Array<{ id: string; text: string; options?: string[] }> = (() => {
@@ -525,6 +529,10 @@ export default function CongDongTemplate({
                                     transition={{ duration: 0.3 }}
                                 >
                                     {currentCards.map((card) => (
+                                        (() => {
+                                            const isLiked = !!likedByCardId[card.id]
+                                            const heartColor = isLiked ? '#ef4444' : primaryColor
+                                            return (
                                         <div
                                             key={card.id}
                                             className="relative rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-pointer"
@@ -574,8 +582,15 @@ export default function CongDongTemplate({
 
                                                         {/* Bottom icons */}
                                                         <div className="flex items-center justify-between">
-                                                            <button className="p-1">
-                                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: primaryColor }}>
+                                                            <button
+                                                                className="p-1"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    toggleLike(card.id)
+                                                                }}
+                                                                aria-label={isLiked ? 'Bỏ thích' : 'Thích'}
+                                                            >
+                                                                <svg className="w-6 h-6" fill={isLiked ? heartColor : 'none'} stroke="currentColor" viewBox="0 0 24 24" style={{ color: heartColor }}>
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                                                 </svg>
                                                             </button>
@@ -589,6 +604,8 @@ export default function CongDongTemplate({
                                                 </div>
                                             </div>
                                         </div>
+                                            )
+                                        })()
                                     ))}
                                 </motion.div>
                             </AnimatePresence>
