@@ -11,6 +11,7 @@ interface DocHieuBodyProps {
   onChangeMcq: (questionId: string, option: string) => void
   onChangeShortAnswer: (value: string) => void
   onSubmit: () => void
+  isClassStudent?: boolean
 }
 
 export default function DocHieuBody({
@@ -23,6 +24,7 @@ export default function DocHieuBody({
   onChangeMcq,
   onChangeShortAnswer,
   onSubmit,
+  isClassStudent = true,
 }: DocHieuBodyProps) {
   const leftPanel = (
     <div>
@@ -60,8 +62,8 @@ export default function DocHieuBody({
                 {question.options.map((option) => {
                   const selected = mcqAnswers[question.id] === option
                   const result = mcqResults[question.id]
-                  const isCorrectOption = submitted && option === result?.correctAnswer
-                  const isWrongSelected = submitted && selected && option !== result?.correctAnswer
+                  const isCorrectOption = submitted && isClassStudent && option === result?.correctAnswer
+                  const isWrongSelected = submitted && isClassStudent && selected && option !== result?.correctAnswer
 
                   const className = submitted
                     ? isCorrectOption
@@ -86,7 +88,7 @@ export default function DocHieuBody({
                 })}
               </div>
 
-              {submitted && mcqResults[question.id] && (
+              {submitted && isClassStudent && mcqResults[question.id] && (
                 <p
                   className={`mt-3 text-sm font-semibold ${
                     mcqResults[question.id].isCorrect ? 'text-emerald-700' : 'text-red-700'
@@ -107,7 +109,7 @@ export default function DocHieuBody({
         <textarea
           value={shortAnswer}
           onChange={handleTextArea}
-          disabled={submitted}
+            disabled={submitted}
           placeholder="Nhập câu trả lời..."
           className="mt-3 w-full h-36 rounded-2xl border border-cyan-200 bg-white px-4 py-3 resize-none outline-none focus:ring-2 focus:ring-teal-500"
         />
@@ -116,7 +118,7 @@ export default function DocHieuBody({
       <div className="flex justify-end">
         <button
           onClick={onSubmit}
-          disabled={submitted}
+            disabled={submitted}
           className="rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-400 text-white font-extrabold"
         >
           {submitted ? 'ĐÃ NỘP' : 'NỘP BÀI'}

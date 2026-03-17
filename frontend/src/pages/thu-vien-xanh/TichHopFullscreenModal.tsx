@@ -21,7 +21,7 @@ function resolveRole(rawRole: string | null, authRole: 'STUDENT' | 'TEACHER' | u
 export default function TichHopFullscreenModal() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isClassStudent } = useAuth()
 
   const itemId = searchParams.get('itemId')
   const imageUrl = searchParams.get('imageUrl')
@@ -127,6 +127,7 @@ export default function TichHopFullscreenModal() {
     onChangeAnswer: setAnswer,
     onChangeFiles: setSelectedFiles,
     onSubmit: handleSubmit,
+    isClassStudent,
   })
 
   return (

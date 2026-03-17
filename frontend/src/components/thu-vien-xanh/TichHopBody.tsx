@@ -11,6 +11,7 @@ interface TichHopBodyProps {
   onChangeAnswer: (value: string) => void
   onChangeFiles: (files: File[]) => void
   onSubmit: () => void
+  isClassStudent?: boolean
 }
 
 export default function TichHopBody({
@@ -23,6 +24,7 @@ export default function TichHopBody({
   onChangeAnswer,
   onChangeFiles,
   onSubmit,
+  isClassStudent = false,
 }: TichHopBodyProps) {
   const dropzoneInputId = 'tich-hop-dropzone-file'
 
@@ -63,7 +65,7 @@ export default function TichHopBody({
     onChangeFiles(files.slice(0, 5))
   }
 
-  const showUpload = userRole !== 'free_student'
+  const showUpload = userRole !== 'free_student' && isClassStudent
   const acceptValue = (allowedFileTypes || ['pdf', 'doc', 'docx', 'png', 'jpg'])
     .map((extension) => `.${extension}`)
     .join(',')
@@ -140,12 +142,20 @@ export default function TichHopBody({
         />
       </section>
 
-      <button
-        onClick={onSubmit}
-        className="w-full sm:w-auto rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 text-white font-extrabold"
-      >
-        NỘP BÀI
-      </button>
+      {showUpload && (
+        <button
+          onClick={onSubmit}
+          className="w-full sm:w-auto rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 text-white font-extrabold"
+        >
+          NỘP BÀI
+        </button>
+      )}
+
+      {!isClassStudent && (
+        <div className="rounded-2xl border border-yellow-300 bg-yellow-50 px-4 py-3 text-yellow-800 text-sm font-medium">
+          ⚠️ Bạn cần là học sinh trong lớp để thực hiện tính năng này
+        </div>
+      )}
     </div>
   )
 
