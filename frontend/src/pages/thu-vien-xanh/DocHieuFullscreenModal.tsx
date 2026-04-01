@@ -115,11 +115,16 @@ export default function DocHieuFullscreenModal() {
       correctAnswer: question.correctAnswer ?? null,
     }))
 
+  const shortQuestions = (textDetail.readingQuestions || [])
+    .filter((question) => question.type === 'short-answer')
+    .map((question) => question.question)
+
   const content = {
     itemId,
     passageTitle: textDetail.title,
     passageContent: textDetail.content,
     passageImageUrl: imageUrl,
+    shortQuestions,
     mcq,
   }
 
@@ -147,7 +152,7 @@ export default function DocHieuFullscreenModal() {
       />
       <FullscreenModalShell
         titleLeft={content.passageTitle}
-        titleRight="ĐỌC HIỂU"
+        titleRight="VĂN BẢN ĐỌC HIỂU"
         dirty={dirty}
         onClose={() => navigate('/thu-vien-xanh?mode=doc-hieu')}
         leftPanel={leftPanel}
