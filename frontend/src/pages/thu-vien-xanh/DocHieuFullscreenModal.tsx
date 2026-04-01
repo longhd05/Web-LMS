@@ -8,6 +8,7 @@ import { submitReadingQuiz } from '../../api/readingComprehension'
 
 type McqResultMap = Record<string, { isCorrect: boolean; correctAnswer: string }>
 const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
+const bachTuocFullPageImage = new URL('../../../BẠCH TUỘC.png', import.meta.url).href
 
 export default function DocHieuFullscreenModal() {
   const [searchParams] = useSearchParams()
@@ -124,6 +125,7 @@ export default function DocHieuFullscreenModal() {
     passageTitle: textDetail.title,
     passageContent: textDetail.content,
     passageImageUrl: imageUrl,
+    fullPageImageUrl: itemId === 't_env_01' ? bachTuocFullPageImage : null,
     shortQuestions,
     mcq,
   }

@@ -31,14 +31,22 @@ export default function TichHopBody({
   const leftPanel = (
     <div>
       <p className="font-bold text-blue-900">Ngữ liệu</p>
-      <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.passageContent}</div>
-      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-white/80 flex items-center justify-center text-slate-500">
-        {content.passageImageUrl ? (
-          <img src={content.passageImageUrl} alt={content.passageTitle} className="w-full h-full rounded-2xl object-cover" />
-        ) : (
-          <span>Ảnh</span>
-        )}
-      </div>
+      {content.fullPageImageUrl ? (
+        <div className="mt-3 rounded-2xl border border-cyan-200 bg-white p-2">
+          <img src={content.fullPageImageUrl} alt={`${content.passageTitle} - toàn văn`} className="w-full h-auto rounded-xl" />
+        </div>
+      ) : (
+        <>
+          <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.passageContent}</div>
+          <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-white/80 flex items-center justify-center text-slate-500">
+            {content.passageImageUrl ? (
+              <img src={content.passageImageUrl} alt={content.passageTitle} className="w-full h-full rounded-2xl object-cover" />
+            ) : (
+              <span>Ảnh</span>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 

@@ -74,14 +74,26 @@ export default function DocHieuBody({
   const leftPanel = (
     <div>
       <p className="font-bold text-blue-900 text-center">Ngữ liệu</p>
-      {renderPassageWithAnnotations()}
-      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white">
-        {content.passageImageUrl ? (
-          <img src={content.passageImageUrl} alt={content.passageTitle} className="w-full h-full rounded-2xl object-cover" />
-        ) : (
-          <span>Ảnh</span>
-        )}
-      </div>
+      {content.fullPageImageUrl ? (
+        <div className="mt-3 rounded-2xl border border-cyan-200 bg-white p-2">
+          <img
+            src={content.fullPageImageUrl}
+            alt={`${content.passageTitle} - toàn văn`}
+            className="w-full h-auto rounded-xl"
+          />
+        </div>
+      ) : (
+        <>
+          {renderPassageWithAnnotations()}
+          <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white">
+            {content.passageImageUrl ? (
+              <img src={content.passageImageUrl} alt={content.passageTitle} className="w-full h-full rounded-2xl object-cover" />
+            ) : (
+              <span>Ảnh</span>
+            )}
+          </div>
+        </>
+      )}
       {content.annotations && content.annotations.length > 0 && (
         <div className="mt-5 space-y-2">
           <p className="font-bold text-blue-900">Chú thích:</p>

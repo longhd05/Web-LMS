@@ -9,6 +9,7 @@ import { uploadSubmission } from '../../api/integratedTask'
 import { type ThuVienXanhUserRole } from '../../types/thuVienXanh'
 
 const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
+const bachTuocFullPageImage = new URL('../../../BẠCH TUỘC.png', import.meta.url).href
 
 function resolveRole(rawRole: string | null, authRole: 'STUDENT' | 'TEACHER' | undefined): ThuVienXanhUserRole {
   if (rawRole === 'free_student' || rawRole === 'normal_student' || rawRole === 'teacher' || rawRole === 'admin') {
@@ -114,6 +115,7 @@ export default function TichHopFullscreenModal() {
     passageTitle: textTitle,
     passageContent: textContent,
     passageImageUrl: imageUrl,
+    fullPageImageUrl: itemId === 't_env_01' ? bachTuocFullPageImage : null,
     integrationPrompt: task.prompt,
   }
 
@@ -142,7 +144,7 @@ export default function TichHopFullscreenModal() {
       />
       <FullscreenModalShell
         titleLeft={content.passageTitle}
-        titleRight="TÍCH HỢP"
+        titleRight="TÍCH HỢP GIÁO DỤC PHÁT TRIỂN BỀN VỮNG"
         dirty={dirty}
         onClose={() => navigate('/thu-vien-xanh?mode=tich-hop')}
         leftPanel={leftPanel}
