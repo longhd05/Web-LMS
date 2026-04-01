@@ -26,10 +26,55 @@ export default function DocHieuBody({
   onSubmit,
   isClassStudent = true,
 }: DocHieuBodyProps) {
+  const renderPassageWithAnnotations = () => {
+    if (!content.annotations || content.annotations.length === 0) {
+      return <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.passageContent}</div>
+    }
+
+    let passageHTML = content.passageContent
+    const parts: Array<{ type: 'text' | 'annotation'; content: string; annotationId?: string }> = []
+    let lastIndex = 0
+
+    content.annotations.forEach((annotation) => {
+      const index = passageHTML.indexOf(annotation.textHighlight)
+      if (index !== -1) {
+        if (index > lastIndex) {
+          parts.push({ type: 'text', content: passageHTML.substring(lastIndex, index) })
+        }
+        parts.push({ type: 'annotation', content: annotation.textHighlight, annotationId: annotation.id })
+        lastIndex = index + annotation.textHighlight.length
+      }
+    })
+
+    if (lastIndex < passageHTML.length) {
+      parts.push({ type: 'text', content: passageHTML.substring(lastIndex) })
+    }
+
+    return (
+      <div className="mt-3 text-slate-700 leading-relaxed whitespace-pre-wrap">
+        {parts.length > 0
+          ? parts.map((part, index) => {
+              if (part.type === 'text') {
+                return <span key={index}>{part.content}</span>
+              }
+              return (
+                <span
+                  key={index}
+                  className="underline font-semibold text-blue-700"
+                >
+                  {part.content}
+                </span>
+              )
+            })
+          : content.passageContent}
+      </div>
+    )
+  }
+
   const leftPanel = (
     <div>
       <p className="font-bold text-blue-900 text-center">Ngữ liệu</p>
-      <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.passageContent}</div>
+      {renderPassageWithAnnotations()}
       <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white">
         {content.passageImageUrl ? (
           <img src={content.passageImageUrl} alt={content.passageTitle} className="w-full h-full rounded-2xl object-cover" />
@@ -37,6 +82,20 @@ export default function DocHieuBody({
           <span>Ảnh</span>
         )}
       </div>
+      {content.annotations && content.annotations.length > 0 && (
+        <div className="mt-5 space-y-2">
+          <p className="font-bold text-blue-900">Chú thích:</p>
+          {content.annotations.map((annotation) => (
+            <article
+              key={annotation.id}
+              className="w-full text-left p-3 rounded-lg border-2 border-cyan-200 bg-white text-slate-700"
+            >
+              <p className="font-semibold text-sm mb-1">{annotation.textHighlight}</p>
+              <p className="text-sm">{annotation.annotationText}</p>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   )
 
@@ -105,12 +164,21 @@ export default function DocHieuBody({
       </section>
 
       <section>
-        <h4 className="font-extrabold text-blue-900">Câu hỏi tự luận ngắn</h4>
+        <h4 className="font-extrabold text-blue-900">Câu hỏi tự luận</h4>
+        {!!content.shortQuestions?.length && (
+          <div className="mt-3 space-y-3">
+            {content.shortQuestions.map((question, index) => (
+              <article key={`${index}-${question}`} className="rounded-2xl bg-white p-4 border border-cyan-200">
+                <p className="font-semibold text-slate-800">{question}</p>
+              </article>
+            ))}
+          </div>
+        )}
         <textarea
           value={shortAnswer}
           onChange={handleTextArea}
-            disabled={submitted}
-          placeholder="Nhập câu trả lời..."
+          disabled={submitted}
+          placeholder="Nhập câu trả lời cho phần tự luận..."
           className="mt-3 w-full h-36 rounded-2xl border border-cyan-200 bg-white px-4 py-3 resize-none outline-none focus:ring-2 focus:ring-teal-500"
         />
       </section>
@@ -118,7 +186,7 @@ export default function DocHieuBody({
       <div className="flex justify-end">
         <button
           onClick={onSubmit}
-            disabled={submitted}
+          disabled={submitted}
           className="rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-400 text-white font-extrabold"
         >
           {submitted ? 'ĐÃ NỘP' : 'NỘP BÀI'}
