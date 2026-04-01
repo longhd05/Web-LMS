@@ -42,6 +42,7 @@ export interface DocHieuContent {
   passageTitle: string
   passageContent: string
   passageImageUrl: string | null
+  fullPageImageUrl?: string | null
   annotations?: TextAnnotation[]
   shortQuestions?: string[]
   mcq: MCQItem[]
@@ -52,5 +53,6 @@ export interface TichHopContent {
   passageTitle: string
   passageContent: string
   passageImageUrl: string | null
+  fullPageImageUrl?: string | null
   integrationPrompt: string
 }
