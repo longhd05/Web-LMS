@@ -16,6 +16,9 @@ interface LibraryItem {
   hasTichHop: boolean
 }
 
+// Keep assignment creation in sync with Thu Vien Xanh library access.
+const assignableLibraryItemIds = new Set(['t_env_01'])
+
 type CreatedAssignment = {
   id: string
   type: 'READING' | 'INTEGRATION'
@@ -44,7 +47,6 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
   const [mode, setMode] = useState<'INDIVIDUAL' | 'GROUP'>('INDIVIDUAL')
   const [modeOpen, setModeOpen] = useState(false)
   const [libraryOpen, setLibraryOpen] = useState(false)
-  const [dueAt, setDueAt] = useState('')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -88,8 +90,8 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const filteredLibraryItems = useMemo(() => {
-    const items = thuVienCategories.flatMap((category) =>
+  const libraryItems = useMemo(() => {
+    return thuVienCategories.flatMap((category) =>
       category.texts.map<LibraryItem>((text) => ({
         id: text.id,
         title: text.title,
@@ -100,10 +102,11 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
         hasTichHop: text.hasIntegratedTask,
       }))
     )
-    return items.filter((item) =>
-      type === 'READING' ? item.hasDocHieu : item.hasTichHop
-    )
-  }, [thuVienCategories, type])
+  }, [thuVienCategories])
+
+  const canSelectItem = (item: LibraryItem) =>
+    assignableLibraryItemIds.has(item.id) &&
+    (type === 'READING' ? item.hasDocHieu : item.hasTichHop)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -116,6 +119,10 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
 
     if (!selectedItem) {
       setError('Vui lòng chọn văn bản.')
+      return
+    }
+    if (!assignableLibraryItemIds.has(selectedItem.id)) {
+      setError('Văn bản này chưa sẵn sàng để tạo bài tập.')
       return
     }
 
@@ -164,7 +171,7 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
         libraryItemId,
         type,
         mode,
-        dueAt: dueAt ? new Date(dueAt).toISOString() : null,
+        dueAt: null,
         title: title.trim() || undefined,
         description: description.trim() || undefined,
       })
@@ -330,22 +337,27 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
                       />
                     </div>
                     <div className="max-h-64 overflow-y-auto">
-                      {filteredLibraryItems.length === 0 ? (
+                      {libraryItems.length === 0 ? (
                         <div className="px-5 py-3 text-left text-base font-semibold text-[#1f3f8f]">
                           Không tìm thấy văn bản.
                         </div>
                       ) : (
-                        filteredLibraryItems.map((item) => (
+                        libraryItems.map((item) => (
                           <button
                             key={item.id}
                             type="button"
                             onClick={() => {
+                              if (!canSelectItem(item)) return
                               setSelectedItem(item)
                               setSearch('')
                               setLibraryOpen(false)
                             }}
                             className={`block w-full border-b border-gray-100 px-5 py-3 text-left text-base font-semibold ${
-                              selectedItem?.id === item.id ? 'bg-[#25a3b1] text-[#163f8f]' : 'text-[#1f3f8f] hover:bg-cyan-50'
+                              selectedItem?.id === item.id
+                                ? 'bg-[#25a3b1] text-[#163f8f]'
+                                : canSelectItem(item)
+                                  ? 'cursor-pointer text-[#1f3f8f] hover:bg-cyan-50'
+                                  : 'cursor-default text-[#7c8aa8]'
                             }`}
                           >
                             {item.title}
@@ -380,16 +392,6 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
                 className="w-full resize-none rounded-xl bg-[#cbeff2] px-5 py-3 text-lg italic text-[#1f3f8f] placeholder:text-[#6f8dbc]"
               />
             </div>
-
-            {/* <div>
-              <label className="mb-2 block text-base font-semibold text-[#1f3f8f] sm:text-lg">Hạn nộp</label>
-              <input
-                type="datetime-local"
-                value={dueAt}
-                onChange={(e) => setDueAt(e.target.value)}
-                className="h-12 w-full rounded-xl border-2 border-[#7da3df] bg-white px-4 text-base text-[#1f3f8f]"
-              />
-            </div> */}
 
             <div className="grid grid-cols-2 gap-4 pt-2 sm:gap-6">
               {embedded ? (
