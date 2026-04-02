@@ -50,7 +50,7 @@ interface CommunityPostData {
 
 export interface CongDongTemplateProps {
     title: string
-    subtitle: string
+    subtitle: ReactNode
     headerImage?: string
     backgroundImage?: string
     backgroundSize?: string // Default: '113%'
@@ -297,11 +297,11 @@ export default function CongDongTemplate({
                         <div className="absolute inset-x-0 px-4 subtitle-overlay" style={{ bottom: subtitleBoxBottom }}>
                             <div className="max-w-6xl mx-auto flex flex-col items-center">
                                 <div
-                                    className="w-full px-10 rounded-[35px] text-center flex items-center justify-center h-[100px]"
+                                    className="w-full px-8 py-2 rounded-[35px] text-center h-[150px]"
                                     style={{
                                         color: '#303f86',
                                         backgroundColor: 'rgba(223, 250, 239, 0.6)',
-                                        fontSize: '30px',
+                                        fontSize: '21px',
                                         fontWeight: '500',
                                     }}
                                 >

@@ -68,7 +68,15 @@ export default function HiepSiXanhPage() {
     return (
         <CongDongTemplate
             title="HIỆP SĨ XANH"
-            subtitle="Tiêu chí, giới thiệu về cộng đồng hiệp sĩ xanh"
+            subtitle={
+                <>
+                    Chào mừng em đến với cộng đồng{' '}
+                    <span style={{ fontStyle: 'italic', fontWeight: 700 }}>
+                        Hiệp sĩ Xanh
+                    </span>
+                    {' '}– nơi những người trẻ cùng chung tay bảo vệ môi trường và hướng tới một tương lai phát triển bền vững của thế giới. Tại đây, em sẽ khám phá những câu chuyện, bài học về mối quan hệ giữa con người và thiên nhiên, từ đó nhận ra những vấn đề môi trường trong cuộc sống và học cách hành động có trách nhiệm, góp phần gìn giữ một thế giới xanh.
+                </>
+            }         
             backgroundImage={hiepSiXanhImg}
             backgroundSize="115%"
             backgroundSizeMobile="200%"
