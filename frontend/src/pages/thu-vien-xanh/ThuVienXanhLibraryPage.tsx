@@ -84,6 +84,12 @@ export default function ThuVienXanhLibraryPage() {
     setMode(newMode)
   }
 
+  const handleOpenHocLieuItem = (item: { docKey?: 'lqh-hoa-binh' | 'lqh-moi-truong' }) => {
+    if (!item.docKey) return
+    const params = new URLSearchParams({ doc: item.docKey })
+    navigate(`/thu-vien-xanh/hoc-lieu?${params.toString()}`)
+  }
+
   const handleSearchSubmit = () => {
     setSearchValue((previous) => previous.trim())
   }
@@ -129,6 +135,7 @@ export default function ThuVienXanhLibraryPage() {
         onSectionChange={setSection}
         onModeChange={handleModeChange}
         onOpenItem={handleOpenItem}
+        onOpenHocLieuItem={handleOpenHocLieuItem}
       />
     </div>
   )

@@ -23,6 +23,7 @@ import TeacherNotifications from './pages/teacher/TeacherNotifications'
 import ThuVienXanhLibraryPage from './pages/thu-vien-xanh/ThuVienXanhLibraryPage'
 import DocHieuFullscreenModal from './pages/thu-vien-xanh/DocHieuFullscreenModal'
 import TichHopFullscreenModal from './pages/thu-vien-xanh/TichHopFullscreenModal'
+import HocLieuTextPage from './pages/thu-vien-xanh/HocLieuTextPage'
 import { HiepSiXanhPage, SuGiaHoaBinhPage } from './pages/cong-dong'
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -55,6 +56,7 @@ export default function App() {
             <Route path="/dang-nhap" element={<Login />} />
             <Route path="/dang-ky" element={<Register />} />
             <Route path="/thu-vien-xanh" element={<ThuVienXanhLibraryPage />} />
+            <Route path="/thu-vien-xanh/hoc-lieu" element={<HocLieuTextPage />} />
             <Route path="/thu-vien-xanh/doc-hieu" element={<DocHieuFullscreenModal />} />
             <Route path="/thu-vien-xanh/tich-hop" element={<TichHopFullscreenModal />} />
             {/* Cong Dong Trac Nhiem routes */}
