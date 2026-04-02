@@ -16,9 +16,6 @@ interface LibraryItem {
   hasTichHop: boolean
 }
 
-// Keep assignment creation in sync with Thu Vien Xanh library access.
-const assignableLibraryItemIds = new Set(['t_env_01'])
-
 type CreatedAssignment = {
   id: string
   type: 'READING' | 'INTEGRATION'
@@ -47,6 +44,7 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
   const [mode, setMode] = useState<'INDIVIDUAL' | 'GROUP'>('INDIVIDUAL')
   const [modeOpen, setModeOpen] = useState(false)
   const [libraryOpen, setLibraryOpen] = useState(false)
+  const [dueAt, setDueAt] = useState('')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -90,8 +88,8 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const libraryItems = useMemo(() => {
-    return thuVienCategories.flatMap((category) =>
+  const filteredLibraryItems = useMemo(() => {
+    const items = thuVienCategories.flatMap((category) =>
       category.texts.map<LibraryItem>((text) => ({
         id: text.id,
         title: text.title,
@@ -102,11 +100,10 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
         hasTichHop: text.hasIntegratedTask,
       }))
     )
-  }, [thuVienCategories])
-
-  const canSelectItem = (item: LibraryItem) =>
-    assignableLibraryItemIds.has(item.id) &&
-    (type === 'READING' ? item.hasDocHieu : item.hasTichHop)
+    return items.filter((item) =>
+      type === 'READING' ? item.hasDocHieu : item.hasTichHop
+    )
+  }, [thuVienCategories, type])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -119,10 +116,6 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
 
     if (!selectedItem) {
       setError('Vui lòng chọn văn bản.')
-      return
-    }
-    if (!assignableLibraryItemIds.has(selectedItem.id)) {
-      setError('Văn bản này chưa sẵn sàng để tạo bài tập.')
       return
     }
 
@@ -171,7 +164,7 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
         libraryItemId,
         type,
         mode,
-        dueAt: null,
+        dueAt: dueAt ? new Date(dueAt).toISOString() : null,
         title: title.trim() || undefined,
         description: description.trim() || undefined,
       })
@@ -337,27 +330,22 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
                       />
                     </div>
                     <div className="max-h-64 overflow-y-auto">
-                      {libraryItems.length === 0 ? (
+                      {filteredLibraryItems.length === 0 ? (
                         <div className="px-5 py-3 text-left text-base font-semibold text-[#1f3f8f]">
                           Không tìm thấy văn bản.
                         </div>
                       ) : (
-                        libraryItems.map((item) => (
+                        filteredLibraryItems.map((item) => (
                           <button
                             key={item.id}
                             type="button"
                             onClick={() => {
-                              if (!canSelectItem(item)) return
                               setSelectedItem(item)
                               setSearch('')
                               setLibraryOpen(false)
                             }}
                             className={`block w-full border-b border-gray-100 px-5 py-3 text-left text-base font-semibold ${
-                              selectedItem?.id === item.id
-                                ? 'bg-[#25a3b1] text-[#163f8f]'
-                                : canSelectItem(item)
-                                  ? 'cursor-pointer text-[#1f3f8f] hover:bg-cyan-50'
-                                  : 'cursor-default text-[#7c8aa8]'
+                              selectedItem?.id === item.id ? 'bg-[#25a3b1] text-[#163f8f]' : 'text-[#1f3f8f] hover:bg-cyan-50'
                             }`}
                           >
                             {item.title}

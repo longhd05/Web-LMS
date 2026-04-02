@@ -1,28 +1,11 @@
 import { useEffect, useState } from 'react'
 import api from '../../api/axios'
-import CongDongTemplate, { CommunityCardItem, LessonItem } from './CongDongTemplate'
+import CongDongTemplate, { CommunityCardItem } from './CongDongTemplate'
 import suGiaHoaBinhImg from '../../img/1x/cong-dong-bg-su-gia-hoa-binh.svg'
+import suGiaHoaBinhCanhVideoImg from '../../img/1x/su-gia-hoa-binh-canh-video.png'
+import congsuGiaHoaBinhImg from '../../img/1x/Cong-dong-su-gia-hoa-binh.png'
 
-const lessons: LessonItem[] = [
-    {
-        id: 'lesson-1',
-        title: 'Tên bài học',
-        description: 'Mô tả ngắn về bài học hòa bình và hòa giải',
-        imageUrl: undefined,
-    },
-    {
-        id: 'lesson-2',
-        title: 'Tên bài học',
-        description: 'Mô tả ngắn về bài học hòa bình và hòa giải',
-        imageUrl: undefined,
-    },
-    {
-        id: 'lesson-3',
-        title: 'Tên bài học',
-        description: 'Mô tả ngắn về bài học hòa bình và hòa giải',
-        imageUrl: undefined,
-    },
-]
+const SU_GIA_HOA_BINH_VIDEO_URL = 'https://res.cloudinary.com/dsq2xzxur/video/upload/v1775127386/IMG_4690_hhab9x.mp4'
 
 interface CommunityPost {
     id: string
@@ -74,19 +57,22 @@ export default function SuGiaHoaBinhPage() {
                     <span style={{ fontStyle: 'italic', fontWeight: 700 }}>
                         Sứ giả Hòa bình và Hòa giải
                     </span>
-                    {' '}– nơi những người trẻ cùng học cách thấu hiểu, tôn trọng sự khác biệt và hướng tới giải quyết xung đột một cách văn minh. Tại đây, em sẽ khám phá những câu chuyện, bài học về hòa bình và cách con người ứng xử trước mâu thuẫn, từ đó học được cách lắng nghe, đối thoại và hành động có trách nhiệm, góp phần xây dựng một xã hội an toàn, bình yên trong tương lai. 
+                    {' '}– nơi những người trẻ cùng học cách thấu hiểu, tôn trọng sự khác biệt và hướng tới giải quyết xung đột một cách văn minh. Tại đây, em sẽ khám phá những câu chuyện, bài học về hòa bình và cách con người ứng xử trước mâu thuẫn, từ đó học được cách lắng nghe, đối thoại và hành động có trách nhiệm, góp phần xây dựng một xã hội an toàn, bình yên trong tương lai.
                 </>
-            }              backgroundImage={suGiaHoaBinhImg}
+            } backgroundImage={suGiaHoaBinhImg}
             backgroundSize="90%"
             backgroundSizeMobile="220%"
             backgroundPosition="center 0%"
             backgroundPaddingTop="100px"
-            subtitleBoxBottom="50px"
+            subtitleBoxBottom="23px"
             primaryColor="#1e3a8a"
             secondaryColor="#b7e9e5"
             accentColor="#caf2e7"
-            videoUrl="https://example.com/video"
-            lessons={lessons}
+            readSectionTitle="NHỮNG SỨ GIẢ HÒA BÌNH VÀ HÒA GIẢI TRÊN THẾ GIỚI"
+            readSectionLayout="single-image"
+            readSectionImageUrl={congsuGiaHoaBinhImg}
+            videoUrl={SU_GIA_HOA_BINH_VIDEO_URL}
+            watchImageUrl={suGiaHoaBinhCanhVideoImg}
             communityCards={communityCards}
             communityKey="su-gia-hoa-binh"
         />
