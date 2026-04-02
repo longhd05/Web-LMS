@@ -813,6 +813,7 @@ export default function CongDongTemplate({
                                             style={{
                                                 background: 'linear-gradient(#f3fffb, #f3fffb) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
                                             }}
+                                            onClick={() => handleCardClick(card.id)}
                                         >
                                             <div className="overflow-y-auto p-6 sm:p-8">
                                                 <div className="flex items-center justify-between mb-5">
