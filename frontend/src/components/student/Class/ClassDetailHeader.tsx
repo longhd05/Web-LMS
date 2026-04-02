@@ -1,4 +1,5 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 interface TabItem {
   key: string
@@ -23,6 +24,7 @@ export default function ClassDetailHeader({
   activeTab,
   onTabChange,
 }: ClassDetailHeaderProps) {
+  const [tooltip, setTooltip] = useState<{ label: string; x: number; y: number } | null>(null)
   return (
     <>
       <div className="flex items-center justify-between">
@@ -62,6 +64,11 @@ export default function ClassDetailHeader({
               <div key={item.key} className="relative flex items-center gap-1">
                 <button
                   onClick={() => onTabChange(item.key)}
+                  onMouseEnter={(e) => {
+                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                    setTooltip({ label: item.label, x: rect.left + rect.width / 2, y: rect.top })
+                  }}
+                  onMouseLeave={() => setTooltip(null)}
                   className={`group p-1 sm:p-2 transition-opacity ${
                     isActive ? 'opacity-100' : 'opacity-80 hover:opacity-100'
                   }`}
@@ -69,11 +76,6 @@ export default function ClassDetailHeader({
                 >
                   <span className="text-[#1f3f8f] [&_svg]:h-8 [&_svg]:w-8 sm:[&_svg]:h-9 sm:[&_svg]:w-9">
                     {item.icon}
-                  </span>
-
-                  <span className="pointer-events-none absolute -top-10 left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-full border border-[#9dc7de] bg-[#f4f8fc] px-4 py-1.5 text-sm font-extrabold text-[#1f3f8f] shadow-[0_2px_8px_rgba(31,63,143,0.18)] sm:group-hover:block">
-                    {item.label}
-                    <span className="absolute -bottom-[6px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-[#9dc7de] bg-[#f4f8fc]" />
                   </span>
                 </button>
 
@@ -96,6 +98,22 @@ export default function ClassDetailHeader({
         </span>
         <span className="ml-4 text-[20px] font-extrabold uppercase text-[#1f3f8f]">{classCode}</span>
       </div>
+      {tooltip &&
+        createPortal(
+          <div
+            className="pointer-events-none z-[9999] rounded-full border border-[#9dc7de] bg-[#f4f8fc] px-4 py-1.5 text-sm font-extrabold text-[#1f3f8f] shadow-[0_2px_8px_rgba(31,63,143,0.18)]"
+            style={{
+              position: 'fixed',
+              left: tooltip.x,
+              top: tooltip.y - 8,
+              transform: 'translate(-50%, -100%)',
+            }}
+          >
+            {tooltip.label}
+            <span className="absolute -bottom-[6px] left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-[#9dc7de] bg-[#f4f8fc]" />
+          </div>,
+          document.body
+        )}
     </>
   )
 }

@@ -8,10 +8,12 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
 const allowedCategoryIds = new Set(['env', 'peace'])
+type ThuVienXanhSection = 'hoc-lieu' | 'van-ban-va-nhiem-vu'
 
 export default function ThuVienXanhLibraryPage() {
   const [searchValue, setSearchValue] = useState('')
   const [mode, setMode] = useState<ThuVienXanhMode>('doc-hieu')
+  const [section, setSection] = useState<ThuVienXanhSection>('van-ban-va-nhiem-vu')
   const navigate = useNavigate()
   const { user } = useAuth()
   const isLoggedIn = !!user
@@ -122,7 +124,9 @@ export default function ThuVienXanhLibraryPage() {
       <LibraryContent
         categories={categories}
         mode={mode}
+        section={section}
         isLoggedIn={isLoggedIn}
+        onSectionChange={setSection}
         onModeChange={handleModeChange}
         onOpenItem={handleOpenItem}
       />

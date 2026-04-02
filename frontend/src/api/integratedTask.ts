@@ -119,15 +119,40 @@ const mockIntegratedTasks: Record<string, IntegratedTask> = {
   t_env_01: {
     id: 'task_env_01',
     textId: 't_env_01',
-    prompt: `Dựa vào đoạn văn "Bạch tuộc", hãy viết một bài văn ngắn (khoảng 200-300 từ) về chủ đề:
+    prompt: `Nhiệm vụ cá nhân:
+Bài 1: Hãy đọc kĩ lại văn bản, kết hợp với việc tìm hiểu trên mạng internet, trả lời các câu hỏi sau:
+Câu 1: Em hãy tìm hiểu về vai trò của các loài sinh vật biển trong hệ sinh thái và cho biết vì sao cần bảo vệ chúng.
+Câu 2: Chi tiết thuyền trưởng Nê-mô "mình nhuốm đầy máu, đứng lặng người" và "ứa lệ" khi nhìn xuống biển cả sau cuộc giáp chiến giúp em hiểu thêm điều gì về thái độ của ông đối với con người và đại dương?
+Câu 3: Theo em, việc tiêu diệt bạch tuộc có thể giúp chấm dứt hoàn toàn cuộc chiến giữa con người và sinh vật biển không?
+Câu 4: Văn bản Bạch tuộc kể lại cuộc chiến đấu không khoan nhượng giữa những thủy thủ và đàn bạch tuộc. Nhưng có ý kiến lại cho rằng, con người không nên tiêu diệt động vật hoang dã mà hãy tìm cách chung sống với chúng. Em có suy nghĩ gì về quan điểm trên?
+Câu 5: Từ câu chuyện trong văn bản, em rút ra bài học gì về cách ứng xử của con người với đại dương?
 
-"Sự thông minh và khả năng thích nghi của sinh vật biển"
+Bài 2:
+Trận chiến khốc liệt với đàn bạch tuộc đã để lại nỗi đau thắt lòng cho thuyền trưởng Nê-mô khi mất đi người đồng hương, đồng thời cũng khiến những sinh vật biển phải chịu thương vong nặng nề. Điều đó cho thấy, xung đột giữa người và động vật hoang dã đã và đang là một trong những mối đe dọa lớn nhất đối với sự sinh tồn lâu dài của một số loài sinh vật thế giới như hổ, sói, voi, cá sấu, bạch tuộc,... Tuy nhiên, chính bằng công nghệ hiện đại, chúng ta hoàn toàn có thể hóa giải các mâu thuẫn mà không cần dùng đến vũ lực để hướng đến một tương lai cho sự chung sống hài hòa giữa con người và động vật hoang dã.
+Đọc bài báo sau để biết thêm thông tin: https://tapchimoitruong.vn/chuyen-muc-3/mot-tuong-lai-cho-su-chung-song-hai-hoa-giua-con-nguoi-va-dong-vat-hoang-da-25602.
+Từ đó, hãy đóng vai một nhà môi trường học đến từ tương lai, viết một lá thư gửi thuyền trưởng Nê-mô, thuyết phục ông nghiên cứu các thiết bị công nghệ (như radar quét sinh cảnh tầm xa, hệ thống phát sóng siêu âm điều chỉnh hành vi,...) để tàu No-ti-lớt không gây ra những tổn thương đến hệ sinh thái biển cả.
 
-Yêu cầu:
-- Nêu được những đặc điểm thông minh của bạch tuộc
-- Liên hệ với thực tế về việc bảo vệ môi trường biển
-- Bày tỏ cảm xúc và suy nghĩ của em về sinh vật biển
-- Trình bày rõ ràng, mạch lạc`,
+Nhiệm vụ làm việc nhóm:
+Bài tập dự án: Từ cuộc chiến đẫm máu giữa bạch tuộc và đoàn thủy thủ, chúng ta thấy được những mất mát, thương đau mà cả con người và thiên nhiên đều phải gánh chịu. Điều đó khiến chúng ta cần suy nghĩ lại về cách con người ứng xử với đại dương. Hãy thiết kế một số báo với chủ đề: "Khi đại dương không chỉ là nơi để chinh phục"
+
+Yêu cầu
+*Về nội dung của số báo:
+- Góc suy ngẫm: bài viết thể hiện suy nghĩ về hành động của con người trong các cuộc chiến với thiên nhiên sau khi đọc hiểu văn bản, từ đó đưa ra quan điểm về cách ứng xử với sinh vật biển.
+- Góc khám phá: điều tra, khảo sát về thực trạng của các loài sinh vật biển hiện nay; tìm hiểu và giới thiệu một số ứng dụng công nghệ được sử dụng để bảo vệ sinh vật biển.
+- Góc sáng tạo: sáng tạo các sản phẩm (thư, truyện ngắn, nhật kí, tranh ảnh,...) thể hiện khát vọng con người không đối đầu với đại dương mà biết cách chung sống hài hòa, gửi gắm thông điệp về trách nhiệm bảo vệ môi trường biển.
+
+*Về hình thức:
+- Số báo được trình bày bằng định dạng file PDF
+- Có đầy đủ các phần (trang bìa, mục lục, các chuyên mục)
+- Trong các chuyên mục, có sự kết hợp hài hòa giữa văn bản, hình ảnh, sơ đồ, infographic,...
+- Bố cục khoa học, có tính thẩm mĩ.
+
+Gợi ý một số công cụ hỗ trợ:
+- Viết/biên tập văn bản (Microsoft Word, Google Docs)
+- Thiết kế đồ họa (Canva, Adobe InDesign)
+- Chỉnh sửa hình ảnh (Adobe Photoshop, GIMP)
+- Tạo video/đồ họa (Adobe Spark)
+- Tạo infographic (Piktochart)`,
     maxFileSize: 5,
     allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
     dueDate: '2026-03-15T23:59:59',

@@ -16,51 +16,148 @@ const mockTextDetails: Record<string, TextDetail> = {
     difficulty: 'Trung bình',
     hasReadingQuiz: true,
     hasIntegratedTask: true,
-    content: `Ngày xưa, ở một vùng biển xa xôi, có một con bạch tuộc rất thông minh. Con bạch tuộc này có tám chiếc xúc tu dài và linh hoạt, có thể thay đổi màu sắc để hòa mình vào môi trường xung quanh.
+    content: `Jules Verne viết về cuộc chiến dữ dội giữa đoàn thủy thủ tàu No-ti-lớt và đàn bạch tuộc khổng lồ. Những chiếc vòi dài, lực siết mạnh và sự hung hãn của loài vật biển sâu đã đẩy các thủy thủ vào tình thế sinh tử.
 
-Một hôm, con bạch tuộc quyết định khám phá vùng biển mới. Trên đường đi, nó gặp nhiều sinh vật biển khác nhau: cá hề đầy màu sắc, rùa biển già nua, và những rạn san hô tuyệt đẹp.
+Trong trận chiến, con người thể hiện trí tuệ, lòng dũng cảm và tinh thần đoàn kết để chiến đấu. Tác giả miêu tả bạch tuộc với nhiều chi tiết giàu tính quan sát và gợi hình, đồng thời lồng ghép những kiến thức khoa học về cấu tạo cơ thể mềm, máu xanh và khả năng tiết "mực" đen.
 
-Con bạch tuộc đã học được rằng sự thông minh và khả năng thích nghi là chìa khóa để sinh tồn trong đại dương rộng lớn. Nó biết cách trốn tránh kẻ thù bằng cách thay đổi màu sắc, biết cách tìm kiếm thức ăn một cách khéo léo, và quan trọng nhất là biết cách sống hòa bình với các sinh vật khác.`,
+Đoạn trích không chỉ mang màu sắc phiêu lưu, viễn tưởng mà còn ca ngợi vẻ đẹp của con người trước thử thách thiên nhiên khắc nghiệt. Hình ảnh thuyền trưởng Nê-mô ứa lệ trước mất mát đồng đội cũng làm nổi bật chiều sâu tình cảm của nhân vật.`,
     readingQuestions: [
       {
         id: 'q1',
         type: 'multiple-choice',
-        question: 'Con bạch tuộc trong truyện có bao nhiêu xúc tu?',
-        options: ['Sáu chiếc', 'Tám chiếc', 'Mười chiếc', 'Mười hai chiếc'],
-        correctAnswer: 'Tám chiếc',
+        question: 'Câu 1: Văn bản Bạch tuộc kể về sự việc chính nào?',
+        options: [
+          'A. Hành trình của các thuỷ thủ tàu No-ti-lớt trên vùng biển có nhiều quái vật',
+          'B. Cuộc chiến đấu giữa đoàn thủy thủ tàu No-ti-lớt và đàn bạch tuộc khổng lồ',
+          'C. Thuyền trưởng Nê-mô và các đồng đội dũng cảm chiến đấu chống lại bạch tuộc để trả thù cho bạn',
+          'D. Quá trình chinh phục biển cả của đoàn thuỷ thủ thể hiện qua việc tiêu diệt đàn bạch tuộc',
+        ],
+        correctAnswer: 'B. Cuộc chiến đấu giữa đoàn thủy thủ tàu No-ti-lớt và đàn bạch tuộc khổng lồ',
         order: 1,
       },
       {
         id: 'q2',
         type: 'multiple-choice',
-        question: 'Khả năng đặc biệt của con bạch tuộc là gì?',
+        question: 'Câu 2: Phương án nào dưới đây nêu đúng về đàn bạch tuộc trong truyện?',
         options: [
-          'Bay trong nước',
-          'Thay đổi màu sắc',
-          'Phát ra ánh sáng',
-          'Hát hay',
+          'A. kẻ thù không đội trời chung của con người.',
+          'B. lực cản tất yếu của hành trình khám phá biển cả.',
+          'C. sức mạnh khủng khiếp thuộc về thế giới tự nhiên.',
+          'D. những thử thách mà người thuỷ thủ cần chiến thắng.',
         ],
-        correctAnswer: 'Thay đổi màu sắc',
+        correctAnswer: 'C. sức mạnh khủng khiếp thuộc về thế giới tự nhiên.',
         order: 2,
       },
       {
         id: 'q3',
         type: 'multiple-choice',
-        question: 'Con bạch tuộc gặp những sinh vật nào trong hành trình?',
+        question: 'Câu 3: Đoạn trích trên cho thấy đặc điểm nổi bật gì ở tác giả?',
         options: [
-          'Cá mập và cá voi',
-          'Cá hề và rùa biển',
-          'Hải mã và sứa biển',
-          'Cá ngừ và cá heo',
+          'A. Sự đồng cảm đối với thiên nhiên, vạn vật',
+          'B. Độ nhạy bén trong quan sát, cảm nhận về đối tượng',
+          'C. Khả năng lựa sử dụng ngôn ngữ điêu luy',
+          'D. Trí liên tưởng và tưởng tượng phong phú, sắc bén',
         ],
-        correctAnswer: 'Cá hề và rùa biển',
+        correctAnswer: 'D. Trí liên tưởng và tưởng tượng phong phú, sắc bén',
         order: 3,
       },
       {
         id: 'q4',
-        type: 'short-answer',
-        question: 'Em học được bài học gì từ câu chuyện về con bạch tuộc?',
+        type: 'multiple-choice',
+        question: 'Câu 4: Vì sao con bạch tuộc tức giận khi gặp con tàu Nautilus?',
+        options: [
+          'A. Vì Nautilus to lớn khiến vòi và hai hàm răng của nó chẳng thể tấn công.',
+          'B. Vì Nautilus đang săn lùng, tấn công bạch tuộc.',
+          'C. Vì Nautilus bắt con của bạch tuộc.',
+          'D. Vì Nautilus đâm bạch tuộc bị thương.',
+        ],
+        correctAnswer: 'D. Vì Nautilus đâm bạch tuộc bị thương.',
         order: 4,
+      },
+      {
+        id: 'q5',
+        type: 'multiple-choice',
+        question:
+          'Câu 5: Những chi tiết nào sau đây thể hiện tác giả có những hiểu biết dựa vào thành tựu của khoa học?',
+        options: ['A. 1-2-3', 'B. 2-3-4', 'C. 1-2-4', 'D. 1-3-4'],
+        correctAnswer: 'D. 1-3-4',
+        order: 5,
+      },
+      {
+        id: 'q6',
+        type: 'multiple-choice',
+        question: 'Câu 6: Phương án nào không phải yếu tố giúp đoàn thủy thủ chiến thắng bạch tuộc?',
+        options: [
+          '1. Sự thông minh',
+          '2. Lòng can đảm',
+          '3. Sử dụng phương tiện hiện đại',
+          '4. Tinh thần đoàn kết',
+        ],
+        correctAnswer: '3. Sử dụng phương tiện hiện đại',
+        order: 6,
+      },
+      {
+        id: 'q7',
+        type: 'multiple-choice',
+        question:
+          'Câu 7: Vẻ đẹp nào của nhân vật thuyền trưởng được thể hiện qua phần văn bản: "Thuyền trưởng Nê-mô, mình nhuốm đầy máu, đứng lặng người bên chiếc đèn pha mà nhìn xuống biển cả vừa nuốt mất một người đồng hương của mình. Mắt Nê-mô ứa lệ."?',
+        options: ['A. Anh dũng', 'B. Tài ba', 'C. Giàu tình cảm', 'D. Giàu đức hi sinh'],
+        correctAnswer: 'C. Giàu tình cảm',
+        order: 7,
+      },
+      {
+        id: 'q8',
+        type: 'multiple-choice',
+        question: 'Câu 8: Tính chất "viễn tưởng" trong văn bản được thể hiện chủ yếu ở:',
+        options: [
+          'A. không gian nghệ thuật: cảnh biển hùng tráng, dữ dội và chứa đựng sức mạnh huyền bí.',
+          'B. thời gian nghệ thuật: được nén chặt trong cuộc chiến đấu giữa đoàn thuỷ thủ và đàn bạch tuộc.',
+          'C. những chi tiết miêu tả về bạch tuộc và cuộc chiến đẫm máu giữa chúng với con người.',
+          'D. những sự việc li kì, hấp dẫn diễn ra trong hành trình khám phá biển của đoàn thủy thủ.',
+        ],
+        correctAnswer: 'C. những chi tiết miêu tả về bạch tuộc và cuộc chiến đẫm máu giữa chúng với con người.',
+        order: 8,
+      },
+      {
+        id: 'q9',
+        type: 'multiple-choice',
+        question:
+          'Câu 9: Phương án nào dưới đây nêu đúng nhất về điểm hấp dẫn nổi bật của văn phong trong văn bản Bạch tuộc?',
+        options: [
+          'A. Sự gay cấn, lôi cuốn.',
+          'B. Tính triết lí sâu sắc.',
+          'C. Vừa hài hước, vừa thâm thuý.',
+          'D. Đậm vẻ chân thực, giản dị.',
+        ],
+        correctAnswer: 'A. Sự gay cấn, lôi cuốn.',
+        order: 9,
+      },
+      {
+        id: 'q10',
+        type: 'multiple-choice',
+        question: 'Câu 10: Qua văn bản Bạch tuộc, tác giả muốn đề cao điều gì?',
+        options: [
+          'A. Lối sống nhân ái, bao dung',
+          'B. Sức mạnh, trí tuệ của con người',
+          'C. Thái độ cảnh giác với động vật',
+          'D. Thận trọng khi đi biển',
+        ],
+        correctAnswer: 'B. Sức mạnh, trí tuệ của con người',
+        order: 10,
+      },
+      {
+        id: 'q11',
+        type: 'short-answer',
+        question:
+          'Câu 11: Chỉ ra một yếu tố thú vị về hình thức thể hiện của văn bản và giải thích về sự thú vị đó. Đáp án gợi ý: Đoạn đối thoại giữa 3 nhân vật: Nét, tôi, Công-xây; đoạn đối thoại giữa tôi và thuyền trưởng Nê-mô. Lời thoại ngắn, liên tục, dồn dập theo diễn biến của sự việc, góp phần kéo căng mạch truyện và tạo tính li kì, hấp dẫn.',
+        order: 11,
+      },
+      {
+        id: 'q12',
+        type: 'short-answer',
+        question:
+          'Câu 12: Trong truyện, đoàn thủy thủ đã đối mặt với bạch tuộc khổng lồ và nỗ lực vượt qua nghịch cảnh. Em hãy viết đoạn văn khoảng 6-8 câu về một khó khăn em có thể gặp và một điều kì lạ giúp em vượt qua. Gợi ý: khó khăn trong viết văn; điều kì lạ là một cây bút thần có mực là dòng cảm xúc, có ngòi bút là con mắt biết quan sát thấu tỏ mọi việc.',
+        order: 12,
       },
     ],
   },

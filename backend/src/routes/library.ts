@@ -1,8 +1,57 @@
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../lib/prisma';
-import { optionalAuth } from '../middleware/auth';
+import { authenticate, optionalAuth } from '../middleware/auth';
+import { requireRole } from '../middleware/rbac';
 
 const router = Router();
+
+const syncLibrarySchema = z.object({
+  title: z.string().min(1),
+  content: z.string().min(1),
+  type: z.enum(['READING', 'INTEGRATION']),
+  tags: z.array(z.string()).optional(),
+  level: z.string().optional(),
+});
+
+router.post('/sync', authenticate, requireRole('TEACHER', 'ADMIN'), async (req: Request, res: Response): Promise<void> => {
+  const parsed = syncLibrarySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+
+  const { title, content, type, tags, level } = parsed.data;
+
+  const existing = await prisma.libraryItem.findFirst({
+    where: { title, type },
+  });
+
+  if (existing) {
+    const updated = await prisma.libraryItem.update({
+      where: { id: existing.id },
+      data: {
+        content,
+        level: level ?? existing.level,
+        tags: JSON.stringify(tags ?? JSON.parse(existing.tags)),
+      },
+    });
+    res.json({ data: { ...updated, tags: JSON.parse(updated.tags) } });
+    return;
+  }
+
+  const created = await prisma.libraryItem.create({
+    data: {
+      title,
+      content,
+      type,
+      level: level ?? '',
+      tags: JSON.stringify(tags ?? []),
+    },
+  });
+
+  res.status(201).json({ data: { ...created, tags: JSON.parse(created.tags) } });
+});
 
 router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { search, page = '1', limit = '10', type } = req.query as Record<string, string>;

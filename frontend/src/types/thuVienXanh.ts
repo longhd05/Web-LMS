@@ -30,11 +30,21 @@ export interface MCQItem {
   correctAnswer: string | null
 }
 
+export interface TextAnnotation {
+  id: string
+  textHighlight: string
+  annotationText: string
+  position?: number
+}
+
 export interface DocHieuContent {
   itemId: string
   passageTitle: string
   passageContent: string
   passageImageUrl: string | null
+  fullPageImageUrl?: string | null
+  annotations?: TextAnnotation[]
+  shortQuestions?: string[]
   mcq: MCQItem[]
 }
 
@@ -43,5 +53,6 @@ export interface TichHopContent {
   passageTitle: string
   passageContent: string
   passageImageUrl: string | null
+  fullPageImageUrl?: string | null
   integrationPrompt: string
 }

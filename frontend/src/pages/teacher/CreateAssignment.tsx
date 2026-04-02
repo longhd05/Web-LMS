@@ -2,12 +2,18 @@
 import { ChevronDown } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import api from '../../api/axios'
+import { useThuVienXanhLibrary } from '../../hooks/useThuVienXanhLibrary'
+import { fetchTextDetail } from '../../api/readingComprehension'
+import { fetchIntegratedTask } from '../../api/integratedTask'
 
 interface LibraryItem {
   id: string
   title: string
-  level: string
-  tags: string[]
+  categoryId: string
+  coverUrl?: string | null
+  difficulty?: string | null
+  hasDocHieu: boolean
+  hasTichHop: boolean
 }
 
 type CreatedAssignment = {
@@ -31,7 +37,6 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
   const { classId } = useParams<{ classId: string }>()
   const navigate = useNavigate()
 
-  const [libraryItems, setLibraryItems] = useState<LibraryItem[]>([])
   const [search, setSearch] = useState('')
   const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null)
   const [type, setType] = useState<'READING' | 'INTEGRATION'>('READING')
@@ -48,6 +53,7 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
   const typeDropdownRef = useRef<HTMLDivElement | null>(null)
   const modeDropdownRef = useRef<HTMLDivElement | null>(null)
   const libraryDropdownRef = useRef<HTMLDivElement | null>(null)
+  const { categories: thuVienCategories } = useThuVienXanhLibrary(search)
 
   useEffect(() => {
     api
@@ -57,23 +63,12 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
   }, [classId])
 
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      try {
-        const res = await api.get('/library', { params: { search: search || undefined, limit: 20, type } })
-        setLibraryItems(res.data.data)
-      } catch {
-        // silent
-      }
-    }, 300)
-    return () => clearTimeout(timer)
-  }, [search, type])
-
-  useEffect(() => {
-    api
-      .get('/library', { params: { limit: 20, type } })
-      .then((res) => setLibraryItems(res.data.data))
-      .catch(() => {})
-  }, [type])
+    if (!selectedItem) return
+    const supportsType = type === 'READING' ? selectedItem.hasDocHieu : selectedItem.hasTichHop
+    if (!supportsType) {
+      setSelectedItem(null)
+    }
+  }, [type, selectedItem])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -94,10 +89,21 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
   }, [])
 
   const filteredLibraryItems = useMemo(() => {
-    const keyword = search.trim().toLocaleLowerCase()
-    if (!keyword) return libraryItems
-    return libraryItems.filter((item) => item.title.toLocaleLowerCase().includes(keyword))
-  }, [libraryItems, search])
+    const items = thuVienCategories.flatMap((category) =>
+      category.texts.map<LibraryItem>((text) => ({
+        id: text.id,
+        title: text.title,
+        categoryId: text.categoryId,
+        coverUrl: text.coverUrl,
+        difficulty: text.difficulty,
+        hasDocHieu: text.hasReadingQuiz,
+        hasTichHop: text.hasIntegratedTask,
+      }))
+    )
+    return items.filter((item) =>
+      type === 'READING' ? item.hasDocHieu : item.hasTichHop
+    )
+  }, [thuVienCategories, type])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -113,13 +119,49 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
       return
     }
 
-    setLoading(true)
-    setError('')
-
     try {
+      setLoading(true)
+      setError('')
+
+      const contentPayload =
+        type === 'READING'
+          ? await (async () => {
+              const detail = await fetchTextDetail(selectedItem.id)
+              const questions = (detail.readingQuestions || []).map((q) => ({
+                id: q.id,
+                text: q.question,
+                type: q.type,
+                options: q.options ?? [],
+                correctAnswer: q.correctAnswer ?? null,
+              }))
+              return {
+                text: detail.content,
+                questions,
+                imageUrl: selectedItem.coverUrl || null,
+              }
+            })()
+          : await (async () => {
+              const { task, textContent } = await fetchIntegratedTask(selectedItem.id)
+              return {
+                text: textContent,
+                integrationPrompt: task.prompt,
+                imageUrl: selectedItem.coverUrl || null,
+              }
+            })()
+
+      const syncRes = await api.post('/library/sync', {
+        title: selectedItem.title,
+        content: JSON.stringify(contentPayload),
+        type,
+        tags: ['thu-vien-xanh', selectedItem.categoryId],
+        level: selectedItem.difficulty ?? '',
+      })
+
+      const libraryItemId: string = syncRes.data.data.id
+
       const res = await api.post('/assignments', {
         classId,
-        libraryItemId: selectedItem.id,
+        libraryItemId,
         type,
         mode,
         dueAt: dueAt ? new Date(dueAt).toISOString() : null,
@@ -186,7 +228,6 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
                       type="button"
                       onClick={() => {
                         setType('READING')
-                        setSelectedItem(null)
                         setTypeOpen(false)
                       }}
                       className={`block w-full pl-6 py-1.5 text-left text-xl leading-none ${
@@ -199,7 +240,6 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
                       type="button"
                       onClick={() => {
                         setType('INTEGRATION')
-                        setSelectedItem(null)
                         setTypeOpen(false)
                       }}
                       className={`block w-full pl-6 py-1.5 text-left text-xl leading-none ${
