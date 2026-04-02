@@ -281,8 +281,7 @@ export default function HomePageHeader() {
               }}
             >
               <p className="text-blue-900 text-sm font-semibold">
-                Ý nghĩa tên <br />
-                "Viễn tưởng xanh"
+                Lấy cảm hứng từ câu nói của Jules Verne: “Tất cả những gì con người hình dung ra được thì họ sẽ tìm cách thực hiện”, website <i>VIỄN TƯỞNG XANH</i> mở ra không gian khám phá các tác phẩm khoa học viễn tưởng, giúp người đọc nhận ra các vấn đề của thế giới có thể xuất hiện trong tương lai; từ đó, khơi gợi suy nghĩ, hình thành ý thức và định hướng hành động nhằm hướng tới một thế giới xanh, hòa bình, ổn định và phát triển bền vững.
               </p>
             </div>
           </div>

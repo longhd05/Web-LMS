@@ -1,15 +1,13 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Header from './components/Header'
 import ProtectedRoute from './components/ProtectedRoute'
+import ScrollToTop from './components/ScrollToTop'
 
 // Pages
-import Landing from './pages/Landing'
 import HomePage from './pages/HomePage'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import CommunityList from './pages/community/CommunityList'
-import CommunityDetail from './pages/community/CommunityDetail'
 import StudentDashboard from './pages/student/StudentDashboard'
 import StudentClassDetail from './pages/student/StudentClassDetail'
 import AssignmentDetail from './pages/student/AssignmentDetail'
@@ -25,19 +23,19 @@ import TeacherNotifications from './pages/teacher/TeacherNotifications'
 import ThuVienXanhLibraryPage from './pages/thu-vien-xanh/ThuVienXanhLibraryPage'
 import DocHieuFullscreenModal from './pages/thu-vien-xanh/DocHieuFullscreenModal'
 import TichHopFullscreenModal from './pages/thu-vien-xanh/TichHopFullscreenModal'
+import HocLieuTextPage from './pages/thu-vien-xanh/HocLieuTextPage'
 import { HiepSiXanhPage, SuGiaHoaBinhPage } from './pages/cong-dong'
 
 function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const isThuVienXanh = location.pathname.startsWith('/thu-vien-xanh')
-  const isStudentPortal = location.pathname.startsWith('/student')
   const isHomePage = location.pathname === '/trang-chu'
   const isCongDong = location.pathname.startsWith('/cong-dong')
   const isAuthPage = location.pathname === '/dang-nhap' || location.pathname === '/dang-ky'
 
   return (
     <div className={isThuVienXanh ? 'min-h-screen' : 'min-h-screen bg-gray-50'}>
-      {!isThuVienXanh && !isStudentPortal && !isHomePage && !isCongDong && !isAuthPage && <Header />}
+      {!isThuVienXanh && !isHomePage && !isCongDong && !isAuthPage && <Header />}
       <main>{children}</main>
     </div>
   )
@@ -47,26 +45,27 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Layout>
           <Routes>
+            {/* Root redirect */}
+            <Route path="/" element={<Navigate to="/trang-chu" replace />} />
+
             {/* Public routes */}
-            <Route path="/" element={<Landing />} />
             <Route path="/trang-chu" element={<HomePage />} />
             <Route path="/dang-nhap" element={<Login />} />
             <Route path="/dang-ky" element={<Register />} />
             <Route path="/thu-vien-xanh" element={<ThuVienXanhLibraryPage />} />
+            <Route path="/thu-vien-xanh/hoc-lieu" element={<HocLieuTextPage />} />
             <Route path="/thu-vien-xanh/doc-hieu" element={<DocHieuFullscreenModal />} />
             <Route path="/thu-vien-xanh/tich-hop" element={<TichHopFullscreenModal />} />
-            <Route path="/community" element={<CommunityList />} />
-            <Route path="/community/:communityKey" element={<CommunityDetail />} />
-
             {/* Cong Dong Trac Nhiem routes */}
             <Route path="/cong-dong/hiep-si-xanh" element={<HiepSiXanhPage />} />
             <Route path="/cong-dong/su-gia-hoa-binh" element={<SuGiaHoaBinhPage />} />
 
             {/* Student routes */}
             <Route
-              path="/student/dashboard"
+              path="/hoc-sinh/trang-chu"
               element={
                 <ProtectedRoute role="STUDENT">
                   <StudentDashboard />
@@ -74,7 +73,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/class/:classId"
+              path="/hoc-sinh/lop-hoc/:classId"
               element={
                 <ProtectedRoute role="STUDENT">
                   <StudentClassDetail />
@@ -82,7 +81,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/class/:classId/assignment/:assignmentId"
+              path="/hoc-sinh/lop-hoc/:classId/bai-tap/:assignmentId"
               element={
                 <ProtectedRoute role="STUDENT">
                   <AssignmentDetail />
@@ -90,7 +89,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/products"
+              path="/hoc-sinh/san-pham"
               element={
                 <ProtectedRoute role="STUDENT">
                   <ProductsPage />
@@ -98,7 +97,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/profile"
+              path="/hoc-sinh/ho-so"
               element={
                 <ProtectedRoute role="STUDENT">
                   <ProfilePage />
@@ -106,7 +105,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/submissions"
+              path="/hoc-sinh/bai-nop"
               element={
                 <ProtectedRoute role="STUDENT">
                   <Submissions />
@@ -114,7 +113,7 @@ export default function App() {
               }
             />
             <Route
-              path="/student/notifications"
+              path="/hoc-sinh/thong-bao"
               element={
                 <ProtectedRoute role="STUDENT">
                   <Notifications />
@@ -124,7 +123,7 @@ export default function App() {
 
             {/* Teacher routes */}
             <Route
-              path="/teacher/dashboard"
+              path="/giao-vien/trang-chu"
               element={
                 <ProtectedRoute role="TEACHER">
                   <TeacherDashboard />
@@ -132,7 +131,7 @@ export default function App() {
               }
             />
             <Route
-              path="/teacher/class/:classId"
+              path="/giao-vien/lop-hoc/:classId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <TeacherClassDetail />
@@ -140,7 +139,7 @@ export default function App() {
               }
             />
             <Route
-              path="/teacher/create-assignment/:classId"
+              path="/giao-vien/tao-bai-tap/:classId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <CreateAssignment />
@@ -148,7 +147,7 @@ export default function App() {
               }
             />
             <Route
-              path="/teacher/review/:submissionId"
+              path="/giao-vien/xem-bai/:submissionId"
               element={
                 <ProtectedRoute role="TEACHER">
                   <ReviewSubmission />
@@ -156,7 +155,7 @@ export default function App() {
               }
             />
             <Route
-              path="/teacher/notifications"
+              path="/giao-vien/thong-bao"
               element={
                 <ProtectedRoute role="TEACHER">
                   <TeacherNotifications />
@@ -164,17 +163,8 @@ export default function App() {
               }
             />
 
-            {/* Catch all */}
-            <Route
-              path="*"
-              element={
-                <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-                  <p className="text-6xl font-bold text-gray-200">404</p>
-                  <p className="text-xl text-gray-600">Trang không tồn tại</p>
-                  <a href="/trang-chu" className="text-green-600 hover:underline font-medium">← Về trang chủ</a>
-                </div>
-              }
-            />
+            {/* Catch all - redirect to home */}
+            <Route path="*" element={<Navigate to="/trang-chu" replace />} />
           </Routes>
         </Layout>
       </BrowserRouter>

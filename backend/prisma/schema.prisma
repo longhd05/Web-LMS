@@ -57,6 +57,7 @@ model LibraryItem {
   content   String
   tags      String // JSON array
   level     String
+  type      String   @default("READING")
   createdAt DateTime @default(now())
 
   assignments Assignment[]
@@ -71,6 +72,8 @@ model Assignment {
   dueAt         DateTime?
   createdBy     String
   createdAt     DateTime  @default(now())
+  title         String?
+  description   String?
 
   class       Class       @relation(fields: [classId], references: [id])
   libraryItem LibraryItem @relation(fields: [libraryItemId], references: [id])

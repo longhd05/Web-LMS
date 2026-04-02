@@ -1,7 +1,9 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { type ThuVienXanhMode } from '../../types/thuVienXanh'
 import thuVienLogo from '../../img/1x/logo-thu-vien.png'
+import { useAuth } from '../../contexts/AuthContext'
+import NotificationBell from '../NotificationBell'
 
 export interface ThuVienXanhSearchResult {
   itemId: string
@@ -30,19 +32,30 @@ export default function TopNavBar({
   onSelectSearchResult,
   loadingResults = false,
 }: TopNavBarProps) {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
+  const [isAvatarOpen, setIsAvatarOpen] = useState(false)
+  const avatarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
-      if (!wrapperRef.current) return
-      if (!wrapperRef.current.contains(event.target as Node)) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setIsOpen(false)
+      }
+      if (avatarRef.current && !avatarRef.current.contains(event.target as Node)) {
+        setIsAvatarOpen(false)
       }
     }
     document.addEventListener('mousedown', handleOutsideClick)
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [])
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/dang-nhap')
+  }
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
@@ -130,7 +143,47 @@ export default function TopNavBar({
           </div>
         </form>
 
-        <div className="w-8 sm:w-20" />
+        <div className="flex items-center gap-3 shrink-0">
+          {user && (
+            <span className="hidden sm:block text-sm font-bold uppercase tracking-wide text-white whitespace-nowrap">
+              Xin chào, {user.name}
+            </span>
+          )}
+          {user && <NotificationBell role={user.role} />}
+          {user && (
+            <div className="relative" ref={avatarRef}>
+              <button
+                onClick={() => setIsAvatarOpen(!isAvatarOpen)}
+                aria-label="User menu"
+                aria-expanded={isAvatarOpen}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white font-bold text-sm transition-all hover:scale-105 hover:bg-white/30"
+              >
+                {user.avatarUrl ? (
+                  <img
+                    src={`${user.avatarUrl}${user.avatarUrl.includes('?') ? '&' : '?'}v=${user.avatarVersion ?? 0}`}
+                    alt={user.name}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span>{user.name.charAt(0).toUpperCase()}</span>
+                )}
+              </button>
+              {isAvatarOpen && (
+                <div className="absolute right-0 top-full mt-2 w-40 rounded-2xl border border-cyan-200 bg-white shadow-lg z-50" role="menu">
+                  <div className="py-2">
+                    <button
+                      onClick={handleLogout}
+                      role="menuitem"
+                      className="w-full px-4 py-2 text-left text-red-600 font-semibold hover:bg-red-50 transition"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   )

@@ -2,9 +2,6 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: 'http://localhost:3000',
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 // Request interceptor: attach JWT
@@ -24,8 +21,8 @@ api.interceptors.response.use(
       localStorage.removeItem('lms_token')
       localStorage.removeItem('lms_user')
       // Redirect to login if not already there
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login'
+      if (window.location.pathname !== '/dang-nhap') {
+        window.location.href = '/dang-nhap'
       }
     }
     return Promise.reject(error)

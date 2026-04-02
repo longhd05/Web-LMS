@@ -25,6 +25,22 @@ const registerSchema = z.object({
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  role: z.enum(['STUDENT', 'TEACHER']).optional(),
+});
+
+const updateProfileSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
+  avatarUrl: z
+    .string()
+    .refine(
+      (value) => {
+        if (value.startsWith('/')) return true;
+        return z.string().url().safeParse(value).success;
+      },
+      { message: 'avatarUrl must be an absolute URL or a server file path' }
+    )
+    .nullable()
+    .optional(),
 });
 
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
@@ -57,7 +73,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response): Promise
     res.status(400).json({ error: parsed.error.flatten() });
     return;
   }
-  const { email, password } = parsed.data;
+  const { email, password, role } = parsed.data;
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -68,6 +84,12 @@ router.post('/login', loginLimiter, async (req: Request, res: Response): Promise
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
     res.status(401).json({ error: 'Invalid email or password' });
+    return;
+  }
+
+  if (role && user.role !== role) {
+    const roleLabel = role === 'STUDENT' ? 'Học sinh' : 'Giáo viên';
+    res.status(403).json({ error: `Tài khoản này không phải ${roleLabel}` });
     return;
   }
 
@@ -93,6 +115,31 @@ router.get('/me', authenticate, async (req: Request, res: Response): Promise<voi
     res.status(404).json({ error: 'User not found' });
     return;
   }
+  res.json({ data: user });
+});
+
+router.put('/profile', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const parsed = updateProfileSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten() });
+    return;
+  }
+
+  const updates: { name?: string; avatarUrl?: string | null } = {};
+  if (parsed.data.name !== undefined) updates.name = parsed.data.name;
+  if (parsed.data.avatarUrl !== undefined) updates.avatarUrl = parsed.data.avatarUrl;
+
+  if (Object.keys(updates).length === 0) {
+    res.status(400).json({ error: 'No fields to update' });
+    return;
+  }
+
+  const user = await prisma.user.update({
+    where: { id: req.user!.userId },
+    data: updates,
+    select: { id: true, name: true, email: true, role: true, avatarUrl: true, createdAt: true },
+  });
+
   res.json({ data: user });
 });
 

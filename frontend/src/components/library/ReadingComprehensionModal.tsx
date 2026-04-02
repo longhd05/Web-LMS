@@ -114,7 +114,8 @@ export default function ReadingComprehensionModal({
     return answer === question?.correctAnswer
   }
 
-  const canAccessShortAnswer = isClassStudent
+  const canAccessShortAnswer = true
+  const revealAnswers = isClassStudent
 
   return (
     <>
@@ -247,8 +248,8 @@ export default function ReadingComprehensionModal({
                       <div className="space-y-6">
                         {multipleChoiceQuestions.map((q, index) => {
                           const userAnswer = answers[q.id]
-                          const isAnswerCorrect = submitted && userAnswer && isCorrect(q.id, userAnswer)
-                          const isAnswerWrong = submitted && userAnswer && !isCorrect(q.id, userAnswer)
+                          const isAnswerCorrect = submitted && revealAnswers && userAnswer && isCorrect(q.id, userAnswer)
+                          const isAnswerWrong = submitted && revealAnswers && userAnswer && !isCorrect(q.id, userAnswer)
 
                           return (
                             <div key={q.id} className="bg-white rounded-xl p-6 shadow-sm">
@@ -256,7 +257,7 @@ export default function ReadingComprehensionModal({
                                 <p className="font-medium text-gray-900 flex-1">
                                   Câu hỏi {index + 1}: {q.question}
                                 </p>
-                                {submitted && (
+                                {submitted && revealAnswers && (
                                   <div>
                                     {isAnswerCorrect && (
                                       <CheckCircle className="w-6 h-6 text-green-600" />
@@ -271,8 +272,8 @@ export default function ReadingComprehensionModal({
                                 {q.options?.map((option, optIndex) => {
                                   const isSelected = answers[q.id] === option
                                   const isCorrectAnswer = option === q.correctAnswer
-                                  const showAsCorrect = submitted && isCorrectAnswer
-                                  const showAsWrong = submitted && isSelected && !isCorrectAnswer
+                                  const showAsCorrect = submitted && revealAnswers && isCorrectAnswer
+                                  const showAsWrong = submitted && revealAnswers && isSelected && !isCorrectAnswer
 
                                   return (
                                     <label
@@ -306,12 +307,12 @@ export default function ReadingComprehensionModal({
                                         `}>
                                           {String.fromCharCode(65 + optIndex)}. {option}
                                         </span>
-                                        {submitted && isSelected && !isCorrectAnswer && (
+                                        {submitted && revealAnswers && isSelected && !isCorrectAnswer && (
                                           <div className="mt-2 text-sm text-red-600 font-medium">
                                             ✗ Sai rồi bạn ơi
                                           </div>
                                         )}
-                                        {submitted && isCorrectAnswer && (
+                                        {submitted && revealAnswers && isCorrectAnswer && (
                                           <div className="mt-2 text-sm text-green-600 font-medium">
                                             ✓ {isSelected ? 'Chính xác!' : 'Đây là đáp án đúng'}
                                           </div>

@@ -11,6 +11,7 @@ interface TichHopBodyProps {
   onChangeAnswer: (value: string) => void
   onChangeFiles: (files: File[]) => void
   onSubmit: () => void
+  isClassStudent?: boolean
 }
 
 export default function TichHopBody({
@@ -23,20 +24,29 @@ export default function TichHopBody({
   onChangeAnswer,
   onChangeFiles,
   onSubmit,
+  isClassStudent = false,
 }: TichHopBodyProps) {
   const dropzoneInputId = 'tich-hop-dropzone-file'
 
   const leftPanel = (
     <div>
       <p className="font-bold text-blue-900">Ngữ liệu</p>
-      <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.passageContent}</div>
-      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-white/80 flex items-center justify-center text-slate-500">
-        {content.passageImageUrl ? (
-          <img src={content.passageImageUrl} alt={content.passageTitle} className="w-full h-full rounded-2xl object-cover" />
-        ) : (
-          <span>Ảnh</span>
-        )}
-      </div>
+      {content.fullPageImageUrl ? (
+        <div className="mt-3 rounded-2xl border border-cyan-200 bg-white p-2">
+          <img src={content.fullPageImageUrl} alt={`${content.passageTitle} - toàn văn`} className="w-full h-auto rounded-xl" />
+        </div>
+      ) : (
+        <>
+          <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.passageContent}</div>
+          <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-white/80 flex items-center justify-center text-slate-500">
+            {content.passageImageUrl ? (
+              <img src={content.passageImageUrl} alt={content.passageTitle} className="w-full h-full rounded-2xl object-cover" />
+            ) : (
+              <span>Ảnh</span>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 
@@ -63,7 +73,7 @@ export default function TichHopBody({
     onChangeFiles(files.slice(0, 5))
   }
 
-  const showUpload = userRole !== 'free_student'
+  const showUpload = userRole !== 'free_student' && isClassStudent
   const acceptValue = (allowedFileTypes || ['pdf', 'doc', 'docx', 'png', 'jpg'])
     .map((extension) => `.${extension}`)
     .join(',')
@@ -140,12 +150,20 @@ export default function TichHopBody({
         />
       </section>
 
-      <button
-        onClick={onSubmit}
-        className="w-full sm:w-auto rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 text-white font-extrabold"
-      >
-        NỘP BÀI
-      </button>
+      {showUpload && (
+        <button
+          onClick={onSubmit}
+          className="w-full sm:w-auto rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 text-white font-extrabold"
+        >
+          NỘP BÀI
+        </button>
+      )}
+
+      {!isClassStudent && (
+        <div className="rounded-2xl border border-yellow-300 bg-yellow-50 px-4 py-3 text-yellow-800 text-sm font-medium">
+          ⚠️ Bạn cần là học sinh trong lớp để thực hiện tính năng này
+        </div>
+      )}
     </div>
   )
 

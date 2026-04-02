@@ -191,7 +191,7 @@ export default function IntegratedTaskModal({
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
 
-  const canUpload = true
+  const canUpload = isClassStudent
 
   return (
     <>

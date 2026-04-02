@@ -80,7 +80,7 @@ export default function StudentDashboard() {
               <button
                 key={cls.id}
                 type="button"
-                onClick={() => navigate(`/student/class/${cls.id}`)}
+                onClick={() => navigate(`/hoc-sinh/lop-hoc/${cls.id}`)}
                 className="group rounded-[26px] border-2 border-transparent p-6 text-left shadow-[0_8px_16px_rgba(44,96,162,0.24),0_0_10px_rgba(83,145,220,0.28)] transition-transform hover:-translate-y-0.5"
                 style={{
                   background:'linear-gradient(#f9ffff, #dbf2ea) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',

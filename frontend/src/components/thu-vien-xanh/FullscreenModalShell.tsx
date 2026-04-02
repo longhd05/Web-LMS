@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import ConfirmDialog from '../common/ConfirmDialog'
+import NotificationBell from '../NotificationBell'
 
 interface FullscreenModalShellProps {
   titleLeft: string
@@ -140,7 +140,9 @@ export default function FullscreenModalShell({
   leftPanel,
   rightPanel,
 }: FullscreenModalShellProps) {
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const popoverRef = useRef<HTMLDivElement | null>(null)
+  const backButtonRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
@@ -152,7 +154,7 @@ export default function FullscreenModalShell({
 
   const requestClose = useCallback(() => {
     if (dirty) {
-      setIsConfirmOpen(true)
+      setIsPopoverOpen(true)
       return
     }
     onClose()
@@ -162,8 +164,8 @@ export default function FullscreenModalShell({
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
-        if (isConfirmOpen) {
-          setIsConfirmOpen(false)
+        if (isPopoverOpen) {
+          setIsPopoverOpen(false)
           return
         }
         requestClose()
@@ -171,40 +173,65 @@ export default function FullscreenModalShell({
     }
     window.addEventListener('keydown', handleEsc)
     return () => window.removeEventListener('keydown', handleEsc)
-  }, [isConfirmOpen, requestClose])
+  }, [isPopoverOpen, requestClose])
+
+  useEffect(() => {
+    if (!isPopoverOpen) return
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (
+        popoverRef.current && !popoverRef.current.contains(target)
+        && backButtonRef.current && !backButtonRef.current.contains(target)
+      ) {
+        setIsPopoverOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isPopoverOpen])
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-transparent">
       <div className="h-[calc(100vh-80px)] flex flex-col">
-        <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
+        <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
+          <div className="relative">
           <button
+            ref={backButtonRef}
             onClick={requestClose}
-            className="inline-flex items-center gap-2 rounded-full bg-white/90 text-blue-900 px-4 py-2 font-semibold border border-cyan-200"
+            className="inline-flex items-center justify-center w-15 h-15"
+            aria-label="Quay lại"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-            Quay lại
+            <img
+              src="/src/img/SVG/back-button.svg"
+              alt="Back"
+              className="w-10 h-10 object-contain"
+            />
           </button>
 
-          <button
-            type="button"
-            aria-label="Đóng"
-            onClick={requestClose}
-            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/90 text-blue-900 font-bold border border-cyan-200"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </button>
+            {isPopoverOpen && (
+              <div
+                ref={popoverRef}
+                className="absolute left-12 top-1/2 -translate-y-1/2 z-50"
+              >
+                <button
+                  onClick={() => {
+                    setIsPopoverOpen(false)
+                    onClose()
+                  }}
+                  className="whitespace-nowrap rounded-xl bg-white border border-cyan-200 shadow-lg px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-cyan-50 transition-colors"
+                >
+                  Thoát mà chưa lưu
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="px-4 sm:px-6 lg:px-8 pb-6 flex-1 min-h-0">
           <div className="h-full bg-white/80 border border-cyan-200 rounded-[28px] p-4 sm:p-6 flex flex-col min-h-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-cyan-200">
-              <h2 className="font-extrabold text-blue-950 text-lg sm:text-xl truncate">{titleLeft}</h2>
-              <h3 className="font-black text-blue-900 text-lg sm:text-xl uppercase md:text-right">{titleRight}</h3>
+              <h2 className="font-extrabold text-blue-950 text-lg sm:text-xl text-center">{titleLeft}</h2>
+              <h3 className="font-black text-blue-900 text-lg sm:text-xl uppercase text-center">{titleRight}</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 flex-1 min-h-0">
@@ -219,19 +246,6 @@ export default function FullscreenModalShell({
           </div>
         </div>
       </div>
-
-      <ConfirmDialog
-        isOpen={isConfirmOpen}
-        title="Thoát mà chưa lưu"
-        message="Bạn có thay đổi chưa lưu. Bạn có chắc muốn thoát không?"
-        confirmText="Thoát"
-        cancelText="Ở lại"
-        onCancel={() => setIsConfirmOpen(false)}
-        onConfirm={() => {
-          setIsConfirmOpen(false)
-          onClose()
-        }}
-      />
     </div>
   )
 }

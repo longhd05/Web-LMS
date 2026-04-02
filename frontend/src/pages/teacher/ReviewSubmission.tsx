@@ -1,4 +1,5 @@
-﻿import { FormEvent, useEffect, useState } from 'react'
+﻿import { FormEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import api from '../../api/axios'
 
@@ -14,6 +15,7 @@ interface Submission {
     libraryItem: {
       id: string
       title: string
+      content: string
       readingQuestionsJson?: string | null
     }
     class: { id: string; name: string }
@@ -26,12 +28,13 @@ interface Submission {
     reviewedAt: string
     teacher?: { id: string; name: string }
   } | null
-  communityPost?: { id: string } | null
+  communityPost?: { id: string; communityKey: string } | null
 }
 
-interface ReadingQuestion {
-  question: string
-  options: string[]
+interface ParsedContent {
+  text: string
+  questions: Array<{ id: string; text: string; options?: string[]; maxMark?: number }>
+  imageUrl?: string | null
 }
 
 const communities = [
@@ -40,8 +43,14 @@ const communities = [
   { key: 'none', name: 'Không duyệt' },
 ]
 
-export default function ReviewSubmission() {
-  const { submissionId } = useParams<{ submissionId: string }>()
+type ReviewSubmissionProps = {
+  embedded?: boolean
+  submissionId?: string
+}
+
+export default function ReviewSubmission({ embedded, submissionId: submissionIdProp }: ReviewSubmissionProps) {
+  const { submissionId: submissionIdParam } = useParams<{ submissionId: string }>()
+  const submissionId = submissionIdProp ?? submissionIdParam
 
   const [submission, setSubmission] = useState<Submission | null>(null)
   const [loading, setLoading] = useState(true)
@@ -54,12 +63,16 @@ export default function ReviewSubmission() {
   const [reviewError, setReviewError] = useState('')
   const [reviewSuccess, setReviewSuccess] = useState(false)
 
-  const [selectedCommunity, setSelectedCommunity] = useState(communities[0].key)
-  const [publishing, setPublishing] = useState(false)
-  const [publishError, setPublishError] = useState('')
+  const [selectedCommunity, setSelectedCommunity] = useState('none')
+  const [communityOpen, setCommunityOpen] = useState(false)
+  const communityDropdownRef = useRef<HTMLDivElement | null>(null)
 
   const fetchSubmission = async () => {
     try {
+      if (!submissionId) {
+        setError('Không tìm thấy bài nộp.')
+        return
+      }
       const res = await api.get(`/submissions/${submissionId}`)
       const data: Submission = res.data.data
       setSubmission(data)
@@ -74,6 +87,9 @@ export default function ReviewSubmission() {
           }
         }
       }
+      if (data.communityPost?.communityKey) {
+        setSelectedCommunity(data.communityPost.communityKey)
+      }
     } catch {
       setError('Không thể tải bài nộp.')
     } finally {
@@ -85,19 +101,49 @@ export default function ReviewSubmission() {
     fetchSubmission()
   }, [submissionId])
 
-  const readingQuestions: ReadingQuestion[] = (() => {
-    if (!submission?.assignment.libraryItem.readingQuestionsJson) return []
-    try {
-      return JSON.parse(submission.assignment.libraryItem.readingQuestionsJson)
-    } catch {
-      return []
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (communityDropdownRef.current && !communityDropdownRef.current.contains(target)) {
+        setCommunityOpen(false)
+      }
     }
-  })()
 
-  const studentAnswers: Record<number, number> = (() => {
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const parseContent = (raw: string): ParsedContent => {
+    try {
+      const parsed = JSON.parse(raw)
+      return {
+        text: parsed.text || raw,
+        questions: Array.isArray(parsed.questions) ? parsed.questions : [],
+        imageUrl: parsed.imageUrl || null,
+      }
+    } catch {
+      return { text: raw, questions: [], imageUrl: null }
+    }
+  }
+
+  const parsedContent = useMemo<ParsedContent | null>(() => {
+    if (!submission) return null
+    return parseContent(submission.assignment.libraryItem.content)
+  }, [submission])
+
+  const readingQuestions = parsedContent?.questions ?? []
+
+  const studentAnswers: Record<string, number | string> = (() => {
     if (!submission?.readingAnswersJson) return {}
     try {
-      return JSON.parse(submission.readingAnswersJson)
+      const parsed = JSON.parse(submission.readingAnswersJson)
+      if (Array.isArray(parsed)) {
+        return parsed.reduce<Record<string, number | string>>((acc, value, index) => {
+          acc[String(index)] = value
+          return acc
+        }, {})
+      }
+      return parsed as Record<string, number | string>
     } catch {
       return {}
     }
@@ -108,11 +154,15 @@ export default function ReviewSubmission() {
     setSubmitting(true)
     setReviewError('')
     try {
-      await api.post(`/submissions/${submissionId}/review`, {
+      const payload: Record<string, unknown> = {
         comment,
         resultStatus,
         perQuestionMarksJson: Object.keys(perQuestionMarks).length > 0 ? JSON.stringify(perQuestionMarks) : undefined,
-      })
+      }
+      if (submission?.assignment.type === 'INTEGRATION') {
+        payload.communityKey = selectedCommunity
+      }
+      await api.post(`/submissions/${submissionId}/review`, payload)
       setReviewSuccess(true)
       await fetchSubmission()
     } catch (err: unknown) {
@@ -123,20 +173,6 @@ export default function ReviewSubmission() {
     }
   }
 
-  const handlePublish = async () => {
-    if (selectedCommunity === 'none') return
-    setPublishing(true)
-    setPublishError('')
-    try {
-      await api.post(`/submissions/${submissionId}/publish`, { communityKey: selectedCommunity })
-      await fetchSubmission()
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
-      setPublishError(msg ?? 'Đăng cộng đồng thất bại.')
-    } finally {
-      setPublishing(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -154,39 +190,57 @@ export default function ReviewSubmission() {
     )
   }
 
-  return (
-    <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-6xl">
-        <nav className="mb-6 flex items-center gap-2 text-sm text-gray-600">
-          <Link to="/teacher/dashboard" className="hover:underline">Lớp học</Link>
-          <span>/</span>
-          <Link to={`/teacher/class/${submission.assignment.class.id}`} className="hover:underline">
-            {submission.assignment.class.name}
-          </Link>
-          <span>/</span>
-          <span>Chấm bài</span>
-        </nav>
+  const contentView = (
+    <div className={embedded ? 'mx-auto w-full' : 'mx-auto max-w-6xl'}>
+        {!embedded && (
+          <nav className="mb-6 flex items-center gap-2 text-sm text-gray-600">
+            <Link to="/giao-vien/trang-chu" className="hover:underline">Lớp học</Link>
+            <span>/</span>
+            <Link to={`/giao-vien/lop-hoc/${submission.assignment.class.id}`} className="hover:underline">
+              {submission.assignment.class.name}
+            </Link>
+            <span>/</span>
+            <span>Chấm bài</span>
+          </nav>
+        )}
 
-        <div className="mx-auto max-w-4xl rounded-[28px] border-2 border-[#8bee9f] bg-gradient-to-b from-white to-[#dff2ea] p-6 shadow-[0_0_0_2px_rgba(63,98,170,0.7)] sm:p-8">
-          <h1 className="mb-5 text-3xl font-black text-[#1f3f8f] sm:text-4xl">{submission.student.name}</h1>
+        <div
+          className={`mx-auto rounded-[36px] bg-white p-2 ${embedded ? 'w-full' : 'max-w-4xl'}`}
+        >
+          <div
+            className="rounded-[30px] border-2 border-transparent bg-[#f3fffb]"
+            style={{
+              background:
+                'linear-gradient(#f3fffb, #f3fffb) padding-box, linear-gradient(90deg, #3f72be 0%, #8de8a1 100%) border-box',
+            }}
+          >
+          <div className="max-h-[70vh] overflow-y-auto p-6 sm:p-8">
+            <h1 className="mb-5 text-3xl font-black text-[#1f3f8f] sm:text-4xl">{submission.student.name}</h1>
 
           {submission.assignment.type === 'READING' ? (
             <div className="mb-7 space-y-5 text-[#1f3f8f]">
-              {readingQuestions.map((q, idx) => (
-                <div key={idx} className="text-base font-semibold leading-relaxed sm:text-lg">
-                  <p>Câu {idx + 1}: {q.question}</p>
-                  <p className="pl-4 sm:pl-8">
-                    {'→ '}Đáp án của học sinh: {studentAnswers[idx] !== undefined ? q.options[studentAnswers[idx]] : '(chưa trả lời)'}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setPerQuestionMarks((prev) => ({ ...prev, [idx]: !prev[idx] }))}
-                    className={`mt-2 rounded-full px-4 py-1 text-sm font-bold ${perQuestionMarks[idx] ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
-                  >
-                    {perQuestionMarks[idx] ? '✓ Đúng' : '✗ Sai'}
-                  </button>
-                </div>
-              ))}
+              {readingQuestions.length > 0 ? (
+                readingQuestions.map((q, idx) => (
+                  <div key={idx} className="text-base font-semibold leading-relaxed sm:text-lg">
+                    <p className="font-bold">
+                      Câu {idx + 1}: {q.text} {q.options?.length ? '(câu trắc nghiệm)' : '(câu tự luận ngắn)'}
+                    </p>
+                    <p className="pl-4 sm:pl-8">
+                      {'=> '}Đáp án của học sinh
+                      {(() => {
+                        const answer = studentAnswers[q.id]
+                        if (answer === undefined || answer === null) return ': (chưa trả lời)'
+                        if (typeof answer === 'number' && q.options?.length) return `: ${q.options[answer] ?? '(chưa trả lời)'}`
+                        return `: ${String(answer)}`
+                      })()}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-base font-semibold sm:text-lg">
+                  Không có câu hỏi từ bài tập để hiển thị. Vui lòng kiểm tra dữ liệu bài tập (readingQuestionsJson).
+                </p>
+              )}
             </div>
           ) : (
             <div className="mb-7 text-[#1f3f8f]">
@@ -208,28 +262,47 @@ export default function ReviewSubmission() {
           {reviewError && <p className="mb-3 text-red-600">{reviewError}</p>}
           {reviewSuccess && <p className="mb-3 text-green-700">Đã lưu kết quả chấm.</p>}
 
-          <form onSubmit={handleReview} className="space-y-5">
+          <form onSubmit={handleReview} className="space-y-4">
             {submission.assignment.type === 'INTEGRATION' && (
               <div className="grid gap-2 sm:grid-cols-[120px,1fr] sm:items-center">
                 <label className="text-lg font-bold text-[#1f3f8f]">Duyệt:</label>
-                <select
-                  value={selectedCommunity}
-                  onChange={(e) => setSelectedCommunity(e.target.value)}
-                  className="h-12 rounded-xl border-2 border-[#7da3df] bg-[#cbeff2] px-4 text-base font-semibold text-[#1f3f8f] sm:text-lg"
-                >
-                  {communities.map((c) => (
-                    <option key={c.key} value={c.key}>{c.name}</option>
-                  ))}
-                </select>
+                <div ref={communityDropdownRef} className="relative w-full max-w-[320px]">
+                  <button
+                    type="button"
+                    onClick={() => setCommunityOpen((v) => !v)}
+                    className={`flex h-10 w-full items-center justify-between border-2 border-[#6f8ed6] bg-[#c8e4e6] pl-6 pr-4 text-left text-lg font-semibold text-[#1f3f8f] ${communityOpen ? 'rounded-t-[18px] rounded-b-none border-b-0' : 'rounded-full'}`}
+                  >
+                    <span>{communities.find((c) => c.key === selectedCommunity)?.name}</span>
+                    <ChevronDown className={`h-6 w-6 text-[#1f3f8f] transition-transform ${communityOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {communityOpen && (
+                    <div className="absolute left-0 right-0 top-10 z-20 overflow-hidden rounded-b-[14px] border-2 border-t-0 border-[#6f8ed6] bg-[#b8dadd]">
+                      {communities.map((c) => (
+                        <button
+                          key={c.key}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCommunity(c.key)
+                            setCommunityOpen(false)
+                          }}
+                          className={`block w-full px-6 py-1.5 text-left text-lg leading-none ${selectedCommunity === c.key ? 'bg-[#25a3b1] text-[#163f8f]' : 'text-[#1f3f8f] hover:bg-[#9dcfd4]'}`}
+                        >
+                          {c.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              rows={5}
-              placeholder="Thêm nhận xét của giáo viên"
-              className="w-full rounded-xl bg-[#cbeff2] px-5 py-4 text-base text-[#1f3f8f] placeholder:text-[#5f82ba] sm:text-lg"
+              rows={3}
+              placeholder="Thêm nhận xét GV"
+              className="w-full rounded-xl bg-[#cbeff2] px-5 py-3 text-base italic text-[#1f3f8f] placeholder:text-[#5f82ba] sm:text-lg"
             />
 
             <div className="grid grid-cols-2 gap-4">
@@ -246,28 +319,33 @@ export default function ReviewSubmission() {
             <button
               type="submit"
               disabled={submitting}
-              className="ml-auto block w-full max-w-[260px] rounded-[20px] border-2 border-[#1f3f8f] bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] py-3 text-lg font-bold uppercase text-white disabled:opacity-60"
+              className="ml-auto block w-full max-w-[200px] rounded-[20px] border-2 border-[#1f3f8f] bg-gradient-to-b from-[#1f3f8f] to-[#149fb3] py-2.5 text-lg font-bold uppercase text-white disabled:opacity-60"
             >
               {submitting ? 'Đang lưu...' : 'Lưu kết quả'}
             </button>
           </form>
-
-          {submission.assignment.type === 'INTEGRATION' && selectedCommunity !== 'none' && (
-            <div className="mt-5">
-              {publishError && <p className="mb-2 text-red-600">{publishError}</p>}
-              {!submission.communityPost && (
-                <button
-                  onClick={handlePublish}
-                  disabled={publishing}
-                  className="rounded-xl bg-[#1f3f8f] px-4 py-2 text-base font-semibold text-white disabled:opacity-60"
-                >
-                  {publishing ? 'Đang đăng...' : 'Đăng lên cộng đồng'}
-                </button>
-              )}
-            </div>
-          )}
+          </div>
+          </div>
         </div>
       </div>
+  )
+
+  if (embedded) {
+    return (
+      <div>
+        {contentView}
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-[calc(100vh-64px)] bg-[#efeff1] px-4 py-8 sm:px-6">
+      {contentView}
     </div>
   )
 }
+
+
+
+
+

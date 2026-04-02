@@ -14,6 +14,7 @@ const typeLabel: Record<string, string> = {
   SUBMISSION_RECEIVED: '📥 Bài nộp mới',
   SUBMISSION_REVIEWED: '📝 Bài đã được chấm',
   SUBMISSION_PUBLISHED: '🌐 Bài được đăng cộng đồng',
+  ASSIGNMENT_CREATED: '📚 Bài tập mới được giao',
 }
 
 export default function Notifications() {

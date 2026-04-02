@@ -7,18 +7,39 @@ export interface User {
   email: string
   role: 'STUDENT' | 'TEACHER'
   avatarUrl?: string | null
+  avatarVersion?: number
+
+  // Added to match UI usage
+  className?: string | null
+  studentType?: 'CLASS' | 'INDEPENDENT' | null
 }
 
 interface AuthContextValue {
   user: User | null
   token: string | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+
+  // Added to match UI usage
+  isClassStudent: boolean
+  isIndependentStudent: boolean
+
+  login: (email: string, password: string, role: 'STUDENT' | 'TEACHER') => Promise<User>
   register: (name: string, email: string, password: string, role: 'STUDENT' | 'TEACHER') => Promise<void>
   logout: () => Promise<void>
+  updateUser: (updates: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
+
+const normalizeAvatarUrl = (url?: string | null) => {
+  if (!url) return url ?? null
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+    return url
+  }
+  const baseUrl = api.defaults.baseURL ?? ''
+  if (!baseUrl) return url
+  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -26,13 +47,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Restore from localStorage
     const storedToken = localStorage.getItem('lms_token')
     const storedUser = localStorage.getItem('lms_user')
     if (storedToken && storedUser) {
       try {
+        const parsedUser = JSON.parse(storedUser)
+        const normalizedUser = {
+          ...parsedUser,
+          avatarUrl: normalizeAvatarUrl(parsedUser.avatarUrl),
+        }
         setToken(storedToken)
-        setUser(JSON.parse(storedUser))
+        setUser(normalizedUser)
+        localStorage.setItem('lms_user', JSON.stringify(normalizedUser))
       } catch {
         localStorage.removeItem('lms_token')
         localStorage.removeItem('lms_user')
@@ -41,13 +67,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false)
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post('/auth/login', { email, password })
+  const login = useCallback(async (email: string, password: string, role: 'STUDENT' | 'TEACHER') => {
+    const res = await api.post('/auth/login', { email, password, role })
     const { accessToken, user: userData } = res.data.data
+    const normalizedUser = {
+      ...userData,
+      avatarUrl: normalizeAvatarUrl(userData.avatarUrl),
+    }
     localStorage.setItem('lms_token', accessToken)
-    localStorage.setItem('lms_user', JSON.stringify(userData))
+    localStorage.setItem('lms_user', JSON.stringify(normalizedUser))
     setToken(accessToken)
-    setUser(userData)
+    setUser(normalizedUser)
+    return normalizedUser as User
   }, [])
 
   const register = useCallback(async (
@@ -56,12 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     role: 'STUDENT' | 'TEACHER'
   ) => {
-    const res = await api.post('/auth/register', { name, email, password, role })
-    const { accessToken, user: userData } = res.data.data
-    localStorage.setItem('lms_token', accessToken)
-    localStorage.setItem('lms_user', JSON.stringify(userData))
-    setToken(accessToken)
-    setUser(userData)
+    await api.post('/auth/register', { name, email, password, role })
   }, [])
 
   const logout = useCallback(async () => {
@@ -76,8 +102,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }, [])
 
+  const updateUser = useCallback((updates: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return prev
+      const shouldBumpAvatar = Object.prototype.hasOwnProperty.call(updates, 'avatarUrl')
+      const normalizedUpdates = shouldBumpAvatar
+        ? { ...updates, avatarUrl: normalizeAvatarUrl(updates.avatarUrl ?? null) }
+        : updates
+      const updated = {
+        ...prev,
+        ...normalizedUpdates,
+        ...(shouldBumpAvatar ? { avatarVersion: Date.now() } : null),
+      }
+      localStorage.setItem('lms_user', JSON.stringify(updated))
+      return updated
+    })
+  }, [])
+
+  // Default logic (adjust if your backend encodes this differently)
+  const isClassStudent = !!user && user.role === 'STUDENT' && !!user.className
+  const isIndependentStudent = !!user && user.role === 'STUDENT' && !user.className
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      token,
+      loading,
+      isClassStudent,
+      isIndependentStudent,
+      login,
+      register,
+      logout,
+      updateUser
+    }}>
       {children}
     </AuthContext.Provider>
   )

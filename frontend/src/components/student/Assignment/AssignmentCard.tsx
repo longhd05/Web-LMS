@@ -1,76 +1,77 @@
-import { Assignment, SubmissionStatus } from '../../../types/student'
+import { Assignment } from '../../../types/student'
 import Badge from '../Common/Badge'
 
 interface AssignmentCardProps {
   assignment: Assignment
+  index: number
   onClick: () => void
 }
 
-function getSubmissionStatus(assignment: Assignment): { status: SubmissionStatus; label: string; variant: 'success' | 'pending' | 'warning' | 'info' | 'neutral' } {
-  if (!assignment.submission) {
+type AssignmentCardDisplayStatus = 'NOT_STARTED' | 'PENDING_REVIEW' | 'REVIEWED'
+
+function getSubmissionStatus(assignment: Assignment): {
+  status: AssignmentCardDisplayStatus
+  label: string
+  variant: 'success' | 'pending' | 'warning' | 'info' | 'neutral'
+} {
+  if (!assignment.submission || assignment.submission.status === 'DRAFT') {
     // Check if overdue
     if (assignment.dueAt && new Date(assignment.dueAt) < new Date()) {
       return { status: 'NOT_STARTED', label: '✕ Quá hạn', variant: 'warning' }
     }
     return { status: 'NOT_STARTED', label: 'Chưa làm', variant: 'neutral' }
   }
-  
-  if (assignment.submission.status === 'REVIEWED') {
-    return { status: 'REVIEWED', label: '✓ Đã chấm', variant: 'success' }
-  }
-  
-  return { status: 'PENDING_REVIEW', label: '⏱ Chờ duyệt', variant: 'pending' }
+
+  return { status: 'REVIEWED', label: '✓ Đã hoàn thành', variant: 'success' }
 }
 
-export default function AssignmentCard({ assignment, onClick }: AssignmentCardProps) {
+export default function AssignmentCard({ assignment, index, onClick }: AssignmentCardProps) {
   const { label, variant } = getSubmissionStatus(assignment)
   const isOverdue = assignment.dueAt && new Date(assignment.dueAt) < new Date() && !assignment.submission
+  const isCompleted = !!assignment.submission && assignment.submission.status !== 'DRAFT'
+  const displayTitle = (assignment.title ?? '').trim() || `Bài tập ${index + 1}`
+  const assignmentTypeLabel = assignment.type === 'READING' ? 'đọc hiểu' : 'tích hợp'
+  const modeLabel = assignment.mode === 'INDIVIDUAL' ? 'Cá nhân' : 'Nhóm'
 
   return (
-    <div className="flex items-center justify-between rounded-[28px] bg-[#DFF3F7] p-10 text-[#1f3f8f] transition-all hover:shadow-lg">
+    <div className="rounded-[20px] px-6 py-5 text-[#1f3f8f] transition-all hover:shadow-lg bg-[#cbeff2]">
       {/* Left Content */}
-      <div className="flex-1 space-y-4">
-        <div className="flex items-center gap-3">
-          <h3 className="text-2xl font-extrabold">
-            {assignment.libraryItem.title}
-          </h3>
-          <Badge variant={variant}>{label}</Badge>
-        </div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-3">
+            <h3 className="truncate text-lg font-extrabold">{displayTitle}:</h3>
+            <Badge variant={variant}>{label}</Badge>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <span className="rounded-full bg-white px-5 py-2 text-base font-bold">
-            {assignment.type === 'READING' ? '📖 Đọc hiểu' : '🎨 Tích hợp'}
-          </span>
-          <span className="rounded-full bg-white px-5 py-2 text-base font-bold">
-            {assignment.mode === 'INDIVIDUAL' ? '👤 Cá nhân' : '👥 Nhóm'}
-          </span>
-        </div>
+          <p className="mb-1 pl-10 text-sm font-semibold text-[#1f3f8f]">
+            {modeLabel}: Đọc văn bản “{assignment.libraryItem.title}” và thực hiện bài tập {assignmentTypeLabel}
+          </p>
 
-        {assignment.dueAt && (
-          <div className="flex items-center gap-2 text-base font-semibold">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span className={isOverdue ? 'text-red-600' : ''}>
+          {assignment.description && (
+            <p className="pl-10 text-sm font-semibold text-[#1f3f8f]">{assignment.description}</p>
+          )}
+
+          {assignment.dueAt && (
+            <p className={`pl-10 text-sm font-semibold ${isOverdue ? 'text-red-600' : 'text-[#1f3f8f]'}`}>
               Hạn nộp: {new Date(assignment.dueAt).toLocaleDateString('vi-VN')}
-            </span>
-          </div>
-        )}
+            </p>
+          )}
 
-        {assignment.submission && (
-          <div className="text-sm text-gray-600">
-            Đã nộp: {new Date(assignment.submission.createdAt).toLocaleDateString('vi-VN')}
-          </div>
-        )}
+          {assignment.submission && (
+            <p className="pl-10 text-sm font-semibold text-[#1f3f8f]">
+              Đã nộp: {new Date(assignment.submission.createdAt).toLocaleDateString('vi-VN')}
+            </p>
+          )}
+        </div>
+
+        {/* Right Button */}
+        <button
+          onClick={onClick}
+          className="mt-0.5 shrink-0 rounded-full bg-gradient-to-r from-[#1E3A8A] to-[#0EA5E9] px-6 py-2 text-base font-bold text-white shadow-md transition-all hover:shadow-lg"
+        >
+          {assignment.type === 'READING' && isCompleted ? 'XEM LẠI BÀI LÀM' : 'LÀM BÀI'}
+        </button>
       </div>
-
-      {/* Right Button */}
-      <button
-        onClick={onClick}
-        className="ml-8 h-14 shrink-0 rounded-full bg-gradient-to-r from-[#1E3A8A] to-[#0EA5E9] px-10 text-lg font-semibold text-white shadow-md transition-all hover:shadow-lg"
-      >
-        LÀM BÀI
-      </button>
     </div>
   )
 }

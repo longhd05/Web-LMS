@@ -24,12 +24,6 @@ export default function HomePage() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [ripples, setRipples] = useState<{x: number, y: number, id: number}[]>([])
 
-  // Scroll to top on page load
-  useEffect(() => {
-    window.scrollTo(0, 0)
-    window.history.scrollRestoration = 'manual'
-  }, [])
-
   // Handle scroll effects
   useEffect(() => {
     const handleScroll = () => {
@@ -110,14 +104,17 @@ export default function HomePage() {
           />
           
           {/* Quote text */}
-          <motion.p 
-            className="text-3xl leading-relaxed text-[#1e3a8a] max-w-[900px] text-center font-medium -mt-5"
+          <motion.p
+            className="text-2xl leading-relaxed text-[#1e3a8a] max-w-[1000px] mx-auto text-center font-medium"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Bằng cách đọc tác phẩm văn học, chúng ta có thể hòa thiện vào nhiều hành trình sống, 
-            để rồi hiểu cảm nhận những giá trị sống, tự đa hóa cách sống của bản thân, người khác và môi trường.
+            Bằng cách đọc tác phẩm văn học, chúng ta có thể hóa thân vào nhiều hành trình sống,
+            <br />
+            để rồi thấu cảm những giá trị sống, từ đó biết cách tôn trọng
+            <br />
+            bản thân, người khác và môi trường.
           </motion.p>
         </div>
         

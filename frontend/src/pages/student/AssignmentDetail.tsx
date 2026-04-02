@@ -1,43 +1,101 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import StudentLayout from '../../components/student/Layout/StudentLayout'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
-import Badge from '../../components/student/Common/Badge'
-import Button from '../../components/student/Common/Button'
+import FullscreenModalShell from '../../components/thu-vien-xanh/FullscreenModalShell'
 import api from '../../api/axios'
-import { Assignment } from '../../types/student'
+
+interface ParsedContent {
+  text: string
+  questions: Array<{
+    id: string
+    text: string
+    type?: string
+    options?: string[]
+    correctAnswer?: string | null
+    maxMark?: number
+  }>
+  integrationPrompt?: string
+  imageUrl?: string | null
+}
+
+interface AssignmentData {
+  id: string
+  type: 'READING' | 'INTEGRATION'
+  mode: string
+  classId: string
+  libraryItem: {
+    id: string
+    title: string
+    content: string
+  }
+  submissions: Array<{
+    id: string
+    status: string
+    readingAnswersJson?: string | null
+    integrationFileId?: string | null
+    integrationFile?: { id: string; url: string; filename: string } | null
+    review?: { comment?: string; resultStatus: string; perQuestionMarksJson?: string } | null
+  }>
+}
+
+function parseContent(raw: string): ParsedContent {
+  try {
+    const parsed = JSON.parse(raw)
+    return {
+      text: parsed.text || raw,
+      questions: Array.isArray(parsed.questions) ? parsed.questions : [],
+      integrationPrompt: typeof parsed.integrationPrompt === 'string' ? parsed.integrationPrompt : undefined,
+      imageUrl: parsed.imageUrl || null,
+    }
+  } catch {
+    return { text: raw, questions: [], imageUrl: null }
+  }
+}
 
 export default function AssignmentDetail() {
   const { classId, assignmentId } = useParams<{ classId: string; assignmentId: string }>()
   const navigate = useNavigate()
-  const [assignment, setAssignment] = useState<Assignment | null>(null)
+  const [assignment, setAssignment] = useState<AssignmentData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  
+
   // Reading assignment state
-  const [answers, setAnswers] = useState<Record<number, string>>({})
-  
-  // Integrated assignment state
-  const [fileUrl, setFileUrl] = useState('')
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+
+  // Integration assignment state
+  const [uploadedFileId, setUploadedFileId] = useState('')
+  const [uploadedFileUrl, setUploadedFileUrl] = useState('')
+  const [uploadedFileName, setUploadedFileName] = useState('')
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     const fetchAssignment = async () => {
       if (!assignmentId) return
-      
+
       setLoading(true)
       try {
         const res = await api.get(`/assignments/${assignmentId}`)
-        const data = res.data.data
+        const data: AssignmentData = res.data.data
         setAssignment(data)
-        
+
         // Load existing submission if available
-        if (data.submission?.answers) {
-          setAnswers(data.submission.answers)
-        }
-        if (data.submission?.fileUrl) {
-          setFileUrl(data.submission.fileUrl)
+        const existingSub = data.submissions?.[0]
+        if (existingSub) {
+          if (existingSub.readingAnswersJson) {
+            try {
+              setAnswers(JSON.parse(existingSub.readingAnswersJson))
+            } catch (e) {
+              console.warn('Failed to parse readingAnswersJson:', e)
+            }
+          }
+          if (existingSub.integrationFile) {
+            setUploadedFileId(existingSub.integrationFile.id)
+            setUploadedFileUrl(existingSub.integrationFile.url)
+            setUploadedFileName(existingSub.integrationFile.filename)
+          } else if (existingSub.integrationFileId) {
+            setUploadedFileId(existingSub.integrationFileId)
+          }
         }
       } catch {
         setError('Không thể tải thông tin bài tập.')
@@ -48,16 +106,48 @@ export default function AssignmentDetail() {
     fetchAssignment()
   }, [assignmentId])
 
+  const content = useMemo<ParsedContent | null>(() => {
+    if (!assignment) return null
+    return parseContent(assignment.libraryItem.content)
+  }, [assignment])
+
+  const existingSub = assignment?.submissions?.[0]
+  const isSubmitted = existingSub?.status === 'SUBMITTED' || existingSub?.status === 'APPROVED'
+  const isReviewed = existingSub?.status === 'APPROVED' || existingSub?.status === 'REJECTED'
+  const canEdit = !isSubmitted && !isReviewed
+  const dirty = canEdit && (assignment?.type === 'READING'
+    ? Object.values(answers).some((value) => value.trim().length > 0)
+    : Boolean(uploadedFileId))
+
+  const mcQuestions = useMemo(() => {
+    if (!content) return []
+    return content.questions.filter((q) => q.options?.length || q.type === 'multiple-choice')
+  }, [content])
+
+  const score = useMemo(() => {
+    if (!content) return null
+    if (mcQuestions.length === 0) return 0
+    let correctCount = 0
+    mcQuestions.forEach((q) => {
+      if (!q.correctAnswer) return
+      if (answers[q.id] === q.correctAnswer) correctCount += 1
+    })
+    return Math.round((correctCount / mcQuestions.length) * 100)
+  }, [content, mcQuestions, answers])
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    
+
     setUploading(true)
     try {
       const formData = new FormData()
       formData.append('file', file)
       const res = await api.post('/files/upload', formData)
-      setFileUrl(res.data.data.url)
+      const uploadedFile = res.data.data
+      setUploadedFileId(uploadedFile.id)
+      setUploadedFileUrl(uploadedFile.url)
+      setUploadedFileName(uploadedFile.filename)
     } catch {
       alert('Không thể tải file lên. Vui lòng thử lại.')
     } finally {
@@ -65,34 +155,49 @@ export default function AssignmentDetail() {
     }
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (status: 'DRAFT' | 'SUBMITTED' = 'SUBMITTED') => {
     if (!assignment || !assignmentId) return
-    
-    // Validation
-    if (assignment.type === 'READING') {
-      const allAnswered = assignment.libraryItem.questions?.every((q: any) => answers[q.id]?.trim())
-      if (!allAnswered) {
-        alert('Vui lòng trả lời tất cả các câu hỏi.')
-        return
-      }
-    } else {
-      if (!fileUrl.trim()) {
-        alert('Vui lòng tải lên file sản phẩm.')
-        return
+
+    if (status === 'SUBMITTED') {
+      if (assignment.type === 'READING' && content) {
+        const allAnswered = content.questions.every((q) => {
+          const value = answers[q.id]
+          if (!value) return false
+          if (q.options?.length || q.type === 'multiple-choice') {
+            return value.trim().length > 0
+          }
+          return value.trim().length > 0
+        })
+        if (!allAnswered) {
+          alert('Vui lòng trả lời tất cả các câu hỏi.')
+          return
+        }
+      } else if (assignment.type === 'INTEGRATION') {
+        if (!uploadedFileId) {
+          alert('Vui lòng tải lên file sản phẩm.')
+          return
+        }
       }
     }
-    
+
     setSubmitting(true)
     try {
-      const payload = assignment.type === 'READING' 
-        ? { answers }
-        : { fileUrl }
-      
-      await api.post(`/assignments/${assignmentId}/submit`, payload)
-      alert('✓ Nộp bài thành công!')
-      navigate(`/student/class/${classId}`)
+      const payload: Record<string, string> = { status }
+      if (assignment.type === 'READING') {
+        payload.readingAnswersJson = JSON.stringify(answers)
+      } else {
+        payload.integrationFileId = uploadedFileId
+      }
+
+      await api.post(`/assignments/${assignmentId}/submissions`, payload)
+      if (status === 'SUBMITTED') {
+        alert('✓ Nộp bài thành công!')
+        navigate(`/hoc-sinh/lop-hoc/${classId}`)
+      } else {
+        alert('✓ Đã lưu bản nháp!')
+      }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Không thể nộp bài. Vui lòng thử lại.')
+      alert(err.response?.data?.error || 'Không thể nộp bài. Vui lòng thử lại.')
     } finally {
       setSubmitting(false)
     }
@@ -100,275 +205,226 @@ export default function AssignmentDetail() {
 
   if (loading) {
     return (
-      <StudentLayout>
+      <div className="flex items-center justify-center py-16">
         <LoadingSpinner />
-      </StudentLayout>
+      </div>
     )
   }
 
-  if (error || !assignment) {
+  if (error || !assignment || !content) {
     return (
-      <StudentLayout>
+      <div className="mx-auto max-w-2xl px-6 py-12">
         <div className="rounded-2xl border-2 border-red-300 bg-red-50 px-5 py-4">
           <p className="font-bold text-red-700">{error || 'Không tìm thấy bài tập'}</p>
         </div>
         <button
-          onClick={() => navigate(`/student/class/${classId}`)}
+          onClick={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
           className="mt-4 font-bold text-[#1f3f8f] hover:underline"
         >
           ← Quay lại
         </button>
-      </StudentLayout>
+      </div>
     )
   }
 
-  const isSubmitted = !!assignment.submission
-  const isReviewed = assignment.submission?.status === 'REVIEWED'
-  const canEdit = !isReviewed
-
-  return (
-    <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-[#e8f5f7] to-[#c9efdb]">
-      {/* Top Navigation */}
-      <div className="flex items-center justify-between border-b-4 border-[#31b8ca] bg-gradient-to-r from-[#153177] to-[#1f849a] px-6 py-4 shadow-[inset_0_-2px_0_0_rgba(138,233,160,0.5)]">
-        <button
-          onClick={() => navigate(`/student/class/${classId}`)}
-          className="flex items-center gap-2 text-lg font-bold text-white transition-transform hover:scale-105"
-        >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-          </svg>
-          Quay lại
-        </button>
-        <h1 className="text-2xl font-black uppercase text-white">
-          {assignment.type === 'READING' ? '📖 Đọc hiểu' : '🎨 Tích hợp'}
-        </h1>
-        <div className="w-24" />
+  const leftPanel = (
+    <div>
+      <p className="text-center font-bold text-blue-900">Ngữ liệu</p>
+      <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">
+        {content.text}
       </div>
-
-      {/* Main Content - 2 Panel Layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* LEFT PANEL - Content */}
-        <div className="w-1/2 overflow-y-auto border-r-4 border-[#31b8ca] bg-white/95 p-8">
-          <div className="space-y-6">
-            {/* Title & Status */}
-            <div className="space-y-3">
-              <h2 className="text-3xl font-black text-[#1f3f8f]">
-                {assignment.libraryItem.title}
-              </h2>
-              <div className="flex gap-2">
-                {isReviewed && <Badge variant="success">✓ Đã chấm</Badge>}
-                {isSubmitted && !isReviewed && <Badge variant="pending">⏱ Chờ duyệt</Badge>}
-                {!isSubmitted && <Badge variant="neutral">Chưa nộp</Badge>}
-              </div>
-            </div>
-
-            {/* Reading Content */}
-            {assignment.type === 'READING' && (
-              <div className="space-y-4">
-                <div className="rounded-xl bg-[#f0f9ff] p-6">
-                  <h3 className="mb-3 text-xl font-black text-[#1f3f8f]">NỘI DUNG</h3>
-                  <div className="prose prose-lg max-w-none text-gray-800">
-                    {assignment.libraryItem.content}
-                  </div>
-                </div>
-
-                {assignment.libraryItem.fileUrl && (
-                  <div className="rounded-xl bg-[#f0f9ff] p-6">
-                    <h3 className="mb-3 text-xl font-black text-[#1f3f8f]">TÀI LIỆU</h3>
-                    <a
-                      href={assignment.libraryItem.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-lg font-bold text-teal-600 hover:underline"
-                    >
-                      📎 Tải xuống tài liệu
-                    </a>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Integrated Description */}
-            {assignment.type === 'INTEGRATION' && (
-              <div className="space-y-4">
-                <div className="rounded-xl bg-[#f0f9ff] p-6">
-                  <h3 className="mb-3 text-xl font-black text-[#1f3f8f]">MÔ TẢ</h3>
-                  <div className="text-lg leading-relaxed text-gray-800">
-                    {assignment.libraryItem.content}
-                  </div>
-                </div>
-
-                {assignment.libraryItem.fileUrl && (
-                  <div className="rounded-xl bg-[#f0f9ff] p-6">
-                    <h3 className="mb-3 text-xl font-black text-[#1f3f8f]">TÀI LIỆU HƯỚNG DẪN</h3>
-                    <a
-                      href={assignment.libraryItem.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-lg font-bold text-teal-600 hover:underline"
-                    >
-                      📎 Tải xuống hướng dẫn
-                    </a>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Rubric Criteria */}
-            {assignment.rubric && assignment.rubric.criteria.length > 0 && (
-              <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 p-6">
-                <h3 className="mb-4 text-xl font-black text-[#1f3f8f]">TIÊU CHÍ ĐÁNH GIÁ</h3>
-                <div className="space-y-3">
-                  {assignment.rubric.criteria.map((criterion: any, idx: number) => (
-                    <div key={criterion.id} className="rounded-lg bg-white p-4">
-                      <div className="flex items-start gap-3">
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1f3f8f] to-[#149fb3] text-sm font-black text-white">
-                          {idx + 1}
-                        </span>
-                        <div className="flex-1">
-                          <h4 className="font-bold text-[#1f3f8f]">{criterion.description}</h4>
-                          <p className="mt-1 text-sm text-gray-600">
-                            Điểm tối đa: <span className="font-bold text-teal-600">{criterion.maxScore}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Feedback (if reviewed) */}
-            {isReviewed && assignment.submission?.feedback && (
-              <div className="rounded-xl bg-gradient-to-br from-green-50 to-teal-50 p-6">
-                <h3 className="mb-3 text-xl font-black text-[#1f3f8f]">NHẬN XÉT CỦA GIÁO VIÊN</h3>
-                <p className="text-lg leading-relaxed text-gray-800">
-                  {assignment.submission.feedback}
-                </p>
-                {assignment.submission.score !== undefined && (
-                  <div className="mt-4 flex items-center gap-2">
-                    <span className="text-lg font-bold text-gray-700">Điểm:</span>
-                    <span className="rounded-full bg-gradient-to-r from-green-500 to-teal-500 px-4 py-1 text-xl font-black text-white">
-                      {assignment.submission.score}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* RIGHT PANEL - Submission Form */}
-        <div className="w-1/2 overflow-y-auto bg-gradient-to-br from-[#cbeff2] to-[#daf5e8] p-8">
-          <div className="space-y-6">
-            <h2 className="text-3xl font-black text-[#1f3f8f]">
-              {isReviewed ? 'BÀI LÀM CỦA BẠN' : 'NỘP BÀI'}
-            </h2>
-
-            {/* Reading Questions */}
-            {assignment.type === 'READING' && assignment.libraryItem.questions && (
-              <div className="space-y-5">
-                {assignment.libraryItem.questions.map((question: any, idx: number) => (
-                  <div key={question.id} className="rounded-xl bg-white p-6 shadow-md">
-                    <label className="mb-3 block">
-                      <span className="flex items-start gap-2 text-lg font-bold text-[#1f3f8f]">
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1f3f8f] text-sm text-white">
-                          {idx + 1}
-                        </span>
-                        {question.text}
-                      </span>
-                    </label>
-                    <textarea
-                      value={answers[question.id] || ''}
-                      onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-                      disabled={!canEdit}
-                      rows={4}
-                      placeholder="Nhập câu trả lời của bạn..."
-                      className="w-full rounded-lg border-2 border-gray-300 p-4 text-base disabled:bg-gray-100 disabled:text-gray-600 focus:border-teal-500 focus:outline-none"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Integrated File Upload */}
-            {assignment.type === 'INTEGRATION' && (
-              <div className="rounded-xl bg-white p-6 shadow-md">
-                <h3 className="mb-4 text-xl font-black text-[#1f3f8f]">TẢI LÊN SẢN PHẨM</h3>
-                
-                {fileUrl ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 rounded-lg bg-green-50 p-4">
-                      <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="font-bold text-green-700">✓ Đã tải lên file</span>
-                    </div>
-                    <a
-                      href={fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-lg font-bold text-teal-600 hover:underline"
-                    >
-                      📎 Xem file đã tải lên
-                    </a>
-                    {canEdit && (
-                      <div>
-                        <label className="inline-block cursor-pointer rounded-lg bg-amber-500 px-4 py-2 font-bold text-white transition-all hover:bg-amber-600">
-                          🔄 Thay đổi file
-                          <input
-                            type="file"
-                            onChange={handleFileUpload}
-                            disabled={uploading}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div>
-                    <label className="flex cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed border-[#1f3f8f] bg-[#f0f9ff] p-8 transition-all hover:border-teal-500 hover:bg-[#e0f7ff]">
-                      <svg className="h-12 w-12 text-[#1f3f8f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                      <span className="text-lg font-bold text-[#1f3f8f]">
-                        {uploading ? 'Đang tải lên...' : 'Nhấn để chọn file'}
-                      </span>
-                      <input
-                        type="file"
-                        onChange={handleFileUpload}
-                        disabled={!canEdit || uploading}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Submit Button */}
-            {canEdit && (
-              <Button
-                onClick={handleSubmit}
-                disabled={submitting}
-                size="lg"
-                className="w-full"
-              >
-                {submitting ? 'Đang nộp bài...' : isSubmitted ? '🔄 Cập nhật bài làm' : '✓ Nộp bài'}
-              </Button>
-            )}
-
-            {isReviewed && (
-              <div className="rounded-xl border-2 border-green-300 bg-green-50 p-4 text-center">
-                <p className="font-bold text-green-700">
-                  ✓ Bài làm đã được chấm, không thể chỉnh sửa
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white overflow-hidden">
+        {content.imageUrl ? (
+          <img src={content.imageUrl} alt={assignment.libraryItem.title} className="h-full w-full object-cover" />
+        ) : (
+          <span>Ảnh</span>
+        )}
       </div>
     </div>
+  )
+
+  const readingPanel = (
+    <div className="space-y-5 pr-5">
+      {isSubmitted && (
+        <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800 font-bold">
+          Đã nộp bài • Điểm: {score ?? 0}/100
+        </div>
+      )}
+      {content.questions.length === 0 ? (
+        <article className="rounded-2xl bg-white p-4 border border-cyan-200">
+          <p className="font-semibold text-slate-800">Bài tập chưa có câu hỏi đọc hiểu.</p>
+        </article>
+      ) : (
+        content.questions.map((question, idx) => (
+          <article key={question.id} className="rounded-2xl bg-white p-4 border border-cyan-200">
+            <p className="font-semibold text-slate-800 text-lg">
+              Câu {idx + 1}: {question.text}
+              {question.maxMark && (
+                <span className="ml-2 text-sm font-normal text-slate-500">({question.maxMark} điểm)</span>
+              )}
+            </p>
+            {question.options?.length || question.type === 'multiple-choice' ? (
+              <>
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {(question.options || []).map((option) => {
+                    const selected = answers[question.id] === option
+                    const correctAnswer = question.correctAnswer ?? null
+                    const showResult = !canEdit && !!correctAnswer
+                    const isCorrectOption = showResult && option === correctAnswer
+                    const isWrongSelected = showResult && selected && option !== correctAnswer
+                    return (
+                      <button
+                        key={`${question.id}-${option}`}
+                        type="button"
+                        disabled={!canEdit}
+                        onClick={() => setAnswers((prev) => ({ ...prev, [question.id]: option }))}
+                        className={`rounded-xl border px-3 py-2 text-left font-medium transition ${
+                          showResult
+                            ? isCorrectOption
+                              ? 'border-emerald-500 bg-emerald-100 text-emerald-900'
+                              : isWrongSelected
+                                ? 'border-red-500 bg-red-100 text-red-900'
+                                : 'border-cyan-200 bg-white text-slate-700'
+                            : selected
+                              ? 'border-teal-600 bg-teal-50 text-teal-800'
+                              : 'border-cyan-200 bg-white text-slate-700 hover:bg-cyan-50'
+                        } ${!canEdit ? 'cursor-not-allowed opacity-70' : ''}`}
+                      >
+                        {option}
+                      </button>
+                    )
+                  })}
+                </div>
+                {!canEdit && question.correctAnswer && (
+                  <p className={`mt-2 text-sm font-semibold ${answers[question.id] === question.correctAnswer ? 'text-emerald-700' : 'text-red-600'}`}>
+                    {answers[question.id] === question.correctAnswer ? '✓ Đúng' : '✕ Sai'} • Đáp án đúng: {question.correctAnswer}
+                  </p>
+                )}
+              </>
+            ) : (
+              <textarea
+                value={answers[question.id] || ''}
+                onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
+                disabled={!canEdit}
+                rows={4}
+                placeholder="Nhap cau tra loi cua ban..."
+                className="mt-3 h-32 w-full resize-none rounded-xl border border-cyan-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-500"
+              />
+            )}
+          </article>
+        ))
+      )}
+
+      {isReviewed && (
+        <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800">
+          <p className="font-bold">Đã chấm bài</p>
+          {existingSub?.review?.comment && (
+            <p className="mt-1 text-sm text-slate-700">{existingSub.review.comment}</p>
+          )}
+        </div>
+      )}
+
+      {canEdit && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => handleSubmit('SUBMITTED')}
+            disabled={submitting}
+            className="rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-400 text-white font-extrabold"
+          >
+            {submitting ? 'ĐANG NỘP...' : 'NỘP BÀI'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
+  const integrationPrompt = content.integrationPrompt || content.text
+
+  const integrationPanel = (
+    <div className="space-y-5 pr-5">
+      <section>
+        <p className="font-bold text-blue-900">Đề bài:</p>
+        <div className="mt-2 whitespace-pre-wrap text-slate-700 leading-relaxed font-semibold">{integrationPrompt}</div>
+      </section>
+
+      <section>
+        {uploadedFileUrl ? (
+          <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3">
+            <p className="font-semibold text-emerald-800">✓ Đã tải lên: {uploadedFileName || 'Tệp đính kèm'}</p>
+            <a
+              href={`http://localhost:3000${uploadedFileUrl}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-block text-sm font-semibold text-blue-700 hover:underline"
+            >
+              Mở tệp
+            </a>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <label className="inline-flex cursor-pointer flex-col items-center">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1f849a] text-3xl font-bold text-white shadow-lg transition-transform hover:scale-110">
+                {uploading ? '...' : '+'}
+              </span>
+              <input
+                type="file"
+                accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
+                onChange={handleFileUpload}
+                disabled={!canEdit || uploading}
+                className="hidden"
+              />
+            </label>
+          </div>
+        )}
+        <p className="mt-2 text-center text-xs text-slate-500">doc, png, jpeg, mp4</p>
+
+        {canEdit && uploadedFileUrl && (
+          <div className="mt-3 text-center">
+            <label className="inline-block cursor-pointer rounded-full bg-[#1f849a] px-5 py-2 font-bold text-white transition-all hover:bg-[#15607a]">
+              {uploading ? 'Đang tải...' : 'Thay đổi file'}
+              <input
+                type="file"
+                accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
+          </div>
+        )}
+      </section>
+
+      {isReviewed && (
+        <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800">
+          <p className="font-bold">Đã chấm bài</p>
+          {existingSub?.review?.comment && (
+            <p className="mt-1 text-sm text-slate-700">{existingSub.review.comment}</p>
+          )}
+        </div>
+      )}
+
+      {canEdit && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => handleSubmit('SUBMITTED')}
+            disabled={submitting || !uploadedFileId}
+            className="rounded-full px-8 py-3 bg-teal-700 hover:bg-teal-800 disabled:bg-slate-400 text-white font-extrabold"
+          >
+            {submitting ? 'ĐANG NỘP...' : 'NỘP BÀI'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
+  return (
+    <FullscreenModalShell
+      titleLeft={assignment.libraryItem.title}
+      titleRight={assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
+      dirty={dirty}
+      onClose={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
+      leftPanel={leftPanel}
+      rightPanel={assignment.type === 'READING' ? readingPanel : integrationPanel}
+    />
   )
 }

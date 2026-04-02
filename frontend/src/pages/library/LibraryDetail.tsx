@@ -96,9 +96,7 @@ export default function LibraryDetail() {
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const uploadRes = await api.post('/files/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      const uploadRes = await api.post('/files/upload', formData)
       const fileId = uploadRes.data.data.id
 
       await api.post(`/assignments/${assignmentId}/submissions`, {
@@ -223,7 +221,7 @@ export default function LibraryDetail() {
         )}
         {!user && (
           <p className="mt-3 text-sm text-gray-500">
-            <Link to="/login" className="text-green-600 hover:underline">Đăng nhập</Link> và tham gia lớp học để nộp bài Tích hợp.
+            <Link to="/dang-nhap" className="text-green-600 hover:underline">Đăng nhập</Link> và tham gia lớp học để nộp bài Tích hợp.
           </p>
         )}
       </div>
@@ -237,7 +235,7 @@ export default function LibraryDetail() {
 
           {submitSuccess ? (
             <div className="bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-xl">
-              ✅ Bài nộp thành công! <Link to="/student/submissions" className="underline font-medium">Xem bài đã nộp</Link>
+              ✅ Bài nộp thành công! <Link to="/hoc-sinh/bai-nop" className="underline font-medium">Xem bài đã nộp</Link>
             </div>
           ) : (
             <>

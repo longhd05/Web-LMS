@@ -6,22 +6,30 @@ import Button from '../../components/student/Common/Button'
 import api from '../../api/axios'
 
 interface UserProfile {
-  id: number
+  id: string
   email: string
-  fullName: string
-  username: string
-  avatarUrl?: string
+  name: string
+  avatarUrl?: string | null
   role: string
   createdAt: string
 }
 
+const normalizeAvatarUrl = (url?: string | null) => {
+  if (!url) return url ?? null
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
+    return url
+  }
+  const baseUrl = api.defaults.baseURL ?? ''
+  if (!baseUrl) return url
+  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
+}
+
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
-  const [fullName, setFullName] = useState('')
-  const [username, setUsername] = useState('')
+  const [name, setName] = useState('')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -33,9 +41,9 @@ export default function ProfilePage() {
       try {
         const res = await api.get('/auth/me')
         const data = res.data.data
-        setProfile(data)
-        setFullName(data.fullName)
-        setUsername(data.username)
+        const normalized = { ...data, avatarUrl: normalizeAvatarUrl(data.avatarUrl) }
+        setProfile(normalized)
+        setName(normalized.name)
       } catch {
         setMessage('Không thể tải thông tin cá nhân.')
       } finally {
@@ -54,19 +62,14 @@ export default function ProfilePage() {
       const formData = new FormData()
       formData.append('file', file)
       const res = await api.post('/files/upload', formData)
-      const avatarUrl = res.data.data.url
+      const avatarUrl = normalizeAvatarUrl(res.data.data.url)
       
       // Update profile with new avatar
       await api.put('/auth/profile', { avatarUrl })
       
       setProfile(prev => prev ? { ...prev, avatarUrl } : null)
       
-      // Update localStorage
-      const storedUser = localStorage.getItem('lms_user')
-      if (storedUser) {
-        const userData = JSON.parse(storedUser)
-        localStorage.setItem('lms_user', JSON.stringify({ ...userData, avatarUrl }))
-      }
+      updateUser({ avatarUrl })
       
       setMessage('✓ Cập nhật ảnh đại diện thành công!')
     } catch {
@@ -77,23 +80,18 @@ export default function ProfilePage() {
   }
 
   const handleSaveProfile = async () => {
-    if (!fullName.trim() || !username.trim()) {
+    if (!name.trim()) {
       setMessage('Vui lòng điền đầy đủ thông tin.')
       return
     }
     
     setSaving(true)
     try {
-      const res = await api.put('/auth/profile', { fullName, username })
+      const res = await api.put('/auth/profile', { name })
       const updated = res.data.data
       setProfile(updated)
       
-      // Update localStorage
-      const storedUser = localStorage.getItem('lms_user')
-      if (storedUser) {
-        const userData = JSON.parse(storedUser)
-        localStorage.setItem('lms_user', JSON.stringify({ ...userData, name: updated.fullName }))
-      }
+      updateUser({ name: updated.name })
       
       setEditing(false)
       setMessage('✓ Cập nhật thông tin thành công!')
@@ -150,8 +148,8 @@ export default function ProfilePage() {
               <div className="flex flex-col items-center gap-4">
                 <div className="h-40 w-40 overflow-hidden rounded-full border-4 border-white shadow-lg">
                   <img
-                    src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.fullName)}&size=200&background=1f3f8f&color=fff&bold=true`}
-                    alt={profile.fullName}
+                    src={profile.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&size=200&background=1f3f8f&color=fff&bold=true`}
+                    alt={profile.name}
                     className="h-full w-full object-cover"
                   />
                 </div>
@@ -192,30 +190,13 @@ export default function ProfilePage() {
                   {editing ? (
                     <input
                       type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-teal-500 focus:outline-none"
                     />
                   ) : (
                     <p className="rounded-lg bg-white px-4 py-3 text-base font-semibold text-gray-800">
-                      {profile.fullName}
-                    </p>
-                  )}
-                </div>
-
-                {/* Username */}
-                <div>
-                  <label className="mb-2 block text-sm font-bold text-[#1f3f8f]">Tên đăng nhập</label>
-                  {editing ? (
-                    <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base focus:border-teal-500 focus:outline-none"
-                    />
-                  ) : (
-                    <p className="rounded-lg bg-white px-4 py-3 text-base font-semibold text-gray-800">
-                      {profile.username}
+                      {profile.name}
                     </p>
                   )}
                 </div>
@@ -258,8 +239,7 @@ export default function ProfilePage() {
                       variant="secondary"
                       onClick={() => {
                         setEditing(false)
-                        setFullName(profile.fullName)
-                        setUsername(profile.username)
+                        setName(profile.name)
                         setMessage('')
                       }}
                       className="flex-1"
