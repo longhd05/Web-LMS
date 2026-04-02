@@ -68,8 +68,15 @@ export default function SuGiaHoaBinhPage() {
     return (
         <CongDongTemplate
             title="SỨ GIẢ HÒA BÌNH & HÒA GIẢI"
-            subtitle="Tiêu chí, giới thiệu về cộng đồng sứ giả hòa bình"
-            backgroundImage={suGiaHoaBinhImg}
+            subtitle={
+                <>
+                    Chào mừng em đến với cộng đồng{' '}
+                    <span style={{ fontStyle: 'italic', fontWeight: 700 }}>
+                        Sứ giả Hòa bình và Hòa giải
+                    </span>
+                    {' '}– nơi những người trẻ cùng học cách thấu hiểu, tôn trọng sự khác biệt và hướng tới giải quyết xung đột một cách văn minh. Tại đây, em sẽ khám phá những câu chuyện, bài học về hòa bình và cách con người ứng xử trước mâu thuẫn, từ đó học được cách lắng nghe, đối thoại và hành động có trách nhiệm, góp phần xây dựng một xã hội an toàn, bình yên trong tương lai. 
+                </>
+            }              backgroundImage={suGiaHoaBinhImg}
             backgroundSize="90%"
             backgroundSizeMobile="220%"
             backgroundPosition="center 0%"
