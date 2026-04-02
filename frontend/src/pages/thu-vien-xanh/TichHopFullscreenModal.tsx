@@ -9,7 +9,7 @@ import { uploadSubmission } from '../../api/integratedTask'
 import { type ThuVienXanhUserRole } from '../../types/thuVienXanh'
 
 const thuVienXanhBackground = new URL('../../img/1x/hinh-nen.png', import.meta.url).href
-const bachTuocFullPageImage = new URL('../../../BẠCH TUỘC.png', import.meta.url).href
+const bachTuocFullPageImage = new URL('../../../Landing page.svg', import.meta.url).href
 
 function resolveRole(rawRole: string | null, authRole: 'STUDENT' | 'TEACHER' | undefined): ThuVienXanhUserRole {
   if (rawRole === 'free_student' || rawRole === 'normal_student' || rawRole === 'teacher' || rawRole === 'admin') {

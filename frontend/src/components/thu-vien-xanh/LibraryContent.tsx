@@ -2,6 +2,19 @@ import { useState } from 'react'
 import { type LibraryCategory, type LibraryItem, type ThuVienXanhMode } from '../../types/thuVienXanh'
 
 type ThuVienXanhSection = 'hoc-lieu' | 'van-ban-va-nhiem-vu'
+type HocLieuDocKey = 'lqh-hoa-binh' | 'lqh-moi-truong'
+
+interface HocLieuItem {
+  id: string
+  title: string
+  docKey?: HocLieuDocKey
+}
+
+interface HocLieuCategory {
+  id: string
+  title: string
+  items: HocLieuItem[]
+}
 
 interface LibraryContentProps {
   categories: LibraryCategory[]
@@ -11,18 +24,25 @@ interface LibraryContentProps {
   onSectionChange: (section: ThuVienXanhSection) => void
   onModeChange: (mode: ThuVienXanhMode) => void
   onOpenItem: (item: LibraryItem) => void
+  onOpenHocLieuItem: (item: HocLieuItem) => void
 }
 
-const hocLieuCategories = [
+const hocLieuCategories: HocLieuCategory[] = [
   {
     id: 'khvt-learning',
     title: 'HỌC LIỆU VỀ TRUYỆN KHVT',
-    items: ['Tri thức thể loại', 'Chiến thuật/kĩ thuật đọc hiểu'],
+    items: [
+      { id: 'khvt-1', title: 'Tri thức thể loại' },
+      { id: 'khvt-2', title: 'Chiến thuật/kĩ thuật đọc hiểu' },
+    ],
   },
   {
     id: 'sustainable-learning',
     title: 'HỌC LIỆU VỀ PHÁT TRIỂN BỀN VỮNG',
-    items: ['Thông điệp từ LHQ về hoà bình', 'Thông điệp từ LHQ về môi trường'],
+    items: [
+      { id: 'sdg-1', title: 'Thông điệp từ LHQ về hoà bình', docKey: 'lqh-hoa-binh' },
+      { id: 'sdg-2', title: 'Thông điệp từ LHQ về môi trường', docKey: 'lqh-moi-truong' },
+    ],
   },
 ]
 
@@ -34,6 +54,7 @@ export default function LibraryContent({
   onSectionChange,
   onModeChange,
   onOpenItem,
+  onOpenHocLieuItem,
 }: LibraryContentProps) {
   const isEmpty = categories.length === 0
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({})
@@ -101,9 +122,19 @@ export default function LibraryContent({
                 </div>
 
                 <ul className="space-y-1.5">
-                  {category.items.map((itemTitle) => (
-                    <li key={itemTitle} className="rounded-xl bg-cyan-50 px-3.5 py-2.5 font-semibold text-slate-800">
-                      {itemTitle}
+                  {category.items.map((item) => (
+                    <li key={item.id}>
+                      {item.docKey ? (
+                        <button
+                          type="button"
+                          onClick={() => onOpenHocLieuItem(item)}
+                          className="w-full text-left rounded-xl bg-cyan-50 hover:bg-cyan-100 px-3.5 py-2.5 font-semibold text-slate-800 transition"
+                        >
+                          {item.title}
+                        </button>
+                      ) : (
+                        <div className="rounded-xl bg-cyan-50 px-3.5 py-2.5 font-semibold text-slate-800">{item.title}</div>
+                      )}
                     </li>
                   ))}
                 </ul>
