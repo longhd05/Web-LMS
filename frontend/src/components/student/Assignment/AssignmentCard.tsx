@@ -69,7 +69,7 @@ export default function AssignmentCard({ assignment, index, onClick }: Assignmen
           onClick={onClick}
           className="mt-0.5 shrink-0 rounded-full bg-gradient-to-r from-[#1E3A8A] to-[#0EA5E9] px-6 py-2 text-base font-bold text-white shadow-md transition-all hover:shadow-lg"
         >
-          {assignment.type === 'READING' && isCompleted ? 'XEM LẠI BÀI LÀM' : 'LÀM BÀI'}
+          {isCompleted ? 'XEM LẠI BÀI LÀM' : 'LÀM BÀI'}
         </button>
       </div>
     </div>
