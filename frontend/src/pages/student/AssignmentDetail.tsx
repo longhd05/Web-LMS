@@ -116,7 +116,7 @@ export default function AssignmentDetail() {
   const existingSub = assignment?.submissions?.[0]
   const isSubmitted = existingSub?.status === 'SUBMITTED' || existingSub?.status === 'APPROVED'
   const isReviewed = existingSub?.status === 'APPROVED' || existingSub?.status === 'REJECTED'
-  const canEdit = !isSubmitted && !isReviewed
+  const canEdit = !existingSub || existingSub.status === 'DRAFT' || existingSub.status === 'REJECTED'
   const dirty = canEdit && (assignment?.type === 'READING'
     ? Object.values(answers).some((value) => value.trim().length > 0)
     : Boolean(uploadedFileId))
