@@ -262,6 +262,7 @@ export default function AssignmentDetail() {
 
   const readingPanel = (
     <div className="space-y-5 pr-5">
+      <p className="text-center font-bold text-blue-900">Đề bài</p>
       {isSubmitted && (
         <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800 font-bold">
           Đã nộp bài • Điểm: {score ?? 0}/100
@@ -437,7 +438,7 @@ export default function AssignmentDetail() {
   return (
     <FullscreenModalShell
       titleLeft={assignment.libraryItem.title}
-      titleRight={assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
+      titleRight={assignment.type === 'READING' ? 'VĂN BẢN ĐỌC HIỂU' : 'TÍCH HỢP GIÁO DỤC PHÁT TRIỂN BỀN VỮNG'}
       dirty={dirty}
       onClose={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
       leftPanel={leftPanel}
