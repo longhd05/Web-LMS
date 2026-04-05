@@ -325,7 +325,7 @@ export default function AssignmentDetail() {
                 onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
                 disabled={!canEdit}
                 rows={4}
-                placeholder="Nhap cau tra loi cua ban..."
+                placeholder="Nhập câu trả lời của bạn..."
                 className="mt-3 h-32 w-full resize-none rounded-xl border border-cyan-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-500"
               />
             )}
