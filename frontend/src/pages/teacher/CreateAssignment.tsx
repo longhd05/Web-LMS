@@ -381,16 +381,6 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
               />
             </div>
 
-            {/* <div>
-              <label className="mb-2 block text-base font-semibold text-[#1f3f8f] sm:text-lg">Hạn nộp</label>
-              <input
-                type="datetime-local"
-                value={dueAt}
-                onChange={(e) => setDueAt(e.target.value)}
-                className="h-12 w-full rounded-xl border-2 border-[#7da3df] bg-white px-4 text-base text-[#1f3f8f]"
-              />
-            </div> */}
-
             <div className="grid grid-cols-2 gap-4 pt-2 sm:gap-6">
               {embedded ? (
                 <button
