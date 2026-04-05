@@ -16,6 +16,20 @@ interface LibraryItem {
   hasTichHop: boolean
 }
 
+const toStrictBoolean = (value: unknown): boolean => {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'number') return value === 1
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase()
+    if (normalized === 'true' || normalized === '1') return true
+    if (normalized === 'false' || normalized === '0' || normalized === '') return false
+  }
+  return false
+}
+
+// Dong bo voi hanh vi trang Thu Vien Xanh: hien tai chi mo item Bach tuoc.
+const selectableLibraryItemIds = new Set(['t_env_01'])
+
 type CreatedAssignment = {
   id: string
   type: 'READING' | 'INTEGRATION'
@@ -96,14 +110,15 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
         categoryId: text.categoryId,
         coverUrl: text.coverUrl,
         difficulty: text.difficulty,
-        hasDocHieu: text.hasReadingQuiz,
-        hasTichHop: text.hasIntegratedTask,
+        hasDocHieu: toStrictBoolean(text.hasReadingQuiz),
+        hasTichHop: toStrictBoolean(text.hasIntegratedTask),
       }))
     )
-    return items.filter((item) =>
-      type === 'READING' ? item.hasDocHieu : item.hasTichHop
-    )
-  }, [thuVienCategories, type])
+    return items
+  }, [thuVienCategories])
+
+  const itemSupportsCurrentType = (item: LibraryItem) =>
+    (type === 'READING' ? item.hasDocHieu : item.hasTichHop) && selectableLibraryItemIds.has(item.id)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -116,6 +131,10 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
 
     if (!selectedItem) {
       setError('Vui lòng chọn văn bản.')
+      return
+    }
+    if (!itemSupportsCurrentType(selectedItem)) {
+      setError(type === 'READING' ? 'Văn bản này chưa có dữ liệu đọc hiểu.' : 'Văn bản này chưa có dữ liệu tích hợp.')
       return
     }
 
@@ -335,22 +354,36 @@ export default function CreateAssignment({ embedded, onCancel, onCreated }: Crea
                           Không tìm thấy văn bản.
                         </div>
                       ) : (
-                        filteredLibraryItems.map((item) => (
-                          <button
-                            key={item.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedItem(item)
-                              setSearch('')
-                              setLibraryOpen(false)
-                            }}
-                            className={`block w-full border-b border-gray-100 px-5 py-3 text-left text-base font-semibold ${
-                              selectedItem?.id === item.id ? 'bg-[#25a3b1] text-[#163f8f]' : 'text-[#1f3f8f] hover:bg-cyan-50'
-                            }`}
-                          >
-                            {item.title}
-                          </button>
-                        ))
+                        filteredLibraryItems.map((item) => {
+                          const isDisabled = !itemSupportsCurrentType(item)
+                          if (isDisabled) {
+                            return (
+                              <div
+                                key={item.id}
+                                className="block w-full cursor-not-allowed border-b border-gray-100 bg-gray-100 px-5 py-3 text-left text-base font-semibold text-gray-400"
+                              >
+                                <span className="block">{item.title}</span>
+                              </div>
+                            )
+                          }
+
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedItem(item)
+                                setSearch('')
+                                setLibraryOpen(false)
+                              }}
+                              className={`block w-full border-b border-gray-100 px-5 py-3 text-left text-base font-semibold ${
+                                selectedItem?.id === item.id ? 'bg-[#25a3b1] text-[#163f8f]' : 'text-[#1f3f8f] hover:bg-cyan-50'
+                              }`}
+                            >
+                              <span className="block">{item.title}</span>
+                            </button>
+                          )
+                        })
                       )}
                     </div>
                   </div>
