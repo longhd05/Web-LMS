@@ -54,15 +54,18 @@ router.post('/', authenticate, requireRole('STUDENT'), async (req: Request, res:
     return;
   }
 
-  // Upsert submission (allow resubmit if in DRAFT or REJECTED)
+  // Upsert submission (allow resubmit if in DRAFT or REJECTED; also allow INTEGRATION to update file when SUBMITTED)
   const existing = await prisma.submission.findFirst({
     where: { assignmentId, studentId: req.user!.userId },
   });
 
   let submission;
   if (existing) {
-  const editableStatuses: string[] = [SubmissionStatus.DRAFT, SubmissionStatus.REJECTED];
-  if (!editableStatuses.includes(existing.status)) {
+    const editableStatuses: string[] = [SubmissionStatus.DRAFT, SubmissionStatus.REJECTED];
+    if (assignment.type === 'INTEGRATION') {
+      editableStatuses.push(SubmissionStatus.SUBMITTED);
+    }
+    if (!editableStatuses.includes(existing.status)) {
       res.status(409).json({ error: 'Submission already exists and cannot be modified' });
       return;
     }

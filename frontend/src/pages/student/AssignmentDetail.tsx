@@ -70,6 +70,7 @@ export default function AssignmentDetail() {
   const [uploadedFileUrl, setUploadedFileUrl] = useState('')
   const [uploadedFileName, setUploadedFileName] = useState('')
   const [uploading, setUploading] = useState(false)
+  const [fileChanged, setFileChanged] = useState(false)
 
   useEffect(() => {
     const fetchAssignment = async () => {
@@ -116,10 +117,10 @@ export default function AssignmentDetail() {
   const existingSub = assignment?.submissions?.[0]
   const isSubmitted = existingSub?.status === 'SUBMITTED' || existingSub?.status === 'APPROVED'
   const isReviewed = existingSub?.status === 'APPROVED' || existingSub?.status === 'REJECTED'
-  const canEdit = !existingSub || existingSub.status === 'DRAFT' || existingSub.status === 'REJECTED'
+  const canEdit = assignment?.type === 'INTEGRATION' ? !isReviewed : !isSubmitted && !isReviewed
   const dirty = canEdit && (assignment?.type === 'READING'
     ? Object.values(answers).some((value) => value.trim().length > 0)
-    : Boolean(uploadedFileId))
+    : fileChanged)
 
   const mcQuestions = useMemo(() => {
     if (!content) return []
@@ -150,6 +151,7 @@ export default function AssignmentDetail() {
       setUploadedFileId(uploadedFile.id)
       setUploadedFileUrl(uploadedFile.url)
       setUploadedFileName(uploadedFile.filename)
+      setFileChanged(true)
     } catch {
       alert('Không thể tải file lên. Vui lòng thử lại.')
     } finally {
@@ -192,6 +194,7 @@ export default function AssignmentDetail() {
       }
 
       await api.post(`/assignments/${assignmentId}/submissions`, payload)
+      setFileChanged(false)
       if (status === 'SUBMITTED') {
         alert('✓ Nộp bài thành công!')
         navigate(`/hoc-sinh/lop-hoc/${classId}`)
