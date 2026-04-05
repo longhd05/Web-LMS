@@ -639,16 +639,16 @@ export default function CongDongTemplate({
                                                         onClick={() => handleCardClick(card.id)}
                                                     >
                                                         {/* White spacing layer */}
-                                                        <div className="bg-white rounded-3xl" style={{ padding: '2.5px' }}>
+                                                        <div className="bg-white rounded-3xl h-full" style={{ padding: '2.5px' }}>
                                                             {/* Inner card with gradient border effect */}
                                                             <div
-                                                                className="relative rounded-3xl overflow-hidden"
+                                                                className="relative rounded-3xl overflow-hidden h-full"
                                                                 style={{
                                                                     background: `linear-gradient(to right, ${primaryColor} 0%, #d4f542 100%)`,
                                                                     padding: '2px'
                                                                 }}
                                                             >
-                                                                <div className="bg-white rounded-3xl p-4 relative">
+                                                                <div className="bg-white rounded-3xl p-4 relative h-full">
 
                                                                     {/* Top section with name, class, and school */}
                                                                     <div className="mb-3 text-center">

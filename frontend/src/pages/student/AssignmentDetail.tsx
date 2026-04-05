@@ -4,6 +4,8 @@ import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
 import FullscreenModalShell from '../../components/thu-vien-xanh/FullscreenModalShell'
 import api from '../../api/axios'
 
+const bachTuocImage = new URL('../../img/1x/bach-tuoc.png', import.meta.url).href
+
 interface ParsedContent {
   text: string
   questions: Array<{
@@ -230,24 +232,40 @@ export default function AssignmentDetail() {
     )
   }
 
+  const isBachTuoc = assignment.libraryItem.title.toLowerCase().includes('bạch tuộc')
+  const fullPageImageUrl = isBachTuoc ? bachTuocImage : null
+
   const leftPanel = (
     <div>
       <p className="text-center font-bold text-blue-900">Ngữ liệu</p>
-      <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">
-        {content.text}
-      </div>
-      <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white overflow-hidden">
-        {content.imageUrl ? (
-          <img src={content.imageUrl} alt={assignment.libraryItem.title} className="h-full w-full object-cover" />
-        ) : (
-          <span>Ảnh</span>
-        )}
-      </div>
+      {fullPageImageUrl ? (
+        <div className="mt-3 rounded-2xl border border-cyan-200 bg-white p-2">
+          <img
+            src={fullPageImageUrl}
+            alt={`${assignment.libraryItem.title} - toàn văn`}
+            className="w-full h-auto rounded-xl"
+          />
+        </div>
+      ) : (
+        <>
+          <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">
+            {content.text}
+          </div>
+          <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white overflow-hidden">
+            {content.imageUrl ? (
+              <img src={content.imageUrl} alt={assignment.libraryItem.title} className="h-full w-full object-cover" />
+            ) : (
+              <span>Ảnh</span>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 
   const readingPanel = (
     <div className="space-y-5 pr-5">
+      <p className="text-center font-bold text-blue-900">Đề bài</p>
       {isSubmitted && (
         <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800 font-bold">
           Đã nộp bài • Điểm: {score ?? 0}/100
@@ -310,7 +328,7 @@ export default function AssignmentDetail() {
                 onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
                 disabled={!canEdit}
                 rows={4}
-                placeholder="Nhap cau tra loi cua ban..."
+                placeholder="Nhập câu trả lời của bạn..."
                 className="mt-3 h-32 w-full resize-none rounded-xl border border-cyan-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-500"
               />
             )}
@@ -423,7 +441,7 @@ export default function AssignmentDetail() {
   return (
     <FullscreenModalShell
       titleLeft={assignment.libraryItem.title}
-      titleRight={assignment.type === 'READING' ? 'ĐỌC HIỂU' : 'TÍCH HỢP'}
+      titleRight={assignment.type === 'READING' ? 'VĂN BẢN ĐỌC HIỂU' : 'TÍCH HỢP GIÁO DỤC PHÁT TRIỂN BỀN VỮNG'}
       dirty={dirty}
       onClose={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
       leftPanel={leftPanel}
