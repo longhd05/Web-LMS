@@ -209,6 +209,7 @@ export default function CongDongTemplate({
         }
 
         const rect = track.getBoundingClientRect()
+        if (rect.height <= 0) return
         const progress = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height))
 
         imageContainer.scrollTop = progress * maxScroll
@@ -556,7 +557,7 @@ export default function CongDongTemplate({
                                             <div
                                                 className={`absolute left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full ${isDraggingWatchScroll ? 'transition-none cursor-grabbing' : 'transition-all duration-100 cursor-grab'}`}
                                                 style={{
-                                                    top: `${watchScrollProgress * 360 + 20}px`,
+                                                    top: `${watchScrollProgress * 100}%`,
                                                     backgroundColor: '#64aab8',
                                                 }}
                                             ></div>
