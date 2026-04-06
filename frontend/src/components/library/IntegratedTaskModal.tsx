@@ -4,6 +4,7 @@ import { useIntegratedTask } from '../../hooks/useIntegratedTask'
 import { uploadSubmission } from '../../api/integratedTask'
 import { useAuth } from '../../contexts/AuthContext'
 import ConfirmDialog from '../common/ConfirmDialog'
+import { renderSimpleMarkdown } from '../../utils/simpleMarkdown'
 
 interface IntegratedTaskModalProps {
   isOpen: boolean
@@ -205,7 +206,7 @@ export default function IntegratedTaskModal({
             <div className="flex items-center gap-4">
               <button
                 onClick={handleCloseAttempt}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors flex items-center gap-2"
+                className="flex items-center gap-2 px-4 py-2 hover:bg-white/20 rounded-lg transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="text-sm font-medium">Thoát mà chưa lưu</span>
@@ -333,8 +334,8 @@ export default function IntegratedTaskModal({
                       <h4 className="text-lg font-semibold text-gray-900 mb-4">
                         Đề bài:
                       </h4>
-                      <div className="text-gray-800 whitespace-pre-wrap leading-relaxed">
-                        {task.prompt}
+                      <div className="text-gray-800 leading-relaxed">
+                        {renderSimpleMarkdown(task.prompt)}
                       </div>
                       
                       <div className="mt-6 pt-4 border-t border-gray-200">

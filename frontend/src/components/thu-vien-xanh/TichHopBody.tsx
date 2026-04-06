@@ -1,5 +1,6 @@
 import { type ChangeEvent, type DragEvent } from 'react'
 import { type TichHopContent, type ThuVienXanhUserRole } from '../../types/thuVienXanh'
+import { renderSimpleMarkdown } from '../../utils/simpleMarkdown'
 
 interface TichHopBodyProps {
   content: TichHopContent
@@ -83,7 +84,7 @@ export default function TichHopBody({
     <div className="space-y-5 pr-5">
       <section>
         <p className="font-bold text-blue-900">Đề bài:</p>
-        <div className="mt-2 whitespace-pre-wrap text-slate-700 leading-relaxed">{content.integrationPrompt}</div>
+        <div className="mt-2 text-slate-700 leading-relaxed">{renderSimpleMarkdown(content.integrationPrompt)}</div>
       </section>
 
       {showUpload && (
