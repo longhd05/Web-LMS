@@ -198,23 +198,22 @@ export default function CongDongTemplate({
     }
 
     const updateWatchScrollFromClientY = (clientY: number) => {
-        if (!watchScrollTrackRef.current) return
-    
-        const rect = watchScrollTrackRef.current.getBoundingClientRect()
-        const trackHeight = rect.height
-        const thumbHeight = 40
-    
-        let offsetY = clientY - rect.top
-    
-        // Trừ nửa thumb để nó bám đúng tâm chuột
-        offsetY -= thumbHeight / 2
-    
-        // Clamp đúng vùng có thể di chuyển
-        offsetY = Math.max(0, Math.min(offsetY, trackHeight - thumbHeight))
-    
-        const progress = offsetY / (trackHeight - thumbHeight)
-    
-        setWatchScrollProgress(progress)
+        const imageContainer = watchImageScrollRef.current
+        const track = watchScrollTrackRef.current
+        if (!imageContainer || !track) return
+
+        const maxScroll = imageContainer.scrollHeight - imageContainer.clientHeight
+        if (maxScroll <= 0) {
+            setWatchScrollProgressSmooth(0, true)
+            return
+        }
+
+        const rect = track.getBoundingClientRect()
+        if (rect.height <= 0) return
+        const progress = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height))
+
+        imageContainer.scrollTop = progress * maxScroll
+        setWatchScrollProgressSmooth(progress, true)
     }
 
     const handleWatchScrollMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
