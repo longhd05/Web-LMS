@@ -274,9 +274,9 @@ export default function HomePageHeader() {
         {menuOpen && (
           <div className="absolute right-4 top-16 z-50">
             <div
-              className="rounded-2xl p-4 shadow-xl w-56"
+              className="rounded-2xl p-4 shadow-xl w-[15rem]"
               style={{
-                background: "#c7d9e0",
+                background: "rgba(255, 255, 255, 0.4)",
                 border: "2px solid #4aa3c0",
               }}
             >

@@ -198,21 +198,23 @@ export default function CongDongTemplate({
     }
 
     const updateWatchScrollFromClientY = (clientY: number) => {
-        const imageContainer = watchImageScrollRef.current
-        const track = watchScrollTrackRef.current
-        if (!imageContainer || !track) return
-
-        const maxScroll = imageContainer.scrollHeight - imageContainer.clientHeight
-        if (maxScroll <= 0) {
-            setWatchScrollProgressSmooth(0, true)
-            return
-        }
-
-        const rect = track.getBoundingClientRect()
-        const progress = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height))
-
-        imageContainer.scrollTop = progress * maxScroll
-        setWatchScrollProgressSmooth(progress, true)
+        if (!watchScrollTrackRef.current) return
+    
+        const rect = watchScrollTrackRef.current.getBoundingClientRect()
+        const trackHeight = rect.height
+        const thumbHeight = 40
+    
+        let offsetY = clientY - rect.top
+    
+        // Trừ nửa thumb để nó bám đúng tâm chuột
+        offsetY -= thumbHeight / 2
+    
+        // Clamp đúng vùng có thể di chuyển
+        offsetY = Math.max(0, Math.min(offsetY, trackHeight - thumbHeight))
+    
+        const progress = offsetY / (trackHeight - thumbHeight)
+    
+        setWatchScrollProgress(progress)
     }
 
     const handleWatchScrollMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -472,21 +474,21 @@ export default function CongDongTemplate({
                 {/* Cùng Xem Section - Video */}
                 {videoUrl && (
                     <motion.div
-                        className="max-w-7xl mx-auto px-4 mb-[150px]"
+                        className="max-w-9xl mx-auto px-4 mb-[150px]"
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true }}
                     >
                         <motion.div
-                            className="bg-white rounded-3xl p-12 max-w-4xl mx-auto shadow-lg"
+                            className="bg-white rounded-3xl p-12 max-w-10xl mx-auto shadow-lg"
                             style={{ border: `2px solid ${primaryColor}` }}
                             whileHover={{ scale: 1.02, boxShadow: `0 12px 40px ${primaryColor}44` }}
                             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                         >
                             {/* Title inside box */}
                             <h2
-                                className="text-4xl font-bold text-center mb-12 uppercase"
+                                className="text-6xl font-bold text-center mb-12 uppercase"
                                 style={{
                                     color: primaryColor,
                                     WebkitTextStroke: '3px white',
@@ -528,7 +530,7 @@ export default function CongDongTemplate({
                                             className="flex-1 rounded-xl overflow-y-auto overflow-x-hidden"
                                             style={{
                                                 backgroundColor: '#9FD9B5',
-                                                height: '400px'
+                                                height: '800px'
                                             }}
                                         >
                                             <div className="block">
@@ -545,7 +547,7 @@ export default function CongDongTemplate({
 
                                     {/* Right scroll indicator */}
                                     <div
-                                        className="absolute left-1/2 top-0 h-[400px] w-10 -translate-x-1/2 flex items-center justify-center cursor-pointer"
+                                        className="absolute left-1/2 top-0 h-[800px] w-10 -translate-x-1/2 flex items-center justify-center cursor-pointer"
                                         onMouseDown={handleWatchScrollMouseDown}
                                     >
                                         <div
@@ -556,7 +558,7 @@ export default function CongDongTemplate({
                                             <div
                                                 className={`absolute left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full ${isDraggingWatchScroll ? 'transition-none cursor-grabbing' : 'transition-all duration-100 cursor-grab'}`}
                                                 style={{
-                                                    top: `${watchScrollProgress * 360 + 20}px`,
+                                                    top: `${watchScrollProgress * 100}%`,
                                                     backgroundColor: '#64aab8',
                                                 }}
                                             ></div>
