@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
 import FullscreenModalShell from '../../components/thu-vien-xanh/FullscreenModalShell'
@@ -40,6 +40,15 @@ interface AssignmentData {
   }>
 }
 
+interface BachTuocAnchor {
+  id: string
+  label: string
+  leftPercent: number
+  topPercent: number
+  targetId: string
+  kind: 'word' | 'note'
+}
+
 function parseContent(raw: string): ParsedContent {
   try {
     const parsed = JSON.parse(raw)
@@ -71,6 +80,9 @@ export default function AssignmentDetail() {
   const [uploadedFileName, setUploadedFileName] = useState('')
   const [uploading, setUploading] = useState(false)
   const [fileChanged, setFileChanged] = useState(false)
+  const [activeAnchorId, setActiveAnchorId] = useState<string | null>(null)
+  const bachTuocAnchorRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const bachTuocAnchorResetTimer = useRef<number | null>(null)
 
   useEffect(() => {
     const fetchAssignment = async () => {
@@ -108,6 +120,14 @@ export default function AssignmentDetail() {
     }
     fetchAssignment()
   }, [assignmentId])
+
+  useEffect(() => {
+    return () => {
+      if (bachTuocAnchorResetTimer.current) {
+        window.clearTimeout(bachTuocAnchorResetTimer.current)
+      }
+    }
+  }, [])
 
   const content = useMemo<ParsedContent | null>(() => {
     if (!assignment) return null
@@ -234,17 +254,73 @@ export default function AssignmentDetail() {
 
   const isBachTuoc = assignment.libraryItem.title.toLowerCase().includes('bạch tuộc')
   const fullPageImageUrl = isBachTuoc ? bachTuocImage : null
+  const showBachTuocAnchors = Boolean(fullPageImageUrl)
+
+  const bachTuocAnchors = useMemo<BachTuocAnchor[]>(() => {
+    if (!showBachTuocAnchors) return []
+    return [
+      { id: 'word-1', label: '(1)', leftPercent: 71.5, topPercent: 27, targetId: 'note-1', kind: 'word' },
+      { id: 'word-2', label: '(2)', leftPercent: 62.5, topPercent: 34, targetId: 'note-2', kind: 'word' },
+      { id: 'word-3', label: '(3)', leftPercent: 73.9, topPercent: 74, targetId: 'note-3', kind: 'word' },
+      { id: 'note-1', label: '(1)', leftPercent: 6.6, topPercent: 94.05, targetId: 'word-1', kind: 'note' },
+      { id: 'note-2', label: '(2)', leftPercent: 6.6, topPercent: 95.18, targetId: 'word-2', kind: 'note' },
+      { id: 'note-3', label: '(3)', leftPercent: 6.6, topPercent: 96.22, targetId: 'word-3', kind: 'note' },
+    ]
+  }, [showBachTuocAnchors])
+
+  const scrollToBachTuocAnchor = (anchorId: string) => {
+    const target = bachTuocAnchorRefs.current[anchorId]
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+    setActiveAnchorId(anchorId)
+    if (bachTuocAnchorResetTimer.current) {
+      window.clearTimeout(bachTuocAnchorResetTimer.current)
+    }
+    bachTuocAnchorResetTimer.current = window.setTimeout(() => {
+      setActiveAnchorId(null)
+    }, 1200)
+  }
 
   const leftPanel = (
     <div>
       <p className="text-center font-bold text-blue-900">Ngữ liệu</p>
       {fullPageImageUrl ? (
-        <div className="mt-3 rounded-2xl border border-cyan-200 bg-white p-2">
+        <div className="relative mt-3 rounded-2xl border border-cyan-200 bg-white p-2">
           <img
             src={fullPageImageUrl}
             alt={`${assignment.libraryItem.title} - toàn văn`}
             className="w-full h-auto rounded-xl"
           />
+          {bachTuocAnchors.map((anchor) => (
+            <button
+              key={anchor.id}
+              ref={(node) => {
+                bachTuocAnchorRefs.current[anchor.id] = node
+              }}
+              type="button"
+              aria-label={anchor.kind === 'word' ? `Từ đánh số ${anchor.label}` : `Chú thích ${anchor.label}`}
+              onClick={() => scrollToBachTuocAnchor(anchor.targetId)}
+              className={`absolute z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-md border text-[11px] font-bold transition-all ${
+                anchor.kind === 'word'
+                  ? anchor.id === 'word-2'
+                    ? 'px-8 py-1 min-w-[44px]'
+                    : anchor.id === 'word-3'
+                      ? 'px-4 py-1 min-w-[34px]'
+                      : 'px-2.5 py-1'
+                  : 'px-2 py-0.5'
+              } ${
+                activeAnchorId === anchor.id
+                  ? 'border-amber-500 bg-amber-200 text-amber-900 ring-2 ring-amber-400'
+                  : 'border-transparent bg-transparent text-transparent hover:border-transparent hover:bg-transparent'
+              }`}
+              style={{
+                left: `${anchor.leftPercent}%`,
+                top: `${anchor.topPercent}%`,
+              }}
+            >
+              {anchor.label}
+            </button>
+          ))}
         </div>
       ) : (
         <>

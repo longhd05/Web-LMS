@@ -15,6 +15,15 @@ interface TichHopBodyProps {
   isClassStudent?: boolean
 }
 
+interface BachTuocAnchor {
+  id: string
+  label: string
+  leftPercent: number
+  topPercent: number
+  targetId: string
+  kind: 'word' | 'note'
+}
+
 export default function TichHopBody({
   content,
   userRole,
@@ -28,13 +37,55 @@ export default function TichHopBody({
   isClassStudent = false,
 }: TichHopBodyProps) {
   const dropzoneInputId = 'tich-hop-dropzone-file'
+  const isBachTuoc = content.itemId === 't_env_01' && Boolean(content.fullPageImageUrl)
+
+  const bachTuocAnchors: BachTuocAnchor[] = isBachTuoc
+    ? [
+        { id: 'word-1', label: '(1)', leftPercent: 71.5, topPercent: 27, targetId: 'note-1', kind: 'word' },
+        { id: 'word-2', label: '(2)', leftPercent: 62.5, topPercent: 34, targetId: 'note-2', kind: 'word' },
+        { id: 'word-3', label: '(3)', leftPercent: 73.9, topPercent: 74, targetId: 'note-3', kind: 'word' },
+        { id: 'note-1', label: '(1)', leftPercent: 6.6, topPercent: 94.7, targetId: 'word-1', kind: 'note' },
+        { id: 'note-2', label: '(2)', leftPercent: 6.6, topPercent: 95.3, targetId: 'word-2', kind: 'note' },
+        { id: 'note-3', label: '(3)', leftPercent: 6.6, topPercent: 95.9, targetId: 'word-3', kind: 'note' },
+      ]
+    : []
+
+  const scrollToBachTuocAnchor = (anchorId: string) => {
+    const target = document.getElementById(anchorId)
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
+  }
 
   const leftPanel = (
     <div>
       <p className="font-bold text-blue-900">Ngữ liệu</p>
       {content.fullPageImageUrl ? (
-        <div className="mt-3 rounded-2xl border border-cyan-200 bg-white p-2">
+        <div className="relative mt-3 rounded-2xl border border-cyan-200 bg-white p-2">
           <img src={content.fullPageImageUrl} alt={`${content.passageTitle} - toàn văn`} className="w-full h-auto rounded-xl" />
+          {bachTuocAnchors.map((anchor) => (
+            <button
+              key={anchor.id}
+              id={anchor.id}
+              type="button"
+              aria-label={anchor.kind === 'word' ? `Word anchor ${anchor.label}` : `Note anchor ${anchor.label}`}
+              onClick={() => scrollToBachTuocAnchor(anchor.targetId)}
+              className={`absolute z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-md border text-[11px] font-bold transition-all ${
+                anchor.kind === 'word'
+                  ? anchor.id === 'word-2'
+                    ? 'px-8 py-1 min-w-[44px]'
+                    : anchor.id === 'word-3'
+                      ? 'px-4 py-1 min-w-[34px]'
+                      : 'px-2.5 py-1'
+                  : 'px-2 py-0.5'
+              } border-transparent bg-transparent text-transparent hover:border-transparent hover:bg-transparent`}
+              style={{
+                left: `${anchor.leftPercent}%`,
+                top: `${anchor.topPercent}%`,
+              }}
+            >
+              {anchor.label}
+            </button>
+          ))}
         </div>
       ) : (
         <>
