@@ -504,7 +504,7 @@ export default function CongDongTemplate({
                 {/* Cùng Xem Section - Video */}
                 {videoUrl && (
                     <motion.div
-                        className="max-w-7xl mx-auto px-4 mb-[150px]"
+                        className="max-w-8xl mx-auto px-4 mb-[150px]"
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
@@ -518,7 +518,7 @@ export default function CongDongTemplate({
                         >
                             {/* Title inside box */}
                             <h2
-                                className="text-4xl font-bold text-center mb-12 uppercase"
+                                className="text-6xl font-bold text-center mb-12 uppercase"
                                 style={{
                                     color: primaryColor,
                                     WebkitTextStroke: '3px white',
@@ -560,7 +560,7 @@ export default function CongDongTemplate({
                                             className="flex-1 rounded-xl overflow-y-auto overflow-x-hidden"
                                             style={{
                                                 backgroundColor: '#9FD9B5',
-                                                height: '400px'
+                                                height: '600px'
                                             }}
                                         >
                                             <div className="block">
@@ -577,7 +577,7 @@ export default function CongDongTemplate({
 
                                     {/* Right scroll indicator */}
                                     <div
-                                        className="absolute left-1/2 top-0 h-[400px] w-10 -translate-x-1/2 flex items-center justify-center cursor-pointer"
+                                        className="absolute left-1/2 top-0 h-[600px] w-10 -translate-x-1/2 flex items-center justify-center cursor-pointer"
                                         onMouseDown={handleWatchScrollMouseDown}
                                     >
                                         <div
@@ -588,7 +588,7 @@ export default function CongDongTemplate({
                                             <div
                                                 className={`absolute left-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full ${isDraggingWatchScroll ? 'transition-none cursor-grabbing' : 'transition-all duration-100 cursor-grab'}`}
                                                 style={{
-                                                    top: `${watchScrollProgress * 360 + 20}px`,
+                                                    top: `${watchScrollProgress * 100}%`,
                                                     backgroundColor: '#64aab8',
                                                 }}
                                             ></div>
