@@ -256,9 +256,8 @@ export default function AssignmentDetail() {
   const fullPageImageUrl = isBachTuoc ? bachTuocImage : null
   const showBachTuocAnchors = Boolean(fullPageImageUrl)
 
-  const bachTuocAnchors = useMemo<BachTuocAnchor[]>(() => {
-    if (!showBachTuocAnchors) return []
-    return [
+  const bachTuocAnchors: BachTuocAnchor[] = showBachTuocAnchors
+    ? [
       { id: 'word-1', label: '(1)', leftPercent: 71.5, topPercent: 27, targetId: 'note-1', kind: 'word' },
       { id: 'word-2', label: '(2)', leftPercent: 62.5, topPercent: 34, targetId: 'note-2', kind: 'word' },
       { id: 'word-3', label: '(3)', leftPercent: 73.9, topPercent: 74, targetId: 'note-3', kind: 'word' },
@@ -266,7 +265,7 @@ export default function AssignmentDetail() {
       { id: 'note-2', label: '(2)', leftPercent: 6.6, topPercent: 95.18, targetId: 'word-2', kind: 'note' },
       { id: 'note-3', label: '(3)', leftPercent: 6.6, topPercent: 96.22, targetId: 'word-3', kind: 'note' },
     ]
-  }, [showBachTuocAnchors])
+    : []
 
   const scrollToBachTuocAnchor = (anchorId: string) => {
     const target = bachTuocAnchorRefs.current[anchorId]
