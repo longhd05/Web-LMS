@@ -663,7 +663,7 @@ export default function CongDongTemplate({
                                                 return (
                                                     <div
                                                         key={card.id}
-                                                        className="relative rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-pointer"
+                                                        className="relative h-full rounded-3xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-pointer"
                                                         style={{
                                                             backgroundColor: primaryColor,
                                                             padding: '2px'
@@ -671,19 +671,19 @@ export default function CongDongTemplate({
                                                         onClick={() => handleCardClick(card.id)}
                                                     >
                                                         {/* White spacing layer */}
-                                                        <div className="bg-white rounded-3xl" style={{ padding: '2.5px' }}>
+                                                        <div className="bg-white rounded-3xl h-full" style={{ padding: '2.5px' }}>
                                                             {/* Inner card with gradient border effect */}
                                                             <div
-                                                                className="relative rounded-3xl overflow-hidden"
+                                                                className="relative rounded-3xl overflow-hidden h-full"
                                                                 style={{
                                                                     background: `linear-gradient(to right, ${primaryColor} 0%, #d4f542 100%)`,
                                                                     padding: '2px'
                                                                 }}
                                                             >
-                                                                <div className="bg-white rounded-3xl p-4 relative">
+                                                                <div className="bg-white rounded-3xl p-4 relative h-full flex flex-col">
 
                                                                     {/* Top section with name, class, and school */}
-                                                                    <div className="mb-3 text-center">
+                                                                    <div className="mb-3 text-center min-h-[100px]">
                                                                         <h3 className="text-[17px] font-bold leading-tight uppercase" style={{ color: primaryColor }}>
                                                                             {card.name}{card.className ? ` - ${card.className}` : ''}
                                                                         </h3>
@@ -698,7 +698,7 @@ export default function CongDongTemplate({
                                                                     </div>
 
                                                                     {/* Large empty area */}
-                                                                    <div className="h-40 mb-4"></div>
+                                                                    <div className="flex-1 min-h-[120px] mb-4"></div>
 
                                                                     {/* Gradient divider line */}
                                                                     <div
