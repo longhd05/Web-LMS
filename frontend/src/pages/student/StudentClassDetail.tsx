@@ -13,9 +13,9 @@ import { ClassInfo, Assignment } from '../../types/student'
 import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
 import suGiaHoaBinhImg from '../../img/1x/home-su-gia-hoa-binh.png'
 
-import assignmentsIcon from "../../../../SVG/hs-bai-tap.svg"
-import rubricIcon from "../../../../SVG/hs-tieu-chi.svg"
-import communityIcon from "../../../../SVG/hs-cong-dong.svg"
+import assignmentsIcon from "../../img/SVG/hs-bai-tap.svg"
+import rubricIcon from "../../img/SVG/hs-tieu-chi.svg"
+import communityIcon from "../../img/SVG/hs-cong-dong.svg"
 
 type TaskType = 'READING' | 'INTEGRATION'
 type TabType = 'assignments' | 'rubric' | 'products' | 'community'
