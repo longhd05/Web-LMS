@@ -94,6 +94,8 @@ export default function CongDongTemplate({
     const [currentPage, setCurrentPage] = useState(0)
     const [slideDirection, setSlideDirection] = useState(0)
     const [showScroll, setShowScroll] = useState(true)
+    const [showReadScroll, setShowReadScroll] = useState(false)
+    const [readSectionScrollTop, setReadSectionScrollTop] = useState(0)
     const [watchScrollProgress, setWatchScrollProgress] = useState(0)
     const [isDraggingWatchScroll, setIsDraggingWatchScroll] = useState(false)
     const [isVideoInView, setIsVideoInView] = useState(false)
@@ -104,8 +106,29 @@ export default function CongDongTemplate({
     const nativeVideoRef = useRef<HTMLVideoElement | null>(null)
     const watchImageScrollRef = useRef<HTMLDivElement | null>(null)
     const watchScrollTrackRef = useRef<HTMLDivElement | null>(null)
+    const readSectionTitleRef = useRef<HTMLHeadingElement | null>(null)
+    const readSectionContentRef = useRef<HTMLDivElement | null>(null)
     const watchScrollProgressRef = useRef(0)
     const watchScrollRafRef = useRef<number | null>(null)
+
+    const updateReadScrollHintVisibility = () => {
+        const readSectionTitle = readSectionTitleRef.current
+        const readSectionContent = readSectionContentRef.current
+        if (!readSectionTitle || !readSectionContent) {
+            setShowReadScroll(false)
+            return
+        }
+
+        setReadSectionScrollTop(readSectionContent.scrollTop)
+
+        const rect = readSectionTitle.getBoundingClientRect()
+        const isTitleVisible = rect.top < window.innerHeight && rect.bottom > 0
+        const reachedReadImage = readSectionContent.scrollTop > 24
+
+        setShowReadScroll(isTitleVisible && !reachedReadImage)
+    }
+
+    const readImageRevealProgress = Math.min(1, Math.max(0, (readSectionScrollTop - 20) / 180))
 
     const setWatchScrollProgressSmooth = (progress: number, immediate = false) => {
         if (immediate) {
@@ -163,9 +186,18 @@ export default function CongDongTemplate({
     }
 
     useEffect(() => {
-        const onScroll = () => setShowScroll(window.scrollY <= 100)
+        const onScroll = () => {
+            setShowScroll(window.scrollY <= 100)
+            updateReadScrollHintVisibility()
+        }
+
+        onScroll()
         window.addEventListener('scroll', onScroll)
-        return () => window.removeEventListener('scroll', onScroll)
+        window.addEventListener('resize', onScroll)
+        return () => {
+            window.removeEventListener('scroll', onScroll)
+            window.removeEventListener('resize', onScroll)
+        }
     }, [])
 
     useEffect(() => {
@@ -479,7 +511,7 @@ export default function CongDongTemplate({
                         viewport={{ once: true }}
                     >
                         <motion.div
-                            className="bg-white rounded-3xl p-12 max-w-4xl mx-auto shadow-lg"
+                            className="bg-white rounded-3xl p-12 max-w-14xl mx-auto shadow-lg"
                             style={{ border: `2px solid ${primaryColor}` }}
                             whileHover={{ scale: 1.02, boxShadow: `0 12px 40px ${primaryColor}44` }}
                             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -746,16 +778,19 @@ export default function CongDongTemplate({
                         whileHover={{ scale: 1.02, boxShadow: `0 12px 40px ${primaryColor}44` }}
                         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     >
-                        <div className="max-w-3xl mx-auto">
+                        <div className="max-w-[110%] mx-auto">
                             <div
-                                className="rounded-xl overflow-y-auto overflow-x-hidden p-6"
+                                ref={readSectionContentRef}
+                                onScroll={updateReadScrollHintVisibility}
+                                className="rounded-xl overflow-y-auto overflow-x-hidden p-3"
                                 style={{
                                     backgroundColor: '#ffffff',
                                     height: '270px'
                                 }}
                             >
                                 <h2
-                                    className="text-[58px] font-bold text-center uppercase"
+                                    ref={readSectionTitleRef}
+                                    className="text-[55px] font-bold text-center uppercase"
                                     style={{
                                         color: primaryColor,
                                         WebkitTextStroke: '3px white',
@@ -766,12 +801,44 @@ export default function CongDongTemplate({
                                     {readSectionTitle}
                                 </h2>
 
+                                <div className="mt-2 mb-4 h-[88px] flex items-center justify-center">
+                                    <motion.div
+                                        className="flex flex-col items-center"
+                                        onClick={() => {
+                                            if (showReadScroll) {
+                                                window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })
+                                            }
+                                        }}
+                                        animate={{ opacity: showReadScroll ? 1 : 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        style={{ pointerEvents: showReadScroll ? 'auto' : 'none' }}
+                                    >
+                                        <motion.div
+                                            className="relative mb-1"
+                                            animate={{ y: [0, 7, 0] }}
+                                            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+                                        >
+                                            <ChevronDown className="w-9 h-9 text-[#303f86]" strokeWidth={3.5} />
+                                            <ChevronDown className="w-9 h-9 text-[#303f86] absolute top-3 left-0" strokeWidth={3.5} />
+                                        </motion.div>
+                                        <p className="font-semibold text-[22px] text-[#303f86]">
+                                            Cuộn xuống để tiếp tục đọc
+                                        </p>
+                                    </motion.div>
+                                </div>
+
                                 <div className="mt-8">
                                     {readSectionImageUrl ? (
-                                        <img
+                                        <motion.img
+                                            key={readSectionImageUrl}
                                             src={readSectionImageUrl}
                                             alt={readSectionTitle}
-                                            className="w-full h-auto block"
+                                            className="w-full h-auto block origin-top scale-124"
+                                            animate={{
+                                                opacity: readImageRevealProgress,
+                                                y: (1 - readImageRevealProgress) * 24,
+                                            }}
+                                            transition={{ duration: 0.4, ease: 'easeOut' }}
                                         />
                                     ) : (
                                         <p className="text-3xl font-semibold text-center py-8" style={{ color: primaryColor }}>
