@@ -54,7 +54,7 @@ model Membership {
 model LibraryItem {
   id        String   @id @default(cuid())
   title     String
-  content   String
+  content   String   @db.LongText
   tags      String // JSON array
   level     String
   type      String   @default("READING")
