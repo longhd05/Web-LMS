@@ -7,11 +7,11 @@ import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
 import suGiaHoaBinhImg from '../../img/1x/home-su-gia-hoa-binh.png'
 import CreateAssignment from './CreateAssignment'
 import ReviewSubmission from './ReviewSubmission'
-import assignmentsIcon from "../../../../SVG/hs-bai-tap.svg"
-import studentsIcon from "../../../../SVG/hs-danh-sach.svg"
-import criteriaIcon from "../../../../SVG/hs-bai-cho-duyet.svg"
-import pendingIcon from "../../../../SVG/hs-tieu-chi.svg"
-import communityIcon from "../../../../SVG/hs-cong-dong.svg"
+import assignmentsIcon from "../../img/SVG/hs-bai-tap.svg"
+import studentsIcon from "../../img/SVG/hs-danh-sach.svg"
+import criteriaIcon from "../../img/SVG/hs-bai-cho-duyet.svg"
+import pendingIcon from "../../img/SVG/hs-tieu-chi.svg"
+import communityIcon from "../../img/SVG/hs-cong-dong.svg"
 
 interface Assignment {
   id: string
