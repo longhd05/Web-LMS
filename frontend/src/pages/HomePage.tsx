@@ -56,11 +56,11 @@ export default function HomePage() {
 
   return (
     <div 
-      className="min-h-screen relative overflow-x-hidden bg-cover bg-center bg-no-repeat"
+      className="min-h-screen relative overflow-x-hidden bg-center bg-no-repeat"
       style={{ 
         backgroundImage: `url(${bgImage})`,
         backgroundAttachment: 'scroll',
-        backgroundSize: '100%'
+        backgroundSize: 'cover'
       }}
     >
       {/* Scroll Progress Bar */}
