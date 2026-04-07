@@ -38,7 +38,7 @@ Hệ thống quản lý học tập (Learning Management System) dành cho giáo
 | [Express](https://expressjs.com/) | 4 | Web framework |
 | [TypeScript](https://www.typescriptlang.org/) | 5 | Type safety |
 | [Prisma](https://www.prisma.io/) | 5 | ORM |
-| [SQLite](https://www.sqlite.org/) | - | Database |
+| [MySQL](https://www.mysql.com/) | 8 | Database |
 | [JWT](https://jwt.io/) (`jsonwebtoken`) | 9 | Xác thực |
 | [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | 2 | Hash mật khẩu |
 | [Zod](https://zod.dev/) | 3 | Validate dữ liệu đầu vào |
@@ -120,11 +120,11 @@ Web-LMS/
 
 ---
 
-## Cài đặt & Chạy
+## Cài đặt & Chạy bằng Docker (Frontend + Backend + MySQL)
 
 ### Yêu cầu
-- **Node.js** ≥ 18
-- **npm** ≥ 9
+- **Docker**
+- **Docker Compose**
 
 ### 1. Clone repository
 
@@ -133,95 +133,46 @@ git clone https://github.com/duylonggg/Web-LMS.git
 cd Web-LMS
 ```
 
-### 2. Cài đặt & chạy Backend
+### 2. Chạy toàn bộ hệ thống
+
+Tạo file biến môi trường Docker:
 
 ```bash
-cd backend
-npm install
+cp .env.docker.example .env
 ```
 
-Tạo file `.env` trong thư mục `backend/`:
-
-```env
-DATABASE_URL="file:./dev.db"
-JWT_SECRET="your_jwt_secret_here"
-PORT=3000
-CORS_ORIGIN=http://localhost:5173
-```
-
-Khởi tạo database và chạy seed (dữ liệu mẫu):
+Sau đó chạy:
 
 ```bash
-npm run db:migrate   # Chạy migration tạo bảng
-npm run db:seed      # Thêm dữ liệu mẫu (tuỳ chọn)
+docker compose up --build -d
 ```
 
-### ⚠️ Cập nhật database local khi có thay đổi từ Dev khác
+Sau khi chạy:
+- Frontend: **http://localhost:5173**
+- Backend API: **http://localhost:3000**
+- MySQL: **localhost:3306** (db: lấy từ `MYSQL_DATABASE`)
 
-Mỗi khi một thành viên trong nhóm push thay đổi liên quan đến database (schema hoặc dữ liệu seed), các thành viên còn lại cần **thực hiện các bước sau** để đồng bộ:
-
-**1. Pull code mới nhất:**
-```bash
-git pull
-```
-
-**2. Kiểm tra xem có thay đổi schema không** (`backend/prisma/schema.prisma`).  
-Nếu có → chạy migration:
-```bash
-cd backend
-npm run db:migrate
-```
-
-**3. Kiểm tra xem có thay đổi seed không** (`backend/prisma/seed.ts`).  
-Nếu có → chạy lại seed:
-```bash
-cd backend
-npm run db:seed
-```
-
-> **Lưu ý:** Nếu cấu trúc database thay đổi lớn (xóa bảng, đổi tên cột…) và cần reset sạch:
-> ```bash
-> cd backend
-> npm run db:reset   # Xóa toàn bộ dữ liệu, chạy lại migration + seed
-> ```
-> ⚠️ Lệnh này **xóa toàn bộ dữ liệu** trong database local, chỉ dùng khi cần thiết.
-
-**Tóm tắt nhanh – quy trình làm việc nhóm:**
-| Tình huống | Lệnh cần chạy |
-|------------|---------------|
-| Dev khác thay đổi `schema.prisma` | `npm run db:migrate` |
-| Dev khác thay đổi `seed.ts` | `npm run db:seed` |
-| Cả hai thay đổi | `npm run db:migrate` rồi `npm run db:seed` |
-| Database bị lỗi / cần làm mới hoàn toàn | `npm run db:reset` |
-
-Khởi động server (development):
+### 3. Dừng hệ thống
 
 ```bash
-npm run dev
+docker compose down
 ```
 
-Server chạy tại **http://localhost:3000**
-
-### 3. Cài đặt & chạy Frontend
+### 4. Xóa luôn dữ liệu database (nếu cần reset sạch)
 
 ```bash
-cd frontend
-npm install
-npm run dev
+docker compose down -v
 ```
 
-Frontend chạy tại **http://localhost:5173**
+### 5. Tùy chỉnh cấu hình môi trường (tuỳ chọn)
 
-### 4. Build production
+Trong `docker-compose.yml`, bạn có thể đổi:
+- các giá trị trong file `.env` (được copy từ `.env.docker.example`):
+  - `JWT_SECRET`
+  - thông tin MySQL (`MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`)
+  - `CORS_ORIGIN`
 
-```bash
-# Backend
-cd backend && npm run build && npm start
-
-# Frontend
-cd frontend && npm run build
-# Output tại frontend/dist/
-```
+> Service `backend-init` sẽ chạy `npm run db:push` (Prisma `db push`) và `npm run db:seed` một lần trước khi backend khởi động.
 
 ---
 
