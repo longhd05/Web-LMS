@@ -2,18 +2,11 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import rateLimit from 'express-rate-limit';
 import { prisma } from '../lib/prisma';
 import { authenticate } from '../middleware/auth';
 import { JWT_SECRET } from '../lib/config';
 
 const router = Router();
-
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: { error: 'Too many login attempts, please try again later' },
-});
 
 const registerSchema = z.object({
   name: z.string().min(1).max(100),
@@ -67,7 +60,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
   res.status(201).json({ data: { accessToken, user } });
 });
 
-router.post('/login', loginLimiter, async (req: Request, res: Response): Promise<void> => {
+router.post('/login', async (req: Request, res: Response): Promise<void> => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });

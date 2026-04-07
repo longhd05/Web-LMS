@@ -44,7 +44,6 @@ Hệ thống quản lý học tập (Learning Management System) dành cho giáo
 | [Zod](https://zod.dev/) | 3 | Validate dữ liệu đầu vào |
 | [Multer](https://github.com/expressjs/multer) | 2 | Upload file |
 | [Helmet](https://helmetjs.github.io/) | 7 | HTTP security headers |
-| [express-rate-limit](https://github.com/express-rate-limit/express-rate-limit) | 7 | Rate limiting |
 
 ---
 
