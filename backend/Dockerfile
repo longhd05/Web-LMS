@@ -16,4 +16,4 @@ RUN mkdir -p uploads
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npm run db:migrate && npm run db:seed && npm run start"]
+CMD ["npm", "run", "start"]

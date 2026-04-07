@@ -135,6 +135,14 @@ cd Web-LMS
 
 ### 2. Chạy toàn bộ hệ thống
 
+Tạo file biến môi trường Docker:
+
+```bash
+cp .env.docker.example .env
+```
+
+Sau đó chạy:
+
 ```bash
 docker compose up --build -d
 ```
@@ -142,7 +150,7 @@ docker compose up --build -d
 Sau khi chạy:
 - Frontend: **http://localhost:5173**
 - Backend API: **http://localhost:3000**
-- MySQL: **localhost:3306** (db: `lms_db`)
+- MySQL: **localhost:3306** (db: lấy từ `MYSQL_DATABASE`)
 
 ### 3. Dừng hệ thống
 
@@ -159,11 +167,12 @@ docker compose down -v
 ### 5. Tùy chỉnh cấu hình môi trường (tuỳ chọn)
 
 Trong `docker-compose.yml`, bạn có thể đổi:
-- `JWT_SECRET`
-- `DATABASE_URL`
-- thông tin MySQL (`MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`)
+- các giá trị trong file `.env` (được copy từ `.env.docker.example`):
+  - `JWT_SECRET`
+  - thông tin MySQL (`MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`)
+  - `CORS_ORIGIN`
 
-> Backend container tự chạy `npm run db:migrate` (Prisma `db push`) và `npm run db:seed` khi khởi động.
+> Service `backend-init` sẽ chạy `npm run db:push` (Prisma `db push`) và `npm run db:seed` một lần trước khi backend khởi động.
 
 ---
 
