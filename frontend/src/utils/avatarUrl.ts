@@ -1,5 +1,7 @@
 import api from '../api/axios'
 
+const API_PREFIX = '/api'
+
 export const normalizeAvatarUrl = (url?: string | null) => {
   if (!url) return url ?? null
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
@@ -26,5 +28,5 @@ export const normalizeAvatarUrl = (url?: string | null) => {
   }
 
   if (!trimmedBaseUrl) return url
-  return `${trimmedBaseUrl.replace(/\/api$/, '')}/${url}`
+  return `${trimmedBaseUrl.replace(new RegExp(`${API_PREFIX}$`), '')}/${url}`
 }
