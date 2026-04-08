@@ -28,5 +28,9 @@ export const normalizeAvatarUrl = (url?: string | null) => {
   }
 
   if (!trimmedBaseUrl) return url
-  return `${trimmedBaseUrl.replace(new RegExp(`${API_PREFIX}$`), '')}/${url}`
+  const sanitizedRelativePath = url.replace(/^\/+/, '')
+  const baseWithoutApi = trimmedBaseUrl.endsWith(API_PREFIX)
+    ? trimmedBaseUrl.slice(0, -API_PREFIX.length)
+    : trimmedBaseUrl
+  return `${baseWithoutApi}/${sanitizedRelativePath}`
 }
