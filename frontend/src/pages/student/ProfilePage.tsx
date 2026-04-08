@@ -4,6 +4,7 @@ import StudentLayout from '../../components/student/Layout/StudentLayout'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
 import Button from '../../components/student/Common/Button'
 import api from '../../api/axios'
+import { normalizeAvatarUrl } from '../../utils/avatarUrl'
 
 interface UserProfile {
   id: string
@@ -12,16 +13,6 @@ interface UserProfile {
   avatarUrl?: string | null
   role: string
   createdAt: string
-}
-
-const normalizeAvatarUrl = (url?: string | null) => {
-  if (!url) return url ?? null
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
-    return url
-  }
-  const baseUrl = api.defaults.baseURL ?? ''
-  if (!baseUrl) return url
-  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
 export default function ProfilePage() {
