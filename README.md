@@ -173,6 +173,32 @@ Trong `docker-compose.yml`, bạn có thể đổi:
 
 > Service `backend-init` sẽ chạy `npm run db:push` (Prisma `db push`) và `npm run db:seed` một lần trước khi backend khởi động.
 
+### 6. Ubuntu 24.04 – xử lý lỗi MySQL `unhealthy`
+
+Nếu bạn gặp lỗi như:
+- `OS errno 28 - No space left on device`
+- `--initialize specified but the data directory has files in it`
+- `container ... mysql ... is unhealthy`
+
+Bản compose đã thêm preflight script để:
+- phát hiện datadir MySQL bị khởi tạo dở và tự dọn file lỗi,
+- báo lỗi rõ ràng khi volume Docker không ghi được.
+
+Quy trình khuyến nghị trên Ubuntu 24.04:
+
+```bash
+df -h
+docker compose down -v
+docker system prune -f
+docker compose up --build -d
+```
+
+Nếu muốn tắt cơ chế tự dọn datadir khởi tạo dở, set biến môi trường:
+
+```bash
+MYSQL_AUTO_CLEAN_PARTIAL_INIT=0
+```
+
 ---
 
 ## API chính
