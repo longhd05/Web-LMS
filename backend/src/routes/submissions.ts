@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { authenticate } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
@@ -29,76 +30,87 @@ const publishSchema = z.object({
 
 // POST /assignments/:assignmentId/submissions
 router.post('/', authenticate, requireRole('STUDENT'), async (req: Request, res: Response): Promise<void> => {
-  const { assignmentId } = req.params;
-  const parsed = submitSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.flatten() });
-    return;
-  }
-
-  const assignment = await prisma.assignment.findUnique({
-    where: { id: assignmentId },
-    include: { class: true },
-  });
-  if (!assignment) {
-    res.status(404).json({ error: 'Assignment not found' });
-    return;
-  }
-
-  // Verify student is a member
-  const membership = await prisma.membership.findUnique({
-    where: { classId_studentId: { classId: assignment.classId, studentId: req.user!.userId } },
-  });
-  if (!membership) {
-    res.status(403).json({ error: 'You are not enrolled in this class' });
-    return;
-  }
-
-  // Upsert submission (allow resubmit if in DRAFT or REJECTED; also allow INTEGRATION to update file when SUBMITTED)
-  const existing = await prisma.submission.findFirst({
-    where: { assignmentId, studentId: req.user!.userId },
-  });
-
-  let submission;
-  if (existing) {
-    const editableStatuses: string[] = [SubmissionStatus.DRAFT, SubmissionStatus.REJECTED];
-    if (assignment.type === 'INTEGRATION') {
-      editableStatuses.push(SubmissionStatus.SUBMITTED);
-    }
-    if (!editableStatuses.includes(existing.status)) {
-      res.status(409).json({ error: 'Submission already exists and cannot be modified' });
+  try {
+    const { assignmentId } = req.params;
+    const parsed = submitSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
-    submission = await prisma.submission.update({
-      where: { id: existing.id },
-      data: {
-        readingAnswersJson: parsed.data.readingAnswersJson,
-        integrationFileId: parsed.data.integrationFileId,
-        status: parsed.data.status,
-      },
+
+    const assignment = await prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      include: { class: true },
     });
-  } else {
-    submission = await prisma.submission.create({
-      data: {
+    if (!assignment) {
+      res.status(404).json({ error: 'Assignment not found' });
+      return;
+    }
+
+    // Verify student is a member
+    const membership = await prisma.membership.findUnique({
+      where: { classId_studentId: { classId: assignment.classId, studentId: req.user!.userId } },
+    });
+    if (!membership) {
+      res.status(403).json({ error: 'You are not enrolled in this class' });
+      return;
+    }
+
+    // Upsert submission (allow resubmit if in DRAFT or REJECTED; also allow INTEGRATION to update file when SUBMITTED)
+    const existing = await prisma.submission.findFirst({
+      where: { assignmentId, studentId: req.user!.userId },
+    });
+
+    let submission;
+    if (existing) {
+      const editableStatuses: string[] = [SubmissionStatus.DRAFT, SubmissionStatus.REJECTED];
+      if (assignment.type === 'INTEGRATION') {
+        editableStatuses.push(SubmissionStatus.SUBMITTED);
+      }
+      if (!editableStatuses.includes(existing.status)) {
+        res.status(409).json({ error: 'Submission already exists and cannot be modified' });
+        return;
+      }
+      submission = await prisma.submission.update({
+        where: { id: existing.id },
+        data: {
+          readingAnswersJson: parsed.data.readingAnswersJson,
+          integrationFileId: parsed.data.integrationFileId,
+          status: parsed.data.status,
+        },
+      });
+    } else {
+      submission = await prisma.submission.create({
+        data: {
+          assignmentId,
+          studentId: req.user!.userId,
+          readingAnswersJson: parsed.data.readingAnswersJson,
+          integrationFileId: parsed.data.integrationFileId,
+          status: parsed.data.status,
+        },
+      });
+    }
+
+    // Notify teacher if submitted
+    if (parsed.data.status === SubmissionStatus.SUBMITTED) {
+      await createNotification(assignment.class.teacherId, 'SUBMISSION_RECEIVED', {
+        submissionId: submission.id,
         assignmentId,
         studentId: req.user!.userId,
-        readingAnswersJson: parsed.data.readingAnswersJson,
-        integrationFileId: parsed.data.integrationFileId,
-        status: parsed.data.status,
-      },
-    });
-  }
+      });
+    }
 
-  // Notify teacher if submitted
-  if (parsed.data.status === SubmissionStatus.SUBMITTED) {
-    await createNotification(assignment.class.teacherId, 'SUBMISSION_RECEIVED', {
-      submissionId: submission.id,
-      assignmentId,
-      studentId: req.user!.userId,
-    });
+    res.status(201).json({ data: submission });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2000') {
+        res.status(400).json({ error: 'Dữ liệu bài làm quá dài. Vui lòng rút gọn câu trả lời rồi thử lại.' });
+        return;
+      }
+    }
+    console.error('[submissions] create/update failed:', error);
+    res.status(500).json({ error: 'Không thể nộp bài lúc này. Vui lòng thử lại.' });
   }
-
-  res.status(201).json({ data: submission });
 });
 
 // GET /submissions (current student's submissions)

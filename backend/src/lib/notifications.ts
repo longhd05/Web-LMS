@@ -5,11 +5,16 @@ export async function createNotification(
   type: string,
   payload: Record<string, unknown>
 ): Promise<void> {
-  await prisma.notification.create({
-    data: {
-      userId,
-      type,
-      payloadJson: JSON.stringify(payload),
-    },
-  });
+  try {
+    await prisma.notification.create({
+      data: {
+        userId,
+        type,
+        payloadJson: JSON.stringify(payload),
+      },
+    });
+  } catch (error) {
+    // Notification is non-critical; core flows (submit/review/create assignment) must not fail because of it.
+    console.warn('[notifications] create failed:', { userId, type, error });
+  }
 }

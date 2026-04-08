@@ -49,6 +49,12 @@ interface BachTuocAnchor {
   kind: 'word' | 'note'
 }
 
+const hasAnsweredQuestion = (value: unknown): boolean => {
+  if (typeof value === 'string') return value.trim().length > 0
+  if (typeof value === 'number') return Number.isFinite(value)
+  return false
+}
+
 function parseContent(raw: string): ParsedContent {
   try {
     const parsed = JSON.parse(raw)
@@ -72,7 +78,7 @@ export default function AssignmentDetail() {
   const [submitting, setSubmitting] = useState(false)
 
   // Reading assignment state
-  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [answers, setAnswers] = useState<Record<string, string | number>>({})
 
   // Integration assignment state
   const [uploadedFileId, setUploadedFileId] = useState('')
@@ -80,9 +86,7 @@ export default function AssignmentDetail() {
   const [uploadedFileName, setUploadedFileName] = useState('')
   const [uploading, setUploading] = useState(false)
   const [fileChanged, setFileChanged] = useState(false)
-  const [activeAnchorId, setActiveAnchorId] = useState<string | null>(null)
   const bachTuocAnchorRefs = useRef<Record<string, HTMLButtonElement | null>>({})
-  const bachTuocAnchorResetTimer = useRef<number | null>(null)
 
   useEffect(() => {
     const fetchAssignment = async () => {
@@ -121,25 +125,19 @@ export default function AssignmentDetail() {
     fetchAssignment()
   }, [assignmentId])
 
-  useEffect(() => {
-    return () => {
-      if (bachTuocAnchorResetTimer.current) {
-        window.clearTimeout(bachTuocAnchorResetTimer.current)
-      }
-    }
-  }, [])
-
   const content = useMemo<ParsedContent | null>(() => {
     if (!assignment) return null
     return parseContent(assignment.libraryItem.content)
   }, [assignment])
 
   const existingSub = assignment?.submissions?.[0]
-  const isSubmitted = existingSub?.status === 'SUBMITTED' || existingSub?.status === 'APPROVED'
-  const isReviewed = existingSub?.status === 'APPROVED' || existingSub?.status === 'REJECTED'
-  const canEdit = assignment?.type === 'INTEGRATION' ? !isReviewed : !isSubmitted && !isReviewed
+  const isApproved = existingSub?.status === 'APPROVED'
+  const isRejected = existingSub?.status === 'REJECTED'
+  const isSubmitted = existingSub?.status === 'SUBMITTED' || isApproved
+  const isReviewed = isApproved || isRejected
+  const canEdit = assignment?.type === 'INTEGRATION' ? !isApproved : !isSubmitted
   const dirty = canEdit && (assignment?.type === 'READING'
-    ? Object.values(answers).some((value) => value.trim().length > 0)
+    ? Object.values(answers).some((value) => hasAnsweredQuestion(value))
     : fileChanged)
 
   const mcQuestions = useMemo(() => {
@@ -184,14 +182,7 @@ export default function AssignmentDetail() {
 
     if (status === 'SUBMITTED') {
       if (assignment.type === 'READING' && content) {
-        const allAnswered = content.questions.every((q) => {
-          const value = answers[q.id]
-          if (!value) return false
-          if (q.options?.length || q.type === 'multiple-choice') {
-            return value.trim().length > 0
-          }
-          return value.trim().length > 0
-        })
+        const allAnswered = content.questions.every((q) => hasAnsweredQuestion(answers[q.id]))
         if (!allAnswered) {
           alert('Vui lòng trả lời tất cả các câu hỏi.')
           return
@@ -222,7 +213,17 @@ export default function AssignmentDetail() {
         alert('✓ Đã lưu bản nháp!')
       }
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Không thể nộp bài. Vui lòng thử lại.')
+      const apiError = err?.response?.data?.error
+      const fallbackMessage = 'Không thể nộp bài. Vui lòng thử lại.'
+      const message =
+        typeof apiError === 'string'
+          ? apiError
+          : typeof err?.response?.data?.message === 'string'
+            ? err.response.data.message
+            : typeof err?.message === 'string' && err.message.trim().length > 0
+              ? err.message
+              : fallbackMessage
+      alert(message)
     } finally {
       setSubmitting(false)
     }
@@ -261,9 +262,9 @@ export default function AssignmentDetail() {
       { id: 'word-1', label: '(1)', leftPercent: 71.5, topPercent: 27, targetId: 'note-1', kind: 'word' },
       { id: 'word-2', label: '(2)', leftPercent: 62.5, topPercent: 34, targetId: 'note-2', kind: 'word' },
       { id: 'word-3', label: '(3)', leftPercent: 73.9, topPercent: 74, targetId: 'note-3', kind: 'word' },
-      { id: 'note-1', label: '(1)', leftPercent: 6.6, topPercent: 94.05, targetId: 'word-1', kind: 'note' },
-      { id: 'note-2', label: '(2)', leftPercent: 6.6, topPercent: 95.18, targetId: 'word-2', kind: 'note' },
-      { id: 'note-3', label: '(3)', leftPercent: 6.6, topPercent: 96.22, targetId: 'word-3', kind: 'note' },
+      { id: 'note-1', label: '(1)', leftPercent: 6.6, topPercent: 94.7, targetId: 'word-1', kind: 'note' },
+      { id: 'note-2', label: '(2)', leftPercent: 6.6, topPercent: 95.3, targetId: 'word-2', kind: 'note' },
+      { id: 'note-3', label: '(3)', leftPercent: 6.6, topPercent: 95.9, targetId: 'word-3', kind: 'note' },
     ]
     : []
 
@@ -271,13 +272,6 @@ export default function AssignmentDetail() {
     const target = bachTuocAnchorRefs.current[anchorId]
     if (!target) return
     target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' })
-    setActiveAnchorId(anchorId)
-    if (bachTuocAnchorResetTimer.current) {
-      window.clearTimeout(bachTuocAnchorResetTimer.current)
-    }
-    bachTuocAnchorResetTimer.current = window.setTimeout(() => {
-      setActiveAnchorId(null)
-    }, 1200)
   }
 
   const leftPanel = (
@@ -307,11 +301,7 @@ export default function AssignmentDetail() {
                       ? 'px-4 py-1 min-w-[34px]'
                       : 'px-2.5 py-1'
                   : 'px-2 py-0.5'
-              } ${
-                activeAnchorId === anchor.id
-                  ? 'border-amber-500 bg-amber-200 text-amber-900 ring-2 ring-amber-400'
-                  : 'border-transparent bg-transparent text-transparent hover:border-transparent hover:bg-transparent'
-              }`}
+              } border-transparent bg-transparent text-transparent hover:border-transparent hover:bg-transparent`}
               style={{
                 left: `${anchor.leftPercent}%`,
                 top: `${anchor.topPercent}%`,
@@ -524,3 +514,4 @@ export default function AssignmentDetail() {
     />
   )
 }
+
