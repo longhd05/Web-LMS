@@ -2,6 +2,7 @@ import { useState, useEffect, FormEvent } from 'react'
 import { useParams, useSearchParams, Link } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../contexts/AuthContext'
+import { renderSimpleMarkdown } from '../../utils/simpleMarkdown'
 
 interface LibraryItem {
   id: string
@@ -15,6 +16,13 @@ interface ContentData {
   text: string
   questions?: Array<{ id: string; text: string; maxMark: number }>
   integrationPrompt?: string
+}
+
+const QUESTION_PREFIX_REGEX = /^\s*câu\s*\d+\s*[:.)-]\s*/i
+
+function formatQuestionLabel(questionText: string, index: number): string {
+  const text = questionText.trim()
+  return QUESTION_PREFIX_REGEX.test(text) ? text : `Câu ${index + 1}: ${text}`
 }
 
 function parseContent(raw: string): ContentData {
@@ -163,7 +171,7 @@ export default function LibraryDetail() {
           )}
         </div>
         <div className="prose prose-gray max-w-none">
-          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{contentData.text}</p>
+          {renderSimpleMarkdown(contentData.text)}
         </div>
       </div>
 
@@ -179,7 +187,7 @@ export default function LibraryDetail() {
             {readingQuestions.map((q, idx) => (
               <div key={q.id} className="border border-gray-100 rounded-xl p-5">
                 <p className="font-medium text-gray-800 mb-3">
-                  Câu {idx + 1}: {q.text}
+                  {formatQuestionLabel(q.text, idx)}
                   <span className="ml-2 text-xs text-gray-400 font-normal">({q.maxMark} điểm)</span>
                 </p>
                 {user?.role === 'STUDENT' && assignmentId && !submitSuccess ? (
@@ -208,7 +216,7 @@ export default function LibraryDetail() {
         </h2>
         {integrationPrompt ? (
           <div className="bg-indigo-50 rounded-xl p-5">
-            <p className="text-indigo-800 leading-relaxed whitespace-pre-wrap">{integrationPrompt}</p>
+            {renderSimpleMarkdown(integrationPrompt)}
           </div>
         ) : (
           <div className="bg-indigo-50 rounded-xl p-5">
