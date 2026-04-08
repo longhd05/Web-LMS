@@ -6,12 +6,15 @@ export const normalizeAvatarUrl = (url?: string | null) => {
     return url
   }
 
+  const baseUrl = api.defaults.baseURL ?? ''
+  const trimmedBaseUrl = baseUrl.replace(/\/+$/, '')
+
   if (url.startsWith('/')) {
-    const baseUrl = String(api.defaults.baseURL ?? '')
-    if (baseUrl.startsWith('http://') || baseUrl.startsWith('https://')) {
+    if (trimmedBaseUrl.startsWith('http://') || trimmedBaseUrl.startsWith('https://')) {
       try {
-        return `${new URL(baseUrl).origin}${url}`
+        return `${new URL(trimmedBaseUrl).origin}${url}`
       } catch {
+        // Fallback to browser origin if baseURL is malformed.
         if (typeof window !== 'undefined') {
           return `${window.location.origin}${url}`
         }
@@ -22,7 +25,6 @@ export const normalizeAvatarUrl = (url?: string | null) => {
     }
   }
 
-  const baseUrl = api.defaults.baseURL ?? ''
-  if (!baseUrl) return url
-  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`
+  if (!trimmedBaseUrl) return url
+  return `${trimmedBaseUrl.replace(/\/api$/, '')}/${url}`
 }
