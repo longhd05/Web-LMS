@@ -146,11 +146,7 @@ Sau đó chạy:
 docker compose up --build -d
 ```
 
-Khi bạn vừa sửa **backend / frontend / database schema** và cần deploy lại bằng Docker, chạy lại:
-
-```bash
-docker compose up --build -d
-```
+Khi bạn vừa sửa **backend / frontend / database schema** và cần deploy lại, chạy lại **đúng lệnh ở Bước 2** (`docker compose up --build -d`).
 
 Nếu cần reset sạch dữ liệu database trước khi deploy lại:
 

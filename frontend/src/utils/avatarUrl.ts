@@ -9,7 +9,13 @@ export const normalizeAvatarUrl = (url?: string | null) => {
   if (url.startsWith('/')) {
     const baseUrl = String(api.defaults.baseURL ?? '')
     if (baseUrl.startsWith('http://') || baseUrl.startsWith('https://')) {
-      return `${new URL(baseUrl).origin}${url}`
+      try {
+        return `${new URL(baseUrl).origin}${url}`
+      } catch {
+        if (typeof window !== 'undefined') {
+          return `${window.location.origin}${url}`
+        }
+      }
     }
     if (typeof window !== 'undefined') {
       return `${window.location.origin}${url}`
