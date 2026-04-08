@@ -254,9 +254,7 @@ export default function ReadingComprehensionModal({
                           return (
                             <div key={q.id} className="bg-white rounded-xl p-6 shadow-sm">
                               <div className="flex items-start gap-3 mb-4">
-                                <p className="font-medium text-gray-900 flex-1">
-                                  Câu hỏi {index + 1}: {q.question}
-                                </p>
+                                <p className="font-medium text-gray-900 flex-1">{q.question}</p>
                                 {submitted && revealAnswers && (
                                   <div>
                                     {isAnswerCorrect && (
@@ -344,9 +342,7 @@ export default function ReadingComprehensionModal({
                       <div className="space-y-6">
                         {shortAnswerQuestions.map((q, index) => (
                           <div key={q.id} className="bg-white rounded-xl p-6 shadow-sm">
-                            <p className="font-medium text-gray-900 mb-4">
-                              Câu hỏi {multipleChoiceQuestions.length + index + 1}: {q.question}
-                            </p>
+                            <p className="font-medium text-gray-900 mb-4">{q.question}</p>
                             <div className="border-2 border-green-400 rounded-xl p-4 min-h-[120px]">
                               <textarea
                                 value={answers[q.id] || ''}
