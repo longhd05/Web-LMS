@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
 import FullscreenModalShell from '../../components/thu-vien-xanh/FullscreenModalShell'
 import api from '../../api/axios'
+import { renderSimpleMarkdown } from '../../utils/simpleMarkdown'
 
 const bachTuocImage = new URL('../../img/1x/bach-tuoc.png', import.meta.url).href
 
@@ -430,7 +431,7 @@ export default function AssignmentDetail() {
     <div className="space-y-5 pr-5">
       <section>
         <p className="font-bold text-blue-900">Đề bài:</p>
-        <div className="mt-2 whitespace-pre-wrap text-slate-700 leading-relaxed font-semibold">{integrationPrompt}</div>
+        <div className="mt-2 text-slate-700 leading-relaxed font-semibold">{renderSimpleMarkdown(integrationPrompt)}</div>
       </section>
 
       <section>
@@ -514,4 +515,3 @@ export default function AssignmentDetail() {
     />
   )
 }
-
