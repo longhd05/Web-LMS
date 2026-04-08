@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/student/Common/LoadingSpinner'
 import FullscreenModalShell from '../../components/thu-vien-xanh/FullscreenModalShell'
 import api from '../../api/axios'
+import { renderSimpleMarkdown } from '../../utils/simpleMarkdown'
 
 const bachTuocImage = new URL('../../img/1x/bach-tuoc.png', import.meta.url).href
 
@@ -53,6 +54,13 @@ const hasAnsweredQuestion = (value: unknown): boolean => {
   if (typeof value === 'string') return value.trim().length > 0
   if (typeof value === 'number') return Number.isFinite(value)
   return false
+}
+
+const QUESTION_PREFIX_REGEX = /^\s*câu\s*\d+\s*[:.)-]\s*/i
+
+function formatQuestionLabel(questionText: string, index: number): string {
+  const text = questionText.trim()
+  return QUESTION_PREFIX_REGEX.test(text) ? text : `Câu ${index + 1}: ${text}`
 }
 
 function parseContent(raw: string): ParsedContent {
@@ -314,7 +322,7 @@ export default function AssignmentDetail() {
       ) : (
         <>
           <div className="mt-3 whitespace-pre-wrap text-slate-700 leading-relaxed">
-            {content.text}
+            {renderSimpleMarkdown(content.text)}
           </div>
           <div className="mt-5 h-48 rounded-2xl border border-dashed border-cyan-300 bg-[#1f3f8f]/80 flex items-center justify-center text-white overflow-hidden">
             {content.imageUrl ? (
@@ -344,7 +352,7 @@ export default function AssignmentDetail() {
         content.questions.map((question, idx) => (
           <article key={question.id} className="rounded-2xl bg-white p-4 border border-cyan-200">
             <p className="font-semibold text-slate-800 text-lg">
-              Câu {idx + 1}: {question.text}
+              {formatQuestionLabel(question.text, idx)}
               {question.maxMark && (
                 <span className="ml-2 text-sm font-normal text-slate-500">({question.maxMark} điểm)</span>
               )}
@@ -430,7 +438,9 @@ export default function AssignmentDetail() {
     <div className="space-y-5 pr-5">
       <section>
         <p className="font-bold text-blue-900">Đề bài:</p>
-        <div className="mt-2 whitespace-pre-wrap text-slate-700 leading-relaxed font-semibold">{integrationPrompt}</div>
+        <div className="mt-2 text-slate-700 leading-relaxed font-semibold">
+          {renderSimpleMarkdown(integrationPrompt)}
+        </div>
       </section>
 
       <section>

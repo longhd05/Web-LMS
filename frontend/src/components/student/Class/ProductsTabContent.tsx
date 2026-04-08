@@ -47,6 +47,13 @@ interface ParsedLibraryContent {
   questions: ParsedQuestion[]
 }
 
+const QUESTION_PREFIX_REGEX = /^\s*câu\s*\d+\s*[:.)-]\s*/i
+
+function formatQuestionLabel(questionText: string, index: number): string {
+  const text = questionText.trim()
+  return QUESTION_PREFIX_REGEX.test(text) ? text : `Câu ${index + 1}: ${text}`
+}
+
 function isReviewedStatus(status: StudentSubmissionItem['status']): boolean {
   return status === 'APPROVED' || status === 'REJECTED'
 }
@@ -286,7 +293,7 @@ export default function ProductsTabContent({ submissions }: ProductsTabContentPr
                           return (
                             <div key={`${question.id}-${idx}`}>
                               <p className="font-bold">
-                                Câu {idx + 1}: {question.text} {question.options?.length ? '(câu trắc nghiệm)' : '(câu tự luận ngắn)'}
+                                {formatQuestionLabel(question.text, idx)} {question.options?.length ? '(câu trắc nghiệm)' : '(câu tự luận ngắn)'}
                               </p>
                               <p className="pl-8 italic">{'=> '}Đáp án của học sinh ({answerText})</p>
                             </div>

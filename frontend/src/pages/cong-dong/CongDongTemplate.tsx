@@ -48,6 +48,13 @@ interface CommunityPostData {
     submission: CommunityPostSubmission
 }
 
+const QUESTION_PREFIX_REGEX = /^\s*câu\s*\d+\s*[:.)-]\s*/i
+
+function formatQuestionLabel(questionText: string, index: number): string {
+    const text = questionText.trim()
+    return QUESTION_PREFIX_REGEX.test(text) ? text : `Câu ${index + 1}: ${text}`
+}
+
 export interface CongDongTemplateProps {
     title: string
     subtitle: ReactNode
@@ -900,7 +907,7 @@ export default function CongDongTemplate({
                                                             questions.map((q, idx) => (
                                                                 <div key={idx} className="text-base font-semibold leading-relaxed sm:text-lg">
                                                                     <p className="font-bold">
-                                                                        Câu {idx + 1}: {q.text} {q.options?.length ? '(câu trắc nghiệm)' : '(câu tự luận ngắn)'}
+                                                                        {formatQuestionLabel(q.text, idx)} {q.options?.length ? '(câu trắc nghiệm)' : '(câu tự luận ngắn)'}
                                                                     </p>
                                                                     <p className="pl-4 sm:pl-8">
                                                                         {'=> '}Đáp án của học sinh
