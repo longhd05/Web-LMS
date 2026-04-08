@@ -47,20 +47,6 @@ interface ClassDetail {
   assignments: Assignment[]
 }
 
-const MOCK_STUDENTS_COUNT = 10
-const ENABLE_MOCK_STUDENTS = true
-
-function buildMockStudents(count: number) {
-  return Array.from({ length: count }).map((_, index) => {
-    const no = String(index + 1).padStart(2, '0')
-    return {
-      id: `mock-student-${no}`,
-      name: `Học sinh ${no}`,
-      email: `hocsinh${no}@example.com`,
-    }
-  })
-}
-
 type MainTab = 'assignments' | 'students' | 'criteria' | 'pending' | 'community'
 type TaskType = 'READING' | 'INTEGRATION'
 type IconButtonItem = { key: MainTab; label: string; icon: ReactNode }
@@ -203,11 +189,7 @@ export default function TeacherClassDetail() {
       </div>
     )
   }
-// const students = cls.memberships.map((m) => m.student)
-  const students =
-    ENABLE_MOCK_STUDENTS && cls.memberships.length === 0
-      ? buildMockStudents(MOCK_STUDENTS_COUNT)
-      : cls.memberships.map((m) => m.student)
+  const students = cls.memberships.map((m) => m.student)
   const parsedClass = parseClassAndSchool(cls.name)
   const classLabel = parsedClass?.className ?? cls.name
   const schoolLabel = parsedClass?.schoolName ?? 'Chưa có'
@@ -470,33 +452,33 @@ export default function TeacherClassDetail() {
                   </thead>
                   <tbody>
                   {Array.from({ length: Math.max(10, students.length) }).map((_, rowIdx) => {
-                      const student = students[rowIdx]
-                      const assignmentSlots = cls.assignments.slice(0, 10)
-                      const isLastRow = rowIdx === Math.max(10, students.length) - 1
-                      return (
-                        <tr key={rowIdx} className="text-sm font-semibold">
-                          <td className={`${isLastRow ? 'rounded-bl-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>{rowIdx + 1}</td>
-                          <td className="border border-[#7ea2e0] px-3 py-2 text-left">{student?.name ?? ''}</td>
-                          {Array.from({ length: 10 }).map((__, colIdx) => {
-                            const assignment = assignmentSlots[colIdx]
-                            const status = student && assignment ? getStudentStatus(student.id, assignment.id) : 'NONE'
-                            return (
-                              <td key={colIdx} className={`${isLastRow && colIdx === 9 ? 'rounded-br-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>
-                                {student && assignment && status === 'PASSED' && (
-                                  <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#7bd85e] text-[11px] font-black leading-none text-white">✓</span>
-                                )}
-                                {student && assignment && status === 'FAILED' && (
-                                  <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#ef4444] text-[11px] font-black leading-none text-white">✕</span>
-                                )}
-                                {student && assignment && status === 'PENDING' && (
-                                  <span className="mx-auto inline-block h-3.5 w-3.5 rounded-full border-2 border-[#e6d335] bg-[#fff9cf]" />
-                                )}
-                              </td>
-                            )
-                          })}
-                        </tr>
-                      )
-                    })}
+                    const student = students[rowIdx]
+                    const assignmentSlots = cls.assignments.slice(0, 10)
+                    const isLastRow = rowIdx === Math.max(10, students.length) - 1
+                    return (
+                      <tr key={student?.id ?? `empty-row-${rowIdx}`} className="text-sm font-semibold">
+                        <td className={`${isLastRow ? 'rounded-bl-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>{rowIdx + 1}</td>
+                        <td className="border border-[#7ea2e0] px-3 py-2 text-left">{student?.name ?? ''}</td>
+                        {Array.from({ length: 10 }).map((__, colIdx) => {
+                          const assignment = assignmentSlots[colIdx]
+                          const status = student && assignment ? getStudentStatus(student.id, assignment.id) : 'NONE'
+                          return (
+                            <td key={colIdx} className={`${isLastRow && colIdx === 9 ? 'rounded-br-[20px] ' : ''}border border-[#7ea2e0] px-2 py-2`}>
+                              {student && assignment && status === 'PASSED' && (
+                                <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#7bd85e] text-[11px] font-black leading-none text-white">✓</span>
+                              )}
+                              {student && assignment && status === 'FAILED' && (
+                                <span className="mx-auto inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#ef4444] text-[11px] font-black leading-none text-white">✕</span>
+                              )}
+                              {student && assignment && status === 'PENDING' && (
+                                <span className="mx-auto inline-block h-3.5 w-3.5 rounded-full border-2 border-[#e6d335] bg-[#fff9cf]" />
+                              )}
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    )
+                  })}
                   </tbody>
                 </table>
               </div>
