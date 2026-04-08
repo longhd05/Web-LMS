@@ -1,7 +1,7 @@
 import { type ThuVienXanhCategory, type ThuVienXanhTextItem } from '../types/thuVienXanhLibrary'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
-const useMock = !BASE_URL
+const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false'
 
 function normalizeVietnamese(value: string): string {
   return value
@@ -144,7 +144,7 @@ export const fetchThuVienXanhCategories = async (query?: string): Promise<ThuVie
     return mockCategories
   }
 
-  const response = await fetch(`${BASE_URL}/api/thu-vien-xanh/categories${query ? `?q=${encodeURIComponent(query)}` : ''}`)
+  const response = await fetch(`${BASE_URL}/thu-vien-xanh/categories${query ? `?q=${encodeURIComponent(query)}` : ''}`)
   if (!response.ok) {
     throw new Error('Không thể tải danh mục thư viện xanh')
   }
@@ -171,7 +171,7 @@ export const fetchThuVienXanhTextsByCategory = async (
   const queryString = search.toString()
 
   const response = await fetch(
-    `${BASE_URL}/api/thu-vien-xanh/categories/${categoryId}/texts${queryString ? `?${queryString}` : ''}`,
+    `${BASE_URL}/thu-vien-xanh/categories/${categoryId}/texts${queryString ? `?${queryString}` : ''}`,
   )
   if (!response.ok) {
     throw new Error('Không thể tải danh sách văn bản thư viện xanh')

@@ -31,8 +31,8 @@ export default function ReadingComprehensionModal({
   // Log API endpoint
   useEffect(() => {
     if (isOpen && textId) {
-      const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
-      const apiEndpoint = `${BASE_URL}/api/texts/${textId}`
+      const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+      const apiEndpoint = `${BASE_URL}/texts/${textId}`
       console.log('📍 [ĐỌC HIỂU] API Endpoint:', apiEndpoint)
       console.log('📚 [ĐỌC HIỂU] Text ID:', textId)
     }

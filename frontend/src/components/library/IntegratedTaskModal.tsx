@@ -35,8 +35,8 @@ export default function IntegratedTaskModal({
   // Log API endpoint khi mở modal
   useEffect(() => {
     if (isOpen && textId) {
-      const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
-      const apiEndpoint = `${BASE_URL}/api/texts/${textId}/integrated-task`
+      const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
+      const apiEndpoint = `${BASE_URL}/texts/${textId}/integrated-task`
       console.log('📍 [TÍCH HỢP] API Endpoint:', apiEndpoint)
       console.log('📚 [TÍCH HỢP] Text ID:', textId)
     }

@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { GraduationCap, UserCircle2 } from 'lucide-react'
 import TopNavBar from '../components/thu-vien-xanh/TopNavBarNoSearch'
 import { useAuth } from '../contexts/AuthContext'
+import authBackground from '../img/1x/hinh-nen.png'
+import backButtonIcon from '../img/SVG/back-button.svg'
 
 type AuthMode = 'login' | 'register'
 type UserRole = 'STUDENT' | 'TEACHER'
@@ -99,7 +101,10 @@ export default function AuthPortal() {
     }`
 
   return (
-    <div className="min-h-screen bg-[url('/src/img/1x/hinh-nen.png')] bg-cover bg-center relative overflow-hidden">
+    <div
+      className="min-h-screen bg-cover bg-center relative overflow-hidden"
+      style={{ backgroundImage: `url(${authBackground})` }}
+    >
       <div className="absolute right-[-120px] top-[35%] h-[450px] w-[450px] rounded-full bg-[rgba(174,241,225,0.35)] blur-3xl" />
 
       <div className="relative z-10">
@@ -114,7 +119,7 @@ export default function AuthPortal() {
             aria-label="Quay lại"
           >
             <img
-              src="/src/img/SVG/back-button.svg"
+              src={backButtonIcon}
               alt="Back"
               className="h-20 w-20 object-contain scale-125"
             />

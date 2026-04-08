@@ -135,7 +135,7 @@ model Notification {
 model Rubric {
   id        String @id @default(cuid())
   name      String
-  rulesJson String
+  rulesJson String @db.LongText
   threshold Float
   scope     String
 }

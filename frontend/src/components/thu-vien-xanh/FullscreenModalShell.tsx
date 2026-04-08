@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import NotificationBell from '../NotificationBell'
+import backButtonIcon from '../../img/SVG/back-button.svg'
 
 interface FullscreenModalShellProps {
   titleLeft: string
@@ -202,7 +203,7 @@ export default function FullscreenModalShell({
             aria-label="Quay lại"
           >
             <img
-              src="/src/img/SVG/back-button.svg"
+              src={backButtonIcon}
               alt="Back"
               className="w-10 h-10 object-contain"
             />

@@ -1,7 +1,7 @@
 import { IntegratedTask, SubmissionFile } from '../types/integratedTask'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
-const useMock = !BASE_URL
+const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false'
 
 // Mock text content cho tất cả văn bản
 const mockTextContent: Record<string, string> = {
@@ -472,7 +472,7 @@ export const fetchIntegratedTask = async (textId: string): Promise<{
     }
   }
 
-  const response = await fetch(`${BASE_URL}/api/texts/${textId}/integrated-task`)
+  const response = await fetch(`${BASE_URL}/texts/${textId}/integrated-task`)
   
   if (!response.ok) {
     throw new Error('Failed to fetch integrated task')
@@ -508,7 +508,7 @@ export const uploadSubmission = async (
   formData.append('taskId', taskId)
 
   const token = localStorage.getItem('auth_token')
-  const response = await fetch(`${BASE_URL}/api/integrated-tasks/${taskId}/submit`, {
+  const response = await fetch(`${BASE_URL}/integrated-tasks/${taskId}/submit`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -534,7 +534,7 @@ export const fetchMySubmissions = async (taskId: string): Promise<SubmissionFile
   }
 
   const token = localStorage.getItem('auth_token')
-  const response = await fetch(`${BASE_URL}/api/integrated-tasks/${taskId}/my-submissions`, {
+  const response = await fetch(`${BASE_URL}/integrated-tasks/${taskId}/my-submissions`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },

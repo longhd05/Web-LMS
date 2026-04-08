@@ -1,7 +1,7 @@
 import { TextDetail, SubmitAnswerRequest, SubmitAnswerResponse, Question } from '../types/readingComprehension'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
-const useMock = !BASE_URL
+const useMock = import.meta.env.VITE_USE_MOCK_DATA !== 'false'
 
 console.log('🔍 Reading Comprehension API Config:', { BASE_URL, useMock })
 
@@ -725,7 +725,7 @@ export const fetchTextDetail = async (textId: string): Promise<TextDetail> => {
     return resolvedDetail
   }
 
-  const response = await fetch(`${BASE_URL}/api/texts/${textId}`)
+  const response = await fetch(`${BASE_URL}/texts/${textId}`)
   
   if (!response.ok) {
     throw new Error('Failed to fetch text detail')
@@ -763,7 +763,7 @@ export const fetchReadingQuestions = async (textId: string): Promise<Question[]>
     ]
   }
 
-  const response = await fetch(`${BASE_URL}/api/texts/${textId}/reading-questions`)
+  const response = await fetch(`${BASE_URL}/texts/${textId}/reading-questions`)
   
   if (!response.ok) {
     throw new Error('Failed to fetch reading questions')
@@ -797,7 +797,7 @@ export const submitAnswer = async (data: SubmitAnswerRequest): Promise<SubmitAns
     }
   }
 
-  const response = await fetch(`${BASE_URL}/api/texts/${data.textId}/submit-answer`, {
+  const response = await fetch(`${BASE_URL}/texts/${data.textId}/submit-answer`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -861,7 +861,7 @@ export const submitReadingQuiz = async (
     }
   }
 
-  const response = await fetch(`${BASE_URL}/api/texts/${textId}/submit-quiz`, {
+  const response = await fetch(`${BASE_URL}/texts/${textId}/submit-quiz`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
