@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import centerLogo from '../img/SVG/logo.svg'
 
 /**
  * HomePageHeader Component
@@ -129,7 +130,7 @@ export default function HomePageHeader() {
 
             {/* VIỀN SVG */}
             {/* <img
-              src="/src/img/SVG/vien-logo.svg"
+              src="/img/SVG/vien-logo.svg"
               alt="viền logo"
               style={{
                 position: "absolute",
@@ -141,7 +142,7 @@ export default function HomePageHeader() {
 
             {/* LOGO Ở GIỮA */}
             <img
-              src="/src/img/SVG/logo.svg"
+              src={centerLogo}
               alt="logo"
               style={{
                 transform: "scale(1.3)",

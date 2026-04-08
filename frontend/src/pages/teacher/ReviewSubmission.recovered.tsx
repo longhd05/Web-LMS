@@ -195,7 +195,7 @@ export default function ReviewSubmission({ embedded, submissionId: submissionIdP
               <p className="mt-1 text-base sm:text-lg">{'→ '}File mà học sinh tải lên (Word / Hình ảnh / Video)</p>
               {submission.integrationFile && (
                 <a
-                  href={`http://localhost:3000${submission.integrationFile.url}`}
+                  href={submission.integrationFile.url}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-3 inline-flex rounded-xl bg-[#cbeff2] px-4 py-2 text-base font-bold text-[#1f3f8f] sm:text-lg"

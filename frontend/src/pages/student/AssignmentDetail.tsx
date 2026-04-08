@@ -448,7 +448,7 @@ export default function AssignmentDetail() {
           <div className="rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3">
             <p className="font-semibold text-emerald-800">✓ Đã tải lên: {uploadedFileName || 'Tệp đính kèm'}</p>
             <a
-              href={`http://localhost:3000${uploadedFileUrl}`}
+              href={uploadedFileUrl}
               target="_blank"
               rel="noreferrer"
               className="mt-1 inline-block text-sm font-semibold text-blue-700 hover:underline"
