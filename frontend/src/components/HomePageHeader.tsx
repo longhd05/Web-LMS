@@ -105,7 +105,10 @@ export default function HomePageHeader() {
             }}
           />
           {/* LEFT SECTION - Site Title */}
-          <div className="flex-1 relative z-10">
+          <div 
+            className="flex-1 relative z-10"
+            onClick={() => navigate("/thu-vien-xanh")}  
+          >
             <h1 
               className="text-white uppercase text-l sm:text-sm md:text-base whitespace-nowrap"
               style={{ 
