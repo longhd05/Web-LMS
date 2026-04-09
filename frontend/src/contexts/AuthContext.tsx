@@ -37,6 +37,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const normalizeUser = useCallback((userData: User) => ({
+    ...userData,
+    avatarUrl: normalizeAvatarUrl(userData.avatarUrl),
+  }), [])
+
+  const fetchCurrentUser = useCallback(async () => {
+    const res = await api.get('/auth/me')
+    return normalizeUser(res.data.data)
+  }, [normalizeUser])
+
   useEffect(() => {
     const storedToken = localStorage.getItem('lms_token')
     const storedUser = localStorage.getItem('lms_user')
@@ -50,27 +60,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(storedToken)
         setUser(normalizedUser)
         localStorage.setItem('lms_user', JSON.stringify(normalizedUser))
+
+        fetchCurrentUser()
+          .then((freshUser) => {
+            setUser(freshUser)
+            localStorage.setItem('lms_user', JSON.stringify(freshUser))
+          })
+          .catch(() => {
+            // Keep the cached user if the profile lookup fails.
+          })
       } catch {
         localStorage.removeItem('lms_token')
         localStorage.removeItem('lms_user')
       }
     }
     setLoading(false)
-  }, [])
+  }, [fetchCurrentUser])
 
   const login = useCallback(async (email: string, password: string, role: 'STUDENT' | 'TEACHER') => {
     const res = await api.post('/auth/login', { email, password, role })
     const { accessToken, user: userData } = res.data.data
-    const normalizedUser = {
-      ...userData,
-      avatarUrl: normalizeAvatarUrl(userData.avatarUrl),
-    }
+    const normalizedUser = normalizeUser(userData)
     localStorage.setItem('lms_token', accessToken)
     localStorage.setItem('lms_user', JSON.stringify(normalizedUser))
     setToken(accessToken)
     setUser(normalizedUser)
-    return normalizedUser as User
-  }, [])
+
+    try {
+      const freshUser = await fetchCurrentUser()
+      setUser(freshUser)
+      localStorage.setItem('lms_user', JSON.stringify(freshUser))
+      return freshUser as User
+    } catch {
+      return normalizedUser as User
+    }
+  }, [fetchCurrentUser, normalizeUser])
 
   const register = useCallback(async (
     name: string,
