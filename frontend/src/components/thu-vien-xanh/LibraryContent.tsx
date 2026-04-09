@@ -1,8 +1,12 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { type LibraryCategory, type LibraryItem, type ThuVienXanhMode } from '../../types/thuVienXanh'
 
 type ThuVienXanhSection = 'hoc-lieu' | 'van-ban-va-nhiem-vu'
-type HocLieuDocKey = 'lqh-hoa-binh' | 'lqh-moi-truong'
+type HocLieuDocKey =
+  | 'lqh-hoa-binh'
+  | 'lqh-moi-truong'
+  | 'khvt-tri-thuc-the-loai'
+  | 'khvt-ky-nang-va-chien-thuat'
 
 interface HocLieuItem {
   id: string
@@ -33,8 +37,8 @@ const hocLieuCategories: HocLieuCategory[] = [
     id: 'khvt-learning',
     title: 'HỌC LIỆU VỀ TRUYỆN KHVT',
     items: [
-      { id: 'khvt-1', title: 'Tri thức thể loại' },
-      { id: 'khvt-2', title: 'Chiến thuật/kĩ thuật đọc hiểu' },
+      { id: 'khvt-1', title: 'Tri thức thể loại', docKey: 'khvt-tri-thuc-the-loai' },
+      { id: 'khvt-2', title: 'Chiến thuật/kĩ thuật đọc hiểu', docKey: 'khvt-ky-nang-va-chien-thuat' },
     ],
   },
   {
@@ -128,9 +132,14 @@ export default function LibraryContent({
                         <button
                           type="button"
                           onClick={() => onOpenHocLieuItem(item)}
-                          className="w-full text-left rounded-xl bg-cyan-50 hover:bg-cyan-100 px-3.5 py-2.5 font-semibold text-slate-800 transition"
+                          className="w-full cursor-pointer rounded-xl bg-cyan-50 px-3.5 py-2.5 text-left font-semibold text-slate-800 transition hover:bg-cyan-100"
                         >
-                          {item.title}
+                          <span className="flex items-center justify-between gap-3">
+                            <span>{item.title}</span>
+                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-cyan-700">
+                              Xem
+                            </span>
+                          </span>
                         </button>
                       ) : (
                         <div className="rounded-xl bg-cyan-50 px-3.5 py-2.5 font-semibold text-slate-800">{item.title}</div>
@@ -240,3 +249,5 @@ export default function LibraryContent({
     </section>
   )
 }
+
+
