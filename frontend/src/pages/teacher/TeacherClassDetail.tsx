@@ -7,6 +7,7 @@ import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
 import suGiaHoaBinhImg from '../../img/1x/home-su-gia-hoa-binh.png'
 import CreateAssignment from './CreateAssignment'
 import ReviewSubmission from './ReviewSubmission'
+import RubricTables from '../../components/shared/RubricTables'
 import assignmentsIcon from "../../img/SVG/hs-bai-tap.svg"
 import studentsIcon from "../../img/SVG/hs-danh-sach.svg"
 import criteriaIcon from "../../img/SVG/hs-bai-cho-duyet.svg"
@@ -534,8 +535,8 @@ export default function TeacherClassDetail() {
             </div>
 
             {activeTab === 'criteria' && (
-              <div className="min-h-[260px] rounded-[20px] bg-[#cbeff2] p-8 text-center text-2xl text-[#1f3f8f]">
-                Tiêu chí {taskType === 'READING' ? 'đọc hiểu' : 'tích hợp'}
+              <div className="space-y-5">
+                <RubricTables taskType={taskType} />
               </div>
             )}
 

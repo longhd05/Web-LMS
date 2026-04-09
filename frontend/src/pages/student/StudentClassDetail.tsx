@@ -8,6 +8,7 @@ import ClassDetailHeader from '../../components/student/Class/ClassDetailHeader'
 import TaskTypeToggle from '../../components/student/Class/TaskTypeToggle'
 import CommunityShortcutGrid from '../../components/student/Class/CommunityShortcutGrid'
 import ProductsTabContent, { StudentSubmissionItem } from '../../components/student/Class/ProductsTabContent'
+import RubricTables from '../../components/shared/RubricTables'
 import api from '../../api/axios'
 import { ClassInfo, Assignment } from '../../types/student'
 import hiepSiXanhImg from '../../img/1x/home-hiep-si-xanh.png'
@@ -143,8 +144,8 @@ export default function ClassDetail() {
         {activeTab === 'rubric' && (
           <div>
             <TaskTypeToggle taskType={taskType} onChange={setTaskType} />
-            <div className="min-h-[260px] rounded-[20px] bg-[#cbeff2] p-8 text-center text-2xl text-[#1f3f8f]">
-              Tiêu chí {taskType === 'READING' ? 'đọc hiểu' : 'tích hợp'}
+            <div className="mt-5">
+              <RubricTables taskType={taskType} />
             </div>
           </div>
         )}
