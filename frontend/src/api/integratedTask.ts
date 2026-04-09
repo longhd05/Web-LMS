@@ -85,7 +85,7 @@ Giải quyết xung đột tốt giúp mối quan hệ trở nên bền chặt h
 
   t_peace_06: `Văn hóa hòa bình là khi mọi người tôn trọng sự khác biệt, giải quyết mâu thuẫn bằng đối thoại thay vì bạo lực. Đó là khi trẻ em được dạy về lòng khoan dung, sự đồng cảm và trách nhiệm với cộng đồng.
 
-Trong một xã hội có văn hóa hòa bình, người ta không chỉ tránh xung đột mà còn chủ động xây dựng môi trường hòa bình: tổ chức các hoạt động gắn kết cộng đồng, lắng nghe và tôn trọng ý kiến ng��ời khác.
+Trong một xã hội có văn hóa hòa bình, người ta không chỉ tránh xung đột mà còn chủ động xây dựng môi trường hòa bình: tổ chức các hoạt động gắn kết cộng đồng, lắng nghe và tôn trọng ý kiến người khác.
 
 Xây dựng văn hóa hòa bình là trách nhiệm của tất cả chúng ta.`,
 
@@ -435,7 +435,7 @@ const mockTextTitles: Record<string, string> = {
   t_rights_01: 'Quyền được sống',
   t_rights_02: 'Bình đẳng',
   t_rights_03: 'Tự do',
-  t_rights_04: 'Nhân quy��n phổ quát',
+  t_rights_04: 'Nhân quyền phổ quát',
 }
 
 export const fetchIntegratedTask = async (textId: string): Promise<{
