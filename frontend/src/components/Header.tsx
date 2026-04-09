@@ -221,7 +221,7 @@ export default function Header() {
                   : 'hidden text-base font-bold text-gray-900 sm:block'
               }
             >
-              Thế Giới Khoa Học Viễn Tưởng
+              Thư viện khoa học viễn tưởng
             </span>
           </Link>
 
