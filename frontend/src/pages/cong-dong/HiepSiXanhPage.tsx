@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../../api/axios'
 import CongDongTemplate, { CommunityCardItem } from './CongDongTemplate'
 import hiepSiXanhImg from '../../img/1x/cong-dong-bg-hiep-si-xanh.svg'
-import hiepSiXanhCanhVideoImg from '../../img/1x/hiep-si-xanh-canh-video.png'
+import hiepSiXanhCanhVideoImg from '../../img/1x/hiep-si-xanh-video.png'
 import congDongHiepSiXanhImg from '../../img/1x/Cong-dong-hiep-si-xanh.png'
 
 const HIEP_SI_XANH_VIDEO_URL = 'https://res.cloudinary.com/dsq2xzxur/video/upload/v1775127372/IMG_4691_qptgt9.mp4'
