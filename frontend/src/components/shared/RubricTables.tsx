@@ -1,5 +1,7 @@
 type TaskType = 'READING' | 'INTEGRATION'
 type LevelScore = 3 | 2 | 1 | 0
+const GROUP_LEADER_MEMBER_COUNT = 6
+const GROUP_LEADER_TABLE_MIN_WIDTH = 1200
 
 const integrationRubric = [
   {
@@ -74,6 +76,15 @@ const readingChecklist = [
   'Có cảm xúc và phản hồi cá nhân sau khi đọc.',
 ]
 
+const groupLeaderEvaluationCriteria = [
+  'Tham gia đầy đủ, đúng giờ, chủ động trong làm việc nhóm. (0-1 điểm)',
+  'Có trách nhiệm với nhiệm vụ được giao. (0-2 điểm)',
+  'Khả năng hợp tác với các thành viên trong nhóm; biết tôn trọng, lắng nghe ý kiến, tích cực trao đổi, hỗ trợ các thành viên khác. (0-2 điểm)',
+  'Mức độ, chất lượng tham gia đóng góp: đưa ra ý tưởng mới, có sáng kiến góp phần nâng cao chất lượng sản phẩm. (0-2 điểm)',
+  'Mức độ hoàn thành nhiệm vụ được giao. (0-2 điểm)',
+  'Có thái độ nghiêm túc, tích cực, tự tin giao tiếp. (0-2 điểm)',
+]
+
 function BulletList({ items }: { items: string[] }) {
   return (
     <ul className="space-y-2 text-left leading-relaxed">
@@ -84,6 +95,82 @@ function BulletList({ items }: { items: string[] }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+function GroupLeaderEvaluationTable() {
+  const memberColumns = Array.from(
+    { length: GROUP_LEADER_MEMBER_COUNT },
+    (_, index) => `Thành viên ${index + 1}`
+  )
+
+  return (
+    <div className="space-y-3 rounded-[10px] border border-[#7ea2e0] bg-white p-4 text-[#111]">
+      <div className="text-lg font-black text-[#1f3f8f]">
+        Phiếu đánh giá làm việc (dành cho nhóm trưởng)
+      </div>
+      <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+        <div>Họ và tên: …………………………………………</div>
+        <div>Nhóm trưởng nhóm: …………………………………………</div>
+      </div>
+      <div className="overflow-x-auto rounded-[10px] border border-[#7ea2e0]">
+        <table
+          className="w-full border-separate border-spacing-0 text-sm"
+          style={{ minWidth: `${GROUP_LEADER_TABLE_MIN_WIDTH}px` }}
+        >
+          <thead>
+            <tr className="text-center font-black text-[#1f3f8f]">
+              <th className="w-[70px] border-r border-b border-[#7ea2e0] bg-[#cbeff2] px-2 py-3">STT</th>
+              <th className="w-[450px] border-r border-b border-[#7ea2e0] bg-[#cbeff2] px-3 py-3">Tiêu chí đánh giá</th>
+              <th colSpan={memberColumns.length} className="border-b border-[#7ea2e0] bg-[#cbeff2] px-3 py-3">
+                Tên các thành viên
+              </th>
+            </tr>
+            <tr className="text-center font-semibold text-[#1f3f8f]">
+              <th className="border-r border-b border-[#7ea2e0] bg-white px-2 py-2" />
+              <th className="border-r border-b border-[#7ea2e0] bg-white px-3 py-2" />
+              {memberColumns.map((column, index) => (
+                <th
+                  key={column}
+                  className={`${index === memberColumns.length - 1 ? '' : 'border-r'} border-b border-[#7ea2e0] bg-white px-3 py-2`}
+                >
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {groupLeaderEvaluationCriteria.map((criterion, index) => (
+              <tr key={criterion} className="align-top">
+                <td className="border-r border-b border-[#7ea2e0] px-2 py-3 text-center font-semibold">{index + 1}</td>
+                <td className="border-r border-b border-[#7ea2e0] px-3 py-3">{criterion}</td>
+                {memberColumns.map((column, columnIndex) => (
+                  <td
+                    key={`${column}-${index}`}
+                    className={`${columnIndex === memberColumns.length - 1 ? '' : 'border-r'} border-b border-[#7ea2e0] px-3 py-3`}
+                  />
+                ))}
+              </tr>
+            ))}
+            <tr className="font-bold">
+              <td
+                colSpan={2}
+                className="border-r border-b border-[#7ea2e0] px-3 py-3 text-right text-[#1f3f8f]"
+              >
+                TỔNG ĐIỂM
+              </td>
+              {memberColumns.map((column, columnIndex) => (
+                <td
+                  key={`total-${column}`}
+                  className={`${columnIndex === memberColumns.length - 1 ? '' : 'border-r'} border-b border-[#7ea2e0] px-3 py-3`}
+                />
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="text-left text-sm italic">Nhóm trưởng</div>
+    </div>
   )
 }
 
@@ -189,7 +276,14 @@ export default function RubricTables({ taskType }: { taskType: TaskType }) {
           'RUBRIC ĐÁNH GIÁ BÀI TẬP DỰ ÁN'
         )}
       </div>
-      {taskType === 'READING' ? <ReadingRubricTable /> : <IntegrationRubricTable />}
+      {taskType === 'READING' ? (
+        <ReadingRubricTable />
+      ) : (
+        <>
+          <GroupLeaderEvaluationTable />
+          <IntegrationRubricTable />
+        </>
+      )}
     </div>
   )
 }
