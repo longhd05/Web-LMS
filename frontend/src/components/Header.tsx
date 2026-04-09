@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { useAuth } from '../contexts/AuthContext'
 import NotificationBell from './NotificationBell'
@@ -9,6 +9,7 @@ import api from '../api/axios'
 export default function Header() {
   const { user, logout, updateUser } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [teacherSearch, setTeacherSearch] = useState('')
 
@@ -29,6 +30,9 @@ export default function Header() {
   const isTeacher = (user?.role ?? '').toUpperCase() === 'TEACHER'
   const isStudent = (user?.role ?? '').toUpperCase() === 'STUDENT'
   const isPortalUser = isTeacher || isStudent
+  const isStudentPage = location.pathname === '/hoc-sinh' || location.pathname.startsWith('/hoc-sinh/')
+  const isTeacherPage = location.pathname === '/giao-vien' || location.pathname.startsWith('/giao-vien/')
+  const showClassButton = !isStudentPage && !isTeacherPage
   const classTargetPath = isStudent ? '/hoc-sinh/trang-chu' : isTeacher ? '/giao-vien' : '/dang-nhap'
 
   const handleLogout = async () => {
@@ -250,16 +254,18 @@ export default function Header() {
           )}
 
           <div className="relative flex items-center gap-2">
-            <Link
-              to={classTargetPath}
-              className={
-                isPortalUser
-                  ? 'rounded-lg border border-white/50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/95 transition-colors hover:bg-white/10'
-                  : 'rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-700 transition-colors hover:bg-gray-100'
-              }
-            >
-              Lớp học
-            </Link>
+            {showClassButton && (
+              <Link
+                to={classTargetPath}
+                className={
+                  isPortalUser
+                    ? 'rounded-lg border border-white/50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/95 transition-colors hover:bg-white/10'
+                    : 'rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-700 transition-colors hover:bg-gray-100'
+                }
+              >
+                Lớp học
+              </Link>
+            )}
             {!user ? (
               <>
                 <Link to="/dang-nhap" className="hidden text-sm font-medium text-gray-700 transition-colors hover:text-green-600 sm:block">Đăng nhập</Link>
@@ -312,13 +318,13 @@ export default function Header() {
           <div className={isPortalUser ? 'mt-2 flex flex-col gap-2 border-t border-white/20 pb-3 pt-3 md:hidden' : 'mt-2 flex flex-col gap-2 border-t border-gray-100 pb-3 pt-3 md:hidden'}>
             <Link to="/thu-vien-xanh" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Thư viện</Link>
             <Link to="/cong-dong/hiep-si-xanh" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Cộng đồng</Link>
-            {isStudent && (
+            {isStudent && showClassButton && (
               <>
                 <Link to="/hoc-sinh/trang-chu" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
                 <Link to="/hoc-sinh/bai-nop" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Bài đã nộp</Link>
               </>
             )}
-            {isTeacher && (
+            {isTeacher && showClassButton && (
               <Link to="/giao-vien/trang-chu" onClick={() => setMenuOpen(false)} className={isPortalUser ? 'px-2 py-1.5 text-white/90' : 'px-2 py-1.5 text-gray-700 hover:text-green-600'}>Lớp học</Link>
             )}
             {!user && (
