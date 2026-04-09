@@ -1,5 +1,7 @@
 type TaskType = 'READING' | 'INTEGRATION'
 type LevelScore = 3 | 2 | 1 | 0
+const GROUP_LEADER_MEMBER_COUNT = 6
+const GROUP_LEADER_TABLE_MIN_WIDTH = 1200
 
 const integrationRubric = [
   {
@@ -97,7 +99,10 @@ function BulletList({ items }: { items: string[] }) {
 }
 
 function GroupLeaderEvaluationTable() {
-  const memberColumns = Array.from({ length: 6 }, (_, index) => `Thành viên ${index + 1}`)
+  const memberColumns = Array.from(
+    { length: GROUP_LEADER_MEMBER_COUNT },
+    (_, index) => `Thành viên ${index + 1}`
+  )
 
   return (
     <div className="space-y-3 rounded-[10px] border border-[#7ea2e0] bg-white p-4 text-[#111]">
@@ -109,7 +114,10 @@ function GroupLeaderEvaluationTable() {
         <div>Nhóm trưởng nhóm: …………………………………………</div>
       </div>
       <div className="overflow-x-auto rounded-[10px] border border-[#7ea2e0]">
-        <table className="min-w-[1200px] w-full border-separate border-spacing-0 text-sm">
+        <table
+          className="w-full border-separate border-spacing-0 text-sm"
+          style={{ minWidth: `${GROUP_LEADER_TABLE_MIN_WIDTH}px` }}
+        >
           <thead>
             <tr className="text-center font-black text-[#1f3f8f]">
               <th className="w-[70px] border-r border-b border-[#7ea2e0] bg-[#cbeff2] px-2 py-3">STT</th>
