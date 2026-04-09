@@ -140,6 +140,7 @@ function GroupLeaderEvaluationTable() {
               {memberColumns.map((column, index) => (
                 <th
                   key={column}
+                  aria-label={`Cột thành viên ${index + 1}`}
                   className={`${index === memberColumns.length - 1 ? '' : 'border-r'} border-b border-[#7ea2e0] bg-white px-3 py-2`}
                 />
               ))}
