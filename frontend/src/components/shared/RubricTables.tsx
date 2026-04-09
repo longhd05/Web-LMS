@@ -34,7 +34,7 @@ const integrationRubric = [
       2: [
         'Trình bày hợp lí, dễ theo dõi.',
         'Có minh họa nhưng chưa thật hấp dẫn.',
-        'Hình thức phù hợp với yêu cầu của bài tập tích hợp ESD từ đọc hiểu truyện khoa học viễn tưởng.',
+        'Hình thức phù hợp với yêu cầu của bài tập dự án tích hợp ESD từ đọc hiểu truyện khoa học viễn tưởng.',
       ],
       1: [
         'Bố cục chưa khoa học, có lỗi nhỏ về kĩ thuật hoặc màu sắc.',
@@ -81,14 +81,14 @@ function IntegrationRubricTable() {
   ] as const
 
   return (
-    <div className="overflow-x-auto rounded-[28px] border border-[#7ea2e0] bg-white shadow-[0_8px_20px_rgba(31,63,143,0.08)]">
-      <table className="min-w-[980px] w-full border-separate border-spacing-0 text-[#1f3f8f]">
+    <div className="overflow-x-auto rounded-[10px] border border-[#222] bg-white">
+      <table className="min-w-[980px] w-full border-separate border-spacing-0 text-[#111]">
         <thead>
           <tr className="text-center text-lg font-black">
-            <th rowSpan={2} className="w-[180px] border-b border-r border-[#7ea2e0] bg-[#cbeff2] px-4 py-4 align-middle">
+            <th rowSpan={2} className="w-[170px] border-b border-r border-[#222] bg-[#e2e2e2] px-4 py-4 align-middle">
               Tiêu chí
             </th>
-            <th colSpan={4} className="border-b border-[#7ea2e0] bg-[#cbeff2] px-4 py-4">
+            <th colSpan={4} className="border-b border-[#222] bg-[#e2e2e2] px-4 py-4">
               Mức độ đạt được
             </th>
           </tr>
@@ -96,7 +96,7 @@ function IntegrationRubricTable() {
             {levelMeta.map((level, index) => (
               <th
                 key={level.score}
-                className={`${index === 3 ? '' : 'border-r'} border-b border-[#7ea2e0] bg-[#cbeff2] px-4 py-4`}
+                className={`${index === 3 ? '' : 'border-r'} border-b border-[#222] bg-[#e2e2e2] px-4 py-4`}
               >
                 <div className="text-2xl leading-none">{level.score}</div>
                 <div className="mt-2 text-base">{level.label}</div>
@@ -107,13 +107,13 @@ function IntegrationRubricTable() {
         <tbody>
           {integrationRubric.map((row) => (
             <tr key={row.title} className="align-top text-[15px] leading-relaxed">
-              <td className="border-r border-b border-[#7ea2e0] px-4 py-4 font-bold">
+              <td className="border-r border-b border-[#222] bg-[#efefef] px-4 py-4 font-bold">
                 {row.title}
               </td>
               {levelMeta.map((level, index) => (
                 <td
                   key={level.score}
-                  className={`${index === 3 ? '' : 'border-r'} border-b border-[#7ea2e0] px-4 py-4`}
+                  className={`${index === 3 ? '' : 'border-r'} border-b border-[#222] bg-[#efefef] px-4 py-4`}
                 >
                   <BulletList items={row.levels[level.score as LevelScore]} />
                 </td>
@@ -165,7 +165,14 @@ export default function RubricTables({ taskType }: { taskType: TaskType }) {
   return (
     <div className="space-y-4">
       <div className="rounded-[24px] border border-[#7ea2e0] bg-[#f7fbff] px-4 py-3 text-center text-xl font-black uppercase text-[#1f3f8f] shadow-[0_4px_12px_rgba(31,63,143,0.06)]">
-        {taskType === 'READING' ? 'Tiêu chí đọc hiểu' : 'Tiêu chí tích hợp'}
+        {taskType === 'READING' ? (
+          <>
+            <div>BẢNG KIỂM TỰ KIỂM TRA NHIỆM VỤ THỰC HÀNH ĐỌC HIỂU</div>
+            <div>VĂN BẢN TRUYỆN KHOA HỌC VIỄN TƯỞNG</div>
+          </>
+        ) : (
+          'RUBRIC ĐÁNH GIÁ BÀI TẬP DỰ ÁN'
+        )}
       </div>
       {taskType === 'READING' ? <ReadingRubricTable /> : <IntegrationRubricTable />}
     </div>
