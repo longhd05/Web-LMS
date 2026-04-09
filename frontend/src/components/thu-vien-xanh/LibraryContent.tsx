@@ -20,7 +20,6 @@ interface LibraryContentProps {
   categories: LibraryCategory[]
   mode: ThuVienXanhMode
   section: ThuVienXanhSection
-  isLoggedIn?: boolean
   onSectionChange: (section: ThuVienXanhSection) => void
   onModeChange: (mode: ThuVienXanhMode) => void
   onOpenItem: (item: LibraryItem) => void
@@ -52,7 +51,6 @@ export default function LibraryContent({
   categories,
   mode,
   section,
-  isLoggedIn = true,
   onSectionChange,
   onModeChange,
   onOpenItem,
@@ -166,17 +164,10 @@ export default function LibraryContent({
                   'border-t border-cyan-200 px-6 py-2 text-lg font-bold transition flex items-center gap-1.5 justify-center',
                   mode === 'tich-hop'
                     ? 'bg-slate-100 text-blue-800'
-                    : isLoggedIn
-                      ? 'text-slate-700 hover:bg-slate-50'
-                      : 'text-slate-400',
+                    : 'text-slate-700 hover:bg-slate-50',
                 ].join(' ')}
               >
                 Tích hợp
-                {!isLoggedIn && (
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17 10V7A5 5 0 0 0 7 7v3H5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2Zm-5 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm3-7H9V7a3 3 0 0 1 6 0v3Z" />
-                  </svg>
-                )}
               </button>
             </div>
           </div>

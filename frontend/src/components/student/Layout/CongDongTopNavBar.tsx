@@ -10,6 +10,7 @@ const MAX_SEARCH_LENGTH = 120
 export default function CongDongTopNavBar() {
   const [search, setSearch] = useState('')
   const { user } = useAuth()
+  const classTargetPath = user?.role === 'TEACHER' ? '/giao-vien' : user?.role === 'STUDENT' ? '/hoc-sinh' : '/dang-nhap'
 
   return (
     <header className="relative z-30 bg-[linear-gradient(180deg,#153177_0%,#1f849a_100%)] px-4 py-4 sm:px-6 lg:px-8">
@@ -50,6 +51,12 @@ export default function CongDongTopNavBar() {
         
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
+          <Link
+            to={classTargetPath}
+            className="rounded-lg border border-white/50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/95 transition-colors hover:bg-white/10"
+          >
+            Lớp học
+          </Link>
           <NotificationBell role={user?.role ?? 'STUDENT'} />
           <AvatarDropdownSimple />
         </div>

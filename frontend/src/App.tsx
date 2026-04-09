@@ -65,6 +65,14 @@ export default function App() {
 
             {/* Student routes */}
             <Route
+              path="/hoc-sinh"
+              element={
+                <ProtectedRoute role="STUDENT">
+                  <Navigate to="/hoc-sinh/trang-chu" replace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/hoc-sinh/trang-chu"
               element={
                 <ProtectedRoute role="STUDENT">
