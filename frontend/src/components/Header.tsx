@@ -277,7 +277,7 @@ export default function Header() {
                   <button
                     ref={greetingButtonRef}
                     onClick={() => setGreetingOpen((v) => !v)}
-                    className="hidden text-xs font-semibold uppercase tracking-wide text-white/95 hover:text-white sm:block"
+                    className="hidden text-l font-semibold uppercase tracking-wide text-white/95 hover:text-white sm:block"
                   >
                     Xin chào, {user.name}
                   </button>
