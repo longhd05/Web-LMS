@@ -53,9 +53,20 @@ export default function CongDongTopNavBar() {
         <div className="flex items-center gap-3">
           <Link
             to={classTargetPath}
-            className="rounded-lg border border-white/50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/95 transition-colors hover:bg-white/10"
+            className="hidden md:block text-lg font-semibold text-white rounded-full transition-all duration-300"
+            style={{
+              background: 'transparent',
+              padding: '6px 18px',
+              letterSpacing: '0.03em',
+            }}
+            onMouseEnter={(event) => {
+              event.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'
+            }}
+            onMouseLeave={(event) => {
+              event.currentTarget.style.background = 'transparent'
+            }}
           >
-            Lớp học
+            LỚP HỌC
           </Link>
           <NotificationBell role={user?.role ?? 'STUDENT'} />
           <AvatarDropdownSimple />
