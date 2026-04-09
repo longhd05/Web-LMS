@@ -34,6 +34,7 @@ export default function TopNavBar({
 }: TopNavBarProps) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const classTargetPath = user?.role === 'TEACHER' ? '/giao-vien' : user?.role === 'STUDENT' ? '/hoc-sinh/trang-chu' : '/dang-nhap'
   const [isOpen, setIsOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const [isAvatarOpen, setIsAvatarOpen] = useState(false)
@@ -144,6 +145,12 @@ export default function TopNavBar({
         </form>
 
         <div className="flex items-center gap-3 shrink-0">
+          <Link
+            to={classTargetPath}
+            className="rounded-lg border border-white/50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/95 transition-colors hover:bg-white/10"
+          >
+            Lớp học
+          </Link>
           {user && (
             <span className="hidden sm:block text-sm font-bold uppercase tracking-wide text-white whitespace-nowrap">
               Xin chào, {user.name}

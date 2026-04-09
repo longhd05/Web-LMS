@@ -12,6 +12,7 @@ export default function StudentTopNavBar() {
   const [search, setSearch] = useState('')
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const classTargetPath = user?.role === 'TEACHER' ? '/giao-vien' : user?.role === 'STUDENT' ? '/hoc-sinh/trang-chu' : '/dang-nhap'
 
   const [greetingOpen, setGreetingOpen] = useState(false)
   const greetingRef = useRef<HTMLDivElement | null>(null)
@@ -106,6 +107,12 @@ export default function StudentTopNavBar() {
 
           {/* Right: Greeting + Actions */}
           <div className="relative flex items-center gap-2">
+            <Link
+              to={classTargetPath}
+              className="rounded-lg border border-white/50 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/95 transition-colors hover:bg-white/10"
+            >
+              Lớp học
+            </Link>
             {user && (
               <button
                 ref={greetingButtonRef}
