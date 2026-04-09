@@ -141,7 +141,7 @@ function GroupLeaderEvaluationTable() {
                 <th
                   key={column}
                   scope="col"
-                  aria-label={column}
+                  aria-label={`Cột điểm ${column.toLowerCase()}`}
                   className={`${index === memberColumns.length - 1 ? '' : 'border-r'} border-b border-[#7ea2e0] bg-white px-3 py-2`}
                 />
               ))}
