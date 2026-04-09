@@ -34,7 +34,7 @@ export default function TopNavBar({
 }: TopNavBarProps) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const classTargetPath = user?.role === 'TEACHER' ? '/giao-vien' : user?.role === 'STUDENT' ? '/hoc-sinh/trang-chu' : '/dang-nhap'
+  const classTargetPath = user?.role === 'TEACHER' ? '/giao-vien' : user?.role === 'STUDENT' ? '/hoc-sinh' : '/dang-nhap'
   const [isOpen, setIsOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const [isAvatarOpen, setIsAvatarOpen] = useState(false)

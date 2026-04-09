@@ -16,6 +16,7 @@ import centerLogo from '../img/SVG/logo.svg'
 export default function HomePageHeader() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+  const classTargetPath = user?.role === 'TEACHER' ? '/giao-vien' : user?.role === 'STUDENT' ? '/hoc-sinh' : '/dang-nhap'
   const [menuOpen, setMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -162,10 +163,10 @@ export default function HomePageHeader() {
           <div className="flex-1 flex items-center justify-end gap-3 relative z-10">
             {user ? (
               /* Logged-in: greeting with dropdown */
-              <div className="relative hidden md:block" ref={userMenuRef}>
+              <>
                 <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="text-white text-l font-semibold rounded-full transition-all duration-300"
+                  onClick={() => navigate(classTargetPath)}
+                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
                   style={{
                     background: 'transparent',
                     padding: '6px 18px',
@@ -174,28 +175,56 @@ export default function HomePageHeader() {
                   onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
-                  XIN CHÀO, {(user.name || '').toUpperCase()}
+                  LỚP HỌC
                 </button>
-                {userMenuOpen && (
-                  <div
-                    className="absolute right-0 mt-2 rounded-xl shadow-lg overflow-hidden"
+                <div className="relative hidden md:block" ref={userMenuRef}>
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="text-white text-l font-semibold rounded-full transition-all duration-300"
                     style={{
-                      background: 'linear-gradient(135deg, #1e3c8f, #1e7ea0)',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
-                      minWidth: '160px',
+                      background: 'transparent',
+                      padding: '6px 18px',
+                      letterSpacing: '0.03em'
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-white font-semibold py-3 px-5 text-left hover:bg-white/15 transition-all duration-200"
+                    XIN CHÀO, {(user.name || '').toUpperCase()}
+                  </button>
+                  {userMenuOpen && (
+                    <div
+                      className="absolute right-0 mt-2 rounded-xl shadow-lg overflow-hidden"
+                      style={{
+                        background: 'linear-gradient(135deg, #1e3c8f, #1e7ea0)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        minWidth: '160px',
+                      }}
                     >
-                      Đăng xuất
-                    </button>
-                  </div>
-                )}
-              </div>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-white font-semibold py-3 px-5 text-left hover:bg-white/15 transition-all duration-200"
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
               <>
+                <button
+                  onClick={() => navigate(classTargetPath)}
+                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
+                  style={{
+                    background: 'transparent',
+                    padding: '6px 18px',
+                    letterSpacing: '0.03em'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  LỚP HỌC
+                </button>
                 {/* Login button - hidden on mobile */}
                 <button
                   onClick={() => navigate('/dang-nhap')}
