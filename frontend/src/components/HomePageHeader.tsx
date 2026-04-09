@@ -36,6 +36,22 @@ export default function HomePageHeader() {
     setUserMenuOpen(false)
   }
 
+  const renderClassButton = () => (
+    <button
+      onClick={() => navigate(classTargetPath)}
+      className="hidden md:block text-white text-lg font-semibold rounded-full transition-all duration-300"
+      style={{
+        background: 'transparent',
+        padding: '6px 18px',
+        letterSpacing: '0.03em'
+      }}
+      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+    >
+      LỚP HỌC
+    </button>
+  )
+
   return (
     <header className="sticky top-12 z-50 px-4 md:px-8">
       {/* Main container - horizontally centered with responsive width (80-90%) */}
@@ -111,7 +127,7 @@ export default function HomePageHeader() {
             onClick={() => navigate("/thu-vien-xanh")}  
           >
             <h1 
-              className="text-white uppercase text-l sm:text-sm md:text-base whitespace-nowrap"
+              className="text-white uppercase text-sm md:text-base whitespace-nowrap"
               style={{ 
                 fontWeight: 600, 
                 letterSpacing: '0.05em'
@@ -164,23 +180,11 @@ export default function HomePageHeader() {
             {user ? (
               /* Logged-in: greeting with dropdown */
               <>
-                <button
-                  onClick={() => navigate(classTargetPath)}
-                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
-                  style={{
-                    background: 'transparent',
-                    padding: '6px 18px',
-                    letterSpacing: '0.03em'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  LỚP HỌC
-                </button>
+                {renderClassButton()}
                 <div className="relative hidden md:block" ref={userMenuRef}>
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="text-white text-l font-semibold rounded-full transition-all duration-300"
+                    className="text-white text-lg font-semibold rounded-full transition-all duration-300"
                     style={{
                       background: 'transparent',
                       padding: '6px 18px',
@@ -212,23 +216,11 @@ export default function HomePageHeader() {
               </>
             ) : (
               <>
-                <button
-                  onClick={() => navigate(classTargetPath)}
-                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
-                  style={{
-                    background: 'transparent',
-                    padding: '6px 18px',
-                    letterSpacing: '0.03em'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  LỚP HỌC
-                </button>
+                {renderClassButton()}
                 {/* Login button - hidden on mobile */}
                 <button
                   onClick={() => navigate('/dang-nhap')}
-                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
+                  className="hidden md:block text-white text-lg font-semibold rounded-full transition-all duration-300"
                   style={{
                     background: 'transparent',
                     padding: '6px 18px',
@@ -243,7 +235,7 @@ export default function HomePageHeader() {
                 {/* Register button - hidden on mobile */}
                 <button
                   onClick={() => navigate('/dang-ky')}
-                  className="hidden md:block text-white text-l font-semibold rounded-full transition-all duration-300"
+                  className="hidden md:block text-white text-lg font-semibold rounded-full transition-all duration-300"
                   style={{
                     background: 'transparent',
                     padding: '6px 18px',
