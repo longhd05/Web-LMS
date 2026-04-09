@@ -438,6 +438,20 @@ export default function TeacherClassDetail() {
         {activeTab === 'students' && (
           <div className="overflow-hidden">
             <h2 className="pb-5 text-center text-3xl font-black uppercase text-[#1f3f8f]">Danh sách học sinh</h2>
+            <div className="mb-4 flex flex-wrap items-center gap-3 rounded-[18px] border border-[#7ea2e0] bg-[#f7fbff] px-4 py-3 text-sm font-semibold text-[#1f3f8f]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 shadow-sm">
+                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#7bd85e] text-[11px] font-black leading-none text-white">✓</span>
+                Hoàn thành
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 shadow-sm">
+                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#ef4444] text-[11px] font-black leading-none text-white">✕</span>
+                Chưa hoàn thành
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 shadow-sm">
+                <span className="inline-block h-4 w-4 rounded-full border-2 border-[#e6d335] bg-[#fff9cf]" />
+                Chưa duyệt
+              </span>
+            </div>
             <div className="rounded-[20px] bg-white">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[920px] border-separate border-spacing-0 text-center text-[#1f3f8f]">
