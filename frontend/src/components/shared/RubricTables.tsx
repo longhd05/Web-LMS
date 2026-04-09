@@ -110,8 +110,8 @@ function GroupLeaderEvaluationTable() {
         Phiếu đánh giá làm việc (dành cho nhóm trưởng)
       </div>
       <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
-        <div>Họ và tên: …………………………………………</div>
-        <div>Nhóm trưởng nhóm: …………………………………………</div>
+        <div>Họ và tên: …………………………………………………………………………………………………………</div>
+        <div>Nhóm trưởng nhóm: …………………………………………………………………………………………………………</div>
       </div>
       <div className="overflow-x-auto rounded-[10px] border border-[#7ea2e0]">
         <table
