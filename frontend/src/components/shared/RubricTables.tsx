@@ -120,22 +120,28 @@ function GroupLeaderEvaluationTable() {
         >
           <thead>
             <tr className="text-center font-black text-[#1f3f8f]">
-              <th className="w-[70px] border-r border-b border-[#7ea2e0] bg-[#cbeff2] px-2 py-3">STT</th>
-              <th className="w-[450px] border-r border-b border-[#7ea2e0] bg-[#cbeff2] px-3 py-3">Tiêu chí đánh giá</th>
+              <th
+                rowSpan={2}
+                className="w-[70px] border-r border-b border-[#7ea2e0] bg-[#cbeff2] px-2 py-3 align-middle"
+              >
+                STT
+              </th>
+              <th
+                rowSpan={2}
+                className="w-[450px] border-r border-b border-[#7ea2e0] bg-[#cbeff2] px-3 py-3 align-middle"
+              >
+                Tiêu chí đánh giá
+              </th>
               <th colSpan={memberColumns.length} className="border-b border-[#7ea2e0] bg-[#cbeff2] px-3 py-3">
                 Tên các thành viên
               </th>
             </tr>
             <tr className="text-center font-semibold text-[#1f3f8f]">
-              <th className="border-r border-b border-[#7ea2e0] bg-white px-2 py-2" />
-              <th className="border-r border-b border-[#7ea2e0] bg-white px-3 py-2" />
               {memberColumns.map((column, index) => (
                 <th
                   key={column}
                   className={`${index === memberColumns.length - 1 ? '' : 'border-r'} border-b border-[#7ea2e0] bg-white px-3 py-2`}
-                >
-                  {column}
-                </th>
+                />
               ))}
             </tr>
           </thead>
@@ -155,7 +161,7 @@ function GroupLeaderEvaluationTable() {
             <tr className="font-bold">
               <td
                 colSpan={2}
-                className="border-r border-b border-[#7ea2e0] px-3 py-3 text-right text-[#1f3f8f]"
+                className="border-r border-b border-[#7ea2e0] px-3 py-3 text-center text-[#1f3f8f]"
               >
                 TỔNG ĐIỂM
               </td>
@@ -169,7 +175,7 @@ function GroupLeaderEvaluationTable() {
           </tbody>
         </table>
       </div>
-      <div className="text-left text-sm italic">Nhóm trưởng</div>
+      <div className="w-full text-left text-sm italic">Nhóm trưởng</div>
     </div>
   )
 }
@@ -280,8 +286,8 @@ export default function RubricTables({ taskType }: { taskType: TaskType }) {
         <ReadingRubricTable />
       ) : (
         <>
-          <GroupLeaderEvaluationTable />
           <IntegrationRubricTable />
+          <GroupLeaderEvaluationTable />
         </>
       )}
     </div>
