@@ -83,7 +83,7 @@ export default function StudentTopNavBar() {
             <img src={thuVienLogo} alt="Logo" className="h-10 w-10 object-contain sm:h-12 sm:w-12" />
             <div className="hidden sm:block">
               <p className="text-base font-bold uppercase tracking-wide text-white/95">
-                Thế Giới Khoa Học Viễn Tưởng
+                Thư viện khoa học viễn tưởng
               </p>
             </div>
           </Link>
