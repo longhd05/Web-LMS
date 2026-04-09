@@ -123,6 +123,14 @@ export default function App() {
 
             {/* Teacher routes */}
             <Route
+              path="/giao-vien"
+              element={
+                <ProtectedRoute role="TEACHER">
+                  <Navigate to="/giao-vien/trang-chu" replace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/giao-vien/trang-chu"
               element={
                 <ProtectedRoute role="TEACHER">
