@@ -118,7 +118,7 @@ export default function LibraryContent({
 
                   <div className="relative h-[72px] sm:h-[84px] rounded-[20px] sm:rounded-[22px] bg-gradient-to-b from-[#2265b4] to-[#1a569f] p-1.5">
                     <div className="h-full rounded-[16px] sm:rounded-[18px] border-[3px] border-[#17d7d9] px-3 sm:px-4 flex items-center justify-center">
-                      <h2 className="text-center text-[13px] sm:text-[15px] md:text-base font-black text-white uppercase tracking-[0.03em] leading-tight">
+                      <h2 className="text-center text-[13px] sm:text-[15px] md:text-base font-black text-white uppercase tracking-[0.03em] leading-tight whitespace-pre-line">
                         {category.title}
                       </h2>
                     </div>
@@ -198,7 +198,7 @@ export default function LibraryContent({
 
                   <div className="relative h-[72px] sm:h-[84px] rounded-[20px] sm:rounded-[22px] bg-gradient-to-b from-[#2265b4] to-[#1a569f] p-1.5">
                     <div className="h-full rounded-[16px] sm:rounded-[18px] border-[3px] border-[#17d7d9] px-3 sm:px-4 flex items-center justify-center">
-                      <h2 className="text-center text-[13px] sm:text-[15px] md:text-base font-black text-white uppercase tracking-[0.03em] leading-tight">
+                      <h2 className="text-center text-[13px] sm:text-[15px] md:text-base font-black text-white uppercase tracking-[0.03em] leading-tight whitespace-pre-line">
                         {category.title}
                       </h2>
                     </div>

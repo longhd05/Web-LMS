@@ -132,7 +132,7 @@ const mockCategories: ThuVienXanhCategory[] = [
   },
   {
     id: 'peace',
-    name: 'Giáo dục về hòa bình và giải quyết xung đột',
+    name: 'Giáo dục về hòa bình và \n giải quyết xung đột',
     color: '#73a9ff',
     textCount: mockTextsByCategory.peace?.length || 0,
   },
