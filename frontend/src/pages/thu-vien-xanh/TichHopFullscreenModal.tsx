@@ -143,7 +143,7 @@ export default function TichHopFullscreenModal() {
         onSearchSubmit={() => undefined}
       />
       <FullscreenModalShell
-        titleLeft="VĂN BẢN ĐỌC HIỂU" //{content.passageTitle}
+        titleLeft={content.passageTitle}
         titleRight="TÍCH HỢP GIÁO DỤC PHÁT TRIỂN BỀN VỮNG"
         dirty={dirty}
         onClose={() => navigate('/thu-vien-xanh?mode=tich-hop')}
