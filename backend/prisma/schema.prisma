@@ -133,7 +133,7 @@ model CommunityPostComment {
   createdAt DateTime @default(now())
 
   post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User          @relation(fields: [userId], references: [id])
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([postId, createdAt])
 }
@@ -145,10 +145,10 @@ model CommunityPostLike {
   createdAt DateTime @default(now())
 
   post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User          @relation(fields: [userId], references: [id])
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
-  @@index([userId, createdAt])
+  @@index([userId])
 }
 
 model Notification {

@@ -12,6 +12,14 @@ const commentCreateLimiter = rateLimit({
   message: { error: 'Quá nhiều bình luận. Vui lòng thử lại sau.' },
 });
 
+const likeActionLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Thao tác quá nhanh. Vui lòng thử lại sau.' },
+});
+
 router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { communityKey } = req.params;
   const { page = '1', limit = '10' } = req.query as Record<string, string>;
@@ -25,10 +33,6 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
       where: { communityKey },
       include: {
         publisher: { select: { id: true, name: true, avatarUrl: true } },
-        likes: {
-          where: currentUserId ? { userId: currentUserId } : { userId: '__none__' },
-          select: { id: true },
-        },
         comments: {
           include: { user: { select: { id: true, name: true, role: true } } },
           orderBy: { createdAt: 'desc' },
@@ -49,13 +53,22 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
     prisma.communityPost.count({ where: { communityKey } }),
   ]);
 
-  const serializedPosts = posts.map((post) => {
-    const { likes, ...postWithoutLikes } = post;
-    return {
-      ...postWithoutLikes,
-      likedByMe: likes.length > 0,
-    };
-  });
+  let likedPostIdSet = new Set<string>();
+  if (currentUserId && posts.length > 0) {
+    const likes = await prisma.communityPostLike.findMany({
+      where: {
+        userId: currentUserId,
+        postId: { in: posts.map((post) => post.id) },
+      },
+      select: { postId: true },
+    });
+    likedPostIdSet = new Set(likes.map((like) => like.postId));
+  }
+
+  const serializedPosts = posts.map((post) => ({
+    ...post,
+    likedByMe: likedPostIdSet.has(post.id),
+  }));
 
   res.json({
     data: serializedPosts,
@@ -70,10 +83,6 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
     where: { id: postId, communityKey },
     include: {
       publisher: { select: { id: true, name: true, avatarUrl: true } },
-      likes: {
-        where: req.user?.userId ? { userId: req.user.userId } : { userId: '__none__' },
-        select: { id: true },
-      },
       comments: {
         include: { user: { select: { id: true, name: true, role: true } } },
         orderBy: { createdAt: 'desc' },
@@ -94,49 +103,55 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
     return;
   }
 
-  const { likes, ...postWithoutLikes } = post;
-  res.json({ data: { ...postWithoutLikes, likedByMe: likes.length > 0 } });
+  const currentUserId = req.user?.userId;
+  let likedByMe = false;
+  if (currentUserId) {
+    const like = await prisma.communityPostLike.findUnique({
+      where: { postId_userId: { postId: post.id, userId: currentUserId } },
+    });
+    likedByMe = !!like;
+  }
+
+  res.json({ data: { ...post, likedByMe } });
 });
 
-router.post('/:communityKey/posts/:postId/like', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.post('/:communityKey/posts/:postId/like', likeActionLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId } = req.params;
   const userId = req.user!.userId;
 
-  const post = await prisma.communityPost.findFirst({
+  const postCount = await prisma.communityPost.count({
     where: { id: postId, communityKey },
-    select: { id: true },
   });
 
-  if (!post) {
+  if (postCount === 0) {
     res.status(404).json({ error: 'Không tìm thấy bài viết' });
     return;
   }
 
   await prisma.communityPostLike.upsert({
-    where: { postId_userId: { postId: post.id, userId } },
+    where: { postId_userId: { postId, userId } },
     update: {},
-    create: { postId: post.id, userId },
+    create: { postId, userId },
   });
 
   res.status(200).json({ data: { likedByMe: true } });
 });
 
-router.delete('/:communityKey/posts/:postId/like', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.delete('/:communityKey/posts/:postId/like', likeActionLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId } = req.params;
   const userId = req.user!.userId;
 
-  const post = await prisma.communityPost.findFirst({
+  const postCount = await prisma.communityPost.count({
     where: { id: postId, communityKey },
-    select: { id: true },
   });
 
-  if (!post) {
+  if (postCount === 0) {
     res.status(404).json({ error: 'Không tìm thấy bài viết' });
     return;
   }
 
   await prisma.communityPostLike.deleteMany({
-    where: { postId: post.id, userId },
+    where: { postId, userId },
   });
 
   res.status(200).json({ data: { likedByMe: false } });
