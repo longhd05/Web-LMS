@@ -12,6 +12,14 @@ const commentCreateLimiter = rateLimit({
   message: { error: 'Quá nhiều bình luận. Vui lòng thử lại sau.' },
 });
 
+const likeActionLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Thao tác quá nhanh. Vui lòng thử lại sau.' },
+});
+
 router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { communityKey } = req.params;
   const { page = '1', limit = '10' } = req.query as Record<string, string>;
@@ -45,8 +53,25 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
     prisma.communityPost.count({ where: { communityKey } }),
   ]);
 
+  let likedPostIdSet = new Set<string>();
+  if (currentUserId && posts.length > 0) {
+    const likes = await prisma.communityPostLike.findMany({
+      where: {
+        userId: currentUserId,
+        postId: { in: posts.map((post) => post.id) },
+      },
+      select: { postId: true },
+    });
+    likedPostIdSet = new Set(likes.map((like) => like.postId));
+  }
+
+  const serializedPosts = posts.map((post) => ({
+    ...post,
+    likedByMe: likedPostIdSet.has(post.id),
+  }));
+
   res.json({
-    data: posts,
+    data: serializedPosts,
     meta: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) },
   });
 });
@@ -78,7 +103,58 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
     return;
   }
 
-  res.json({ data: post });
+  const currentUserId = req.user?.userId;
+  let likedByMe = false;
+  if (currentUserId) {
+    const like = await prisma.communityPostLike.findUnique({
+      where: { postId_userId: { postId: post.id, userId: currentUserId } },
+    });
+    likedByMe = !!like;
+  }
+
+  res.json({ data: { ...post, likedByMe } });
+});
+
+router.post('/:communityKey/posts/:postId/like', likeActionLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
+  const { communityKey, postId } = req.params;
+  const userId = req.user!.userId;
+
+  const postCount = await prisma.communityPost.count({
+    where: { id: postId, communityKey },
+  });
+
+  if (postCount === 0) {
+    res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    return;
+  }
+
+  await prisma.communityPostLike.upsert({
+    where: { postId_userId: { postId, userId } },
+    update: {},
+    create: { postId, userId },
+  });
+
+  res.status(200).json({ data: { likedByMe: true } });
+});
+
+router.delete('/:communityKey/posts/:postId/like', likeActionLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
+  const { communityKey, postId } = req.params;
+  const userId = req.user!.userId;
+
+  const postCount = await prisma.communityPost.count({
+    where: { id: postId, communityKey },
+  });
+
+  if (postCount === 0) {
+    res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    return;
+  }
+
+  await prisma.communityPostLike.deleteMany({
+    where: { postId, userId },
+  });
+
+  res.status(200).json({ data: { likedByMe: false } });
 });
 
 router.post('/:communityKey/posts/:postId/comments', commentCreateLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {

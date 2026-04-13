@@ -26,6 +26,7 @@ model User {
   notifications  Notification[]
   communityPosts CommunityPost[]
   communityComments CommunityPostComment[]
+  communityPostLikes CommunityPostLike[]
 }
 
 model Class {
@@ -121,6 +122,7 @@ model CommunityPost {
   submission Submission            @relation(fields: [submissionId], references: [id])
   publisher  User                  @relation(fields: [publishedBy], references: [id])
   comments   CommunityPostComment[]
+  likes      CommunityPostLike[]
 }
 
 model CommunityPostComment {
@@ -131,9 +133,22 @@ model CommunityPostComment {
   createdAt DateTime @default(now())
 
   post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User          @relation(fields: [userId], references: [id])
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([postId, createdAt])
+}
+
+model CommunityPostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@index([userId])
 }
 
 model Notification {
