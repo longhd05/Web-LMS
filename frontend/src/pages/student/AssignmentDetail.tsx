@@ -515,8 +515,8 @@ export default function AssignmentDetail() {
 
   return (
     <FullscreenModalShell
-      titleLeft={assignment.libraryItem.title}
-      titleRight={assignment.type === 'READING' ? 'VĂN BẢN ĐỌC HIỂU' : 'TÍCH HỢP GIÁO DỤC PHÁT TRIỂN BỀN VỮNG'}
+      titleLeft="VĂN BẢN ĐỌC HIỂU"
+      titleRight={assignment.type === 'READING' ? 'NHIỆM VỤ ĐỌC HIỂU' : 'TÍCH HỢP GIÁO DỤC PHÁT TRIỂN BỀN VỮNG'}
       dirty={dirty}
       onClose={() => navigate(`/hoc-sinh/lop-hoc/${classId}`)}
       leftPanel={leftPanel}

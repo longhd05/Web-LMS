@@ -18,11 +18,40 @@ import truyenKhoaHocSVG from '../img/SVG/truyen-khoa-hoc-vien-tuong.svg'
 import giaoDucPhatTrienBenVungSVG from '../img/SVG/giao-duc-phat-trien-ben-vung.svg'
 import congDongTrachNhiemSVG from '../img/SVG/cong-dong-trach-nhiem.svg'
 
+const HOME_USAGE_ALERT_STORAGE_KEY = 'home_usage_alert_meta'
+const HOME_USAGE_ALERT_TTL_MS = 12 * 60 * 60 * 1000
+const HOME_USAGE_ALERT_MESSAGE =
+  'Lưu ý sử dụng: Website được thiết kế theo giao diện màn hình máy tính, nên quý thầy cô, các em HS sử dụng máy tính để có được trải nghiệm tốt nhất. Tùy vào cấu hình, người dùng có thể ấn tổ hợp phím Ctrl+ (tăng kích thước) hoặc Ctrl- (giảm kích thước) theo mong muốn.'
+
 export default function HomePage() {
   const navigate = useNavigate()
   const [showScrollIndicator, setShowScrollIndicator] = useState(true)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [ripples, setRipples] = useState<{x: number, y: number, id: number}[]>([])
+
+  useEffect(() => {
+    const now = Date.now()
+    const raw = window.localStorage.getItem(HOME_USAGE_ALERT_STORAGE_KEY)
+
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as { expiresAt?: number }
+        if (typeof parsed.expiresAt === 'number' && parsed.expiresAt > now) {
+          return
+        }
+      } catch {
+        // Ignore malformed data and overwrite below.
+      }
+      window.localStorage.removeItem(HOME_USAGE_ALERT_STORAGE_KEY)
+    }
+
+    // Mark before showing alert to avoid duplicate popup in React StrictMode remounts.
+    window.localStorage.setItem(
+      HOME_USAGE_ALERT_STORAGE_KEY,
+      JSON.stringify({ shownAt: now, expiresAt: now + HOME_USAGE_ALERT_TTL_MS })
+    )
+    window.alert(HOME_USAGE_ALERT_MESSAGE)
+  }, [])
 
   // Handle scroll effects
   useEffect(() => {

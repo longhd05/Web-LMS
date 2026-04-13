@@ -153,8 +153,8 @@ export default function DocHieuFullscreenModal() {
         onSearchSubmit={() => undefined}
       />
       <FullscreenModalShell
-        titleLeft={content.passageTitle}
-        titleRight="VĂN BẢN ĐỌC HIỂU"
+        titleLeft="VĂN BẢN ĐỌC HIỂU"//{content.passageTitle}
+        titleRight="NHIỆM VỤ ĐỌC HIỂU"
         dirty={dirty}
         onClose={() => navigate('/thu-vien-xanh?mode=doc-hieu')}
         leftPanel={leftPanel}
