@@ -9,7 +9,7 @@ const likeActionLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user?.userId ?? req.ip,
+  keyGenerator: (req) => req.user?.userId ?? req.ip ?? 'unknown',
 });
 
 router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
