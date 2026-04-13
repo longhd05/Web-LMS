@@ -14,6 +14,49 @@ interface DocHieuBodyProps {
   isClassStudent?: boolean
 }
 
+const SHORT_ANSWER_MARKER_REGEX = /(Đáp án gợi ý|Gợi ý)\s*:\s*/gi
+
+type ShortAnswerMeta = {
+  questionText: string
+  suggestedAnswer?: string
+  hint?: string
+}
+
+function parseShortAnswerMeta(rawQuestion: string): ShortAnswerMeta {
+  const matches = Array.from(rawQuestion.matchAll(SHORT_ANSWER_MARKER_REGEX))
+
+  if (matches.length === 0) {
+    return { questionText: rawQuestion.trim() }
+  }
+
+  const firstMarkerIndex = matches[0].index ?? rawQuestion.length
+  const questionText = rawQuestion.slice(0, firstMarkerIndex).trim()
+  let suggestedAnswer: string | undefined
+  let hint: string | undefined
+
+  matches.forEach((match, index) => {
+    const label = match[1].trim().toLowerCase().replace(/\s+/g, ' ')
+    const start = (match.index ?? 0) + match[0].length
+    const end = matches[index + 1]?.index ?? rawQuestion.length
+    const value = rawQuestion.slice(start, end).trim()
+    if (!value) return
+
+    if (label === 'đáp án gợi ý') {
+      suggestedAnswer = value
+      return
+    }
+    if (label === 'gợi ý') {
+      hint = value
+    }
+  })
+
+  return {
+    questionText: questionText || rawQuestion.trim(),
+    suggestedAnswer,
+    hint,
+  }
+}
+
 interface BachTuocAnchor {
   id: string
   label: string
@@ -230,11 +273,20 @@ export default function DocHieuBody({
         <h4 className="font-extrabold text-blue-900">Câu hỏi tự luận</h4>
         {!!content.shortQuestions?.length && (
           <div className="mt-3 space-y-3">
-            {content.shortQuestions.map((question, index) => (
-              <article key={`${index}-${question}`} className="rounded-2xl bg-white p-4 border border-cyan-200">
-                <p className="font-semibold text-slate-800">{question}</p>
-              </article>
-            ))}
+            {content.shortQuestions.map((question, index) => {
+              const shortAnswerMeta = parseShortAnswerMeta(question)
+              return (
+                <article key={`${index}-${question}`} className="rounded-2xl bg-white p-4 border border-cyan-200">
+                  <p className="font-semibold text-slate-800">{shortAnswerMeta.questionText}</p>
+                  {submitted && (shortAnswerMeta.suggestedAnswer || shortAnswerMeta.hint) && (
+                    <div className="mt-2 space-y-1 text-sm font-semibold text-red-600">
+                      {shortAnswerMeta.suggestedAnswer && <p>Đáp án gợi ý: {shortAnswerMeta.suggestedAnswer}</p>}
+                      {shortAnswerMeta.hint && <p>Gợi ý: {shortAnswerMeta.hint}</p>}
+                    </div>
+                  )}
+                </article>
+              )
+            })}
           </div>
         )}
         <textarea
