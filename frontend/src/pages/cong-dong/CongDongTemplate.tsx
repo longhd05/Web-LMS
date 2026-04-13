@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import CongDongTopNavBar from '../../components/student/Layout/CongDongTopNavBar'
 import api from '../../api/axios'
+import { useAuth } from '../../contexts/AuthContext'
 
 export interface LessonItem {
     id: string
@@ -45,7 +46,15 @@ interface CommunityPostData {
     communityKey: string
     publishedAt: string
     publisher: { id: string; name: string; avatarUrl?: string | null }
+    comments: CommunityPostCommentData[]
     submission: CommunityPostSubmission
+}
+
+interface CommunityPostCommentData {
+    id: string
+    content: string
+    createdAt: string
+    user: { id: string; name: string; role: 'STUDENT' | 'TEACHER' | string }
 }
 
 const QUESTION_PREFIX_REGEX = /^\s*câu\s*\d+\s*[:.)-]\s*/i
@@ -98,6 +107,7 @@ export default function CongDongTemplate({
     communityCards,
     communityKey,
 }: CongDongTemplateProps) {
+    const { user } = useAuth()
     const [currentPage, setCurrentPage] = useState(0)
     const [slideDirection, setSlideDirection] = useState(0)
     const [showScroll, setShowScroll] = useState(true)
@@ -108,6 +118,10 @@ export default function CongDongTemplate({
     const [isVideoInView, setIsVideoInView] = useState(false)
     const [apiPosts, setApiPosts] = useState<CommunityPostData[]>([])
     const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
+    const [commentModalPostId, setCommentModalPostId] = useState<string | null>(null)
+    const [commentDraft, setCommentDraft] = useState('')
+    const [commentError, setCommentError] = useState('')
+    const [isSubmittingComment, setIsSubmittingComment] = useState(false)
     const [likedByCardId, setLikedByCardId] = useState<Record<string, boolean>>({})
     const videoContainerRef = useRef<HTMLDivElement | null>(null)
     const nativeVideoRef = useRef<HTMLVideoElement | null>(null)
@@ -335,6 +349,10 @@ export default function CongDongTemplate({
         () => apiPosts.find(p => p.id === selectedPostId) ?? null,
         [apiPosts, selectedPostId]
     )
+    const selectedCommentPost = useMemo(
+        () => apiPosts.find(p => p.id === commentModalPostId) ?? null,
+        [apiPosts, commentModalPostId]
+    )
 
     const handleCardClick = (cardId: string) => {
         if (!communityKey) return
@@ -342,8 +360,63 @@ export default function CongDongTemplate({
     }
 
     const handleCloseModal = () => setSelectedPostId(null)
+    const handleOpenCommentModal = (cardId: string) => {
+        if (!communityKey) return
+        setCommentModalPostId(cardId)
+        setCommentError('')
+    }
+    const handleCloseCommentModal = () => {
+        setCommentModalPostId(null)
+        setCommentDraft('')
+        setCommentError('')
+    }
     const toggleLike = (cardId: string) => {
         setLikedByCardId((prev) => ({ ...prev, [cardId]: !prev[cardId] }))
+    }
+
+    const formatRoleLabel = (role: string) => (role === 'TEACHER' ? 'Giáo viên' : role === 'STUDENT' ? 'Học sinh' : role)
+
+    const formatCommentTime = (isoTime: string) => (
+        new Date(isoTime).toLocaleString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        })
+    )
+
+    const handleSubmitComment = async () => {
+        if (!communityKey || !commentModalPostId) return
+        const content = commentDraft.trim()
+        if (!content) {
+            setCommentError('Vui lòng nhập bình luận.')
+            return
+        }
+        try {
+            setIsSubmittingComment(true)
+            setCommentError('')
+            const res = await api.post(`/community/${communityKey}/posts/${commentModalPostId}/comments`, { content })
+            const createdComment = res.data?.data as CommunityPostCommentData | undefined
+            if (!createdComment) {
+                setCommentError('Không thể gửi bình luận. Vui lòng thử lại.')
+                return
+            }
+            setApiPosts(prev => prev.map(post => (
+                post.id === commentModalPostId
+                    ? { ...post, comments: [createdComment, ...(post.comments || [])] }
+                    : post
+            )))
+            setCommentDraft('')
+        } catch (error: unknown) {
+            const message = (typeof error === 'object' && error && 'response' in error)
+                ? (error as { response?: { data?: { error?: string } } }).response?.data?.error
+                : undefined
+            setCommentError(message || 'Không thể gửi bình luận. Vui lòng thử lại.')
+        } finally {
+            setIsSubmittingComment(false)
+        }
     }
 
     const parseReadingAnswers = (sub: CommunityPostSubmission) => {
@@ -729,7 +802,14 @@ export default function CongDongTemplate({
                                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                                                             </svg>
                                                                         </button>
-                                                                        <button className="p-1">
+                                                                        <button
+                                                                            className="p-1"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation()
+                                                                                handleOpenCommentModal(card.id)
+                                                                            }}
+                                                                            aria-label="Bình luận"
+                                                                        >
                                                                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: primaryColor }}>
                                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                                                             </svg>
@@ -866,6 +946,79 @@ export default function CongDongTemplate({
                 }}></div>
             </div>
 
+
+            {/* Comment Modal */}
+            {commentModalPostId && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    onClick={handleCloseCommentModal}
+                >
+                    <div
+                        className="relative max-h-[85vh] w-full max-w-[720px] overflow-y-auto rounded-[28px] mx-4 bg-white p-6 sm:p-8"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="text-2xl font-black text-[#1f3f8f] sm:text-3xl">Bình luận</h2>
+                            <button
+                                onClick={handleCloseCommentModal}
+                                className="text-3xl font-bold text-[#1f3f8f] hover:opacity-70 ml-4 leading-none"
+                                aria-label="Đóng bình luận"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {(selectedCommentPost?.comments ?? []).length > 0 ? (
+                                (selectedCommentPost?.comments ?? []).map((comment) => (
+                                    <div key={comment.id} className="rounded-2xl border border-[#d8e9ff] bg-[#f8fbff] p-4">
+                                        <p className="text-base font-bold text-[#1f3f8f]">
+                                            [{comment.user.name}] - [{formatRoleLabel(comment.user.role)}]
+                                        </p>
+                                        <p className="mt-1 text-sm text-[#4b5f9e]">[{formatCommentTime(comment.createdAt)}]</p>
+                                        <p className="mt-2 whitespace-pre-wrap text-base text-[#1f3f8f]">[{comment.content}]</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="rounded-2xl border border-dashed border-[#d8e9ff] bg-[#f8fbff] p-4 text-[#4b5f9e]">
+                                    Chưa có bình luận nào.
+                                </p>
+                            )}
+                        </div>
+
+                        <div className="mt-6">
+                            {user ? (
+                                <>
+                                    <textarea
+                                        className="w-full min-h-[110px] rounded-2xl border border-[#c8dcff] p-3 text-[#1f3f8f] focus:outline-none focus:ring-2 focus:ring-[#6ea8ff]"
+                                        placeholder="Nhập bình luận của bạn..."
+                                        value={commentDraft}
+                                        onChange={(e) => setCommentDraft(e.target.value)}
+                                        maxLength={5000}
+                                    />
+                                    {commentError && (
+                                        <p className="mt-2 text-sm font-medium text-red-600">{commentError}</p>
+                                    )}
+                                    <div className="mt-3 flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={handleSubmitComment}
+                                            disabled={isSubmittingComment}
+                                            className="rounded-xl bg-[#1f3f8f] px-5 py-2 font-bold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            {isSubmittingComment ? 'Đang gửi...' : 'Gửi bình luận'}
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="rounded-xl bg-[#fff8dd] px-4 py-3 text-[#7a6300]">
+                                    Vui lòng đăng nhập để bình luận.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Submission View Modal */}
             {selectedPostId && (
