@@ -977,7 +977,7 @@ export default function CongDongTemplate({
                                             [{comment.user.name}] - [{formatRoleLabel(comment.user.role)}]
                                         </p>
                                         <p className="mt-1 text-sm text-[#4b5f9e]">[{formatCommentTime(comment.createdAt)}]</p>
-                                        <p className="mt-2 whitespace-pre-wrap text-base text-[#1f3f8f]">[{comment.content}]</p>
+                                        <p className="mt-2 whitespace-pre-wrap break-words text-base text-[#1f3f8f]">[{comment.content}]</p>
                                     </div>
                                 ))
                             ) : (
