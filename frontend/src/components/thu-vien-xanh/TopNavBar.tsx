@@ -163,7 +163,7 @@ export default function TopNavBar({
             LỚP HỌC
           </Link>
           {user && (
-            <span className="hidden sm:block text-l font-bold uppercase tracking-wide text-white whitespace-nowrap">
+            <span className="hidden sm:block text-lg font-bold uppercase tracking-wide text-white whitespace-nowrap">
               Xin chào, {user.name}
             </span>
           )}
