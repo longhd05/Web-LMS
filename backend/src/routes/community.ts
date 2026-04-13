@@ -37,13 +37,6 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
             integrationFile: true,
           },
         },
-        likes: currentUserId
-          ? {
-              where: { userId: currentUserId },
-              select: { id: true },
-              take: 1,
-            }
-          : false,
       },
       orderBy: { publishedAt: 'desc' },
       skip,
@@ -52,16 +45,8 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
     prisma.communityPost.count({ where: { communityKey } }),
   ]);
 
-  const normalizedPosts = posts.map((post) => {
-    const { likes, ...rest } = post as typeof post & { likes?: Array<{ id: string }> };
-    return {
-      ...rest,
-      likedByMe: Boolean(currentUserId && likes && likes.length > 0),
-    };
-  });
-
   res.json({
-    data: normalizedPosts,
+    data: posts,
     meta: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) },
   });
 });
