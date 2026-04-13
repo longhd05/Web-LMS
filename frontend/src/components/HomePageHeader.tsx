@@ -127,6 +127,7 @@ export default function HomePageHeader() {
             onClick={() => navigate("/thu-vien-xanh")}  
           >
             <h1
+              aria-label="THƯ VIỆN KHOA HỌC VIỄN TƯỞNG"
               className="text-[11px] font-semibold uppercase leading-tight text-white sm:text-sm md:text-base"
               style={{ 
                 letterSpacing: '0.05em'
