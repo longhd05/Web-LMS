@@ -57,6 +57,7 @@ const hasAnsweredQuestion = (value: unknown): boolean => {
 }
 
 const QUESTION_PREFIX_REGEX = /^\s*câu\s*\d+\s*[:.)-]\s*/i
+const SHORT_ANSWER_MARKER_REGEX = /(Đáp án gợi ý|Gợi ý)\s*:\s*/gi
 
 function formatQuestionLabel(questionText: string, index: number): string {
   const text = questionText.trim()
@@ -70,8 +71,7 @@ type ShortAnswerMeta = {
 }
 
 function parseShortAnswerMeta(rawQuestion: string): ShortAnswerMeta {
-  const markerRegex = /(Đáp án gợi ý|Gợi ý)\s*:\s*/gi
-  const matches = Array.from(rawQuestion.matchAll(markerRegex))
+  const matches = Array.from(rawQuestion.matchAll(SHORT_ANSWER_MARKER_REGEX))
 
   if (matches.length === 0) {
     return { questionText: rawQuestion.trim() }
@@ -83,7 +83,7 @@ function parseShortAnswerMeta(rawQuestion: string): ShortAnswerMeta {
   let hint: string | undefined
 
   matches.forEach((match, index) => {
-    const label = (match[1] || '').trim().toLowerCase()
+    const label = match[1].trim().toLowerCase()
     const start = (match.index ?? 0) + match[0].length
     const end = matches[index + 1]?.index ?? rawQuestion.length
     const value = rawQuestion.slice(start, end).trim()
