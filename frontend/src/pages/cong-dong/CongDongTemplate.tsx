@@ -19,6 +19,7 @@ export interface CommunityCardItem {
     date: string
     likes?: number
     completed?: boolean
+    likedByMe?: boolean
 }
 
 interface CommunityPostSubmission {
@@ -44,6 +45,7 @@ interface CommunityPostData {
     id: string
     communityKey: string
     publishedAt: string
+    likedByMe?: boolean
     publisher: { id: string; name: string; avatarUrl?: string | null }
     submission: CommunityPostSubmission
 }
@@ -167,6 +169,7 @@ export default function CongDongTemplate({
                 school: post.submission.assignment.libraryItem.title,
                 date: new Date(post.publishedAt).toLocaleDateString('vi-VN'),
                 completed: post.submission.review?.resultStatus === 'PASSED',
+                likedByMe: !!post.likedByMe,
             }))
         }
         return communityCards
@@ -219,6 +222,23 @@ export default function CongDongTemplate({
         }
         fetchPosts()
     }, [communityKey])
+
+    useEffect(() => {
+        if (!displayCards.length) return
+        setLikedByCardId((prev) => {
+            const next = { ...prev }
+            displayCards.forEach((card) => {
+                if (typeof card.likedByMe === 'boolean') {
+                    next[card.id] = card.likedByMe
+                    return
+                }
+                if (!(card.id in next)) {
+                    next[card.id] = false
+                }
+            })
+            return next
+        })
+    }, [displayCards])
 
     const updateWatchScrollProgress = () => {
         const imageContainer = watchImageScrollRef.current
@@ -342,8 +362,24 @@ export default function CongDongTemplate({
     }
 
     const handleCloseModal = () => setSelectedPostId(null)
-    const toggleLike = (cardId: string) => {
-        setLikedByCardId((prev) => ({ ...prev, [cardId]: !prev[cardId] }))
+    const toggleLike = async (cardId: string) => {
+        const isCurrentlyLiked = !!likedByCardId[cardId]
+        const nextLiked = !isCurrentlyLiked
+
+        setLikedByCardId((prev) => ({ ...prev, [cardId]: nextLiked }))
+
+        const hasApiPost = apiPosts.some((post) => post.id === cardId)
+        if (!communityKey || !hasApiPost) return
+
+        try {
+            if (nextLiked) {
+                await api.post(`/community/${communityKey}/posts/${cardId}/like`)
+            } else {
+                await api.delete(`/community/${communityKey}/posts/${cardId}/like`)
+            }
+        } catch {
+            setLikedByCardId((prev) => ({ ...prev, [cardId]: isCurrentlyLiked }))
+        }
     }
 
     const parseReadingAnswers = (sub: CommunityPostSubmission) => {
