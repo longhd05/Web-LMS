@@ -83,17 +83,17 @@ function parseShortAnswerMeta(rawQuestion: string): ShortAnswerMeta {
   let hint: string | undefined
 
   matches.forEach((match, index) => {
-    const label = match[1].trim().toLowerCase()
+    const label = match[1].trim().toLowerCase().replace(/\s+/g, ' ')
     const start = (match.index ?? 0) + match[0].length
     const end = matches[index + 1]?.index ?? rawQuestion.length
     const value = rawQuestion.slice(start, end).trim()
     if (!value) return
 
-    if (label.includes('đáp án gợi ý')) {
+    if (label === 'đáp án gợi ý') {
       suggestedAnswer = value
       return
     }
-    if (label.includes('gợi ý')) {
+    if (label === 'gợi ý') {
       hint = value
     }
   })
