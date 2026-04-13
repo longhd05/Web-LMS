@@ -1,8 +1,16 @@
 import { Router, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { prisma } from '../lib/prisma';
-import { optionalAuth } from '../middleware/auth';
+import { authenticate, optionalAuth } from '../middleware/auth';
 
 const router = Router();
+const commentCreateLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Quá nhiều bình luận. Vui lòng thử lại sau.' },
+});
 
 router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { communityKey } = req.params;
@@ -16,6 +24,10 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
       where: { communityKey },
       include: {
         publisher: { select: { id: true, name: true, avatarUrl: true } },
+        comments: {
+          include: { user: { select: { id: true, name: true, role: true } } },
+          orderBy: { createdAt: 'desc' },
+        },
         submission: {
           include: {
             student: { select: { id: true, name: true, avatarUrl: true } },
@@ -45,6 +57,10 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
     where: { id: postId, communityKey },
     include: {
       publisher: { select: { id: true, name: true, avatarUrl: true } },
+      comments: {
+        include: { user: { select: { id: true, name: true, role: true } } },
+        orderBy: { createdAt: 'desc' },
+      },
       submission: {
         include: {
           student: { select: { id: true, name: true, avatarUrl: true } },
@@ -62,6 +78,43 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
   }
 
   res.json({ data: post });
+});
+
+router.post('/:communityKey/posts/:postId/comments', commentCreateLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
+  const { communityKey, postId } = req.params;
+  const userId = req.user!.userId;
+  const content = typeof req.body?.content === 'string' ? req.body.content.trim() : '';
+
+  if (!content) {
+    res.status(400).json({ error: 'Nội dung bình luận là bắt buộc' });
+    return;
+  }
+
+  if (content.length > 5000) {
+    res.status(400).json({ error: 'Bình luận quá dài' });
+    return;
+  }
+
+  const post = await prisma.communityPost.findFirst({
+    where: { id: postId, communityKey },
+    select: { id: true },
+  });
+
+  if (!post) {
+    res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    return;
+  }
+
+  const comment = await prisma.communityPostComment.create({
+    data: {
+      postId: post.id,
+      userId,
+      content,
+    },
+    include: { user: { select: { id: true, name: true, role: true } } },
+  });
+
+  res.status(201).json({ data: comment });
 });
 
 export default router;
