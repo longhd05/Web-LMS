@@ -57,10 +57,52 @@ const hasAnsweredQuestion = (value: unknown): boolean => {
 }
 
 const QUESTION_PREFIX_REGEX = /^\s*câu\s*\d+\s*[:.)-]\s*/i
+const SHORT_ANSWER_MARKER_REGEX = /(Đáp án gợi ý|Gợi ý)\s*:\s*/gi
 
 function formatQuestionLabel(questionText: string, index: number): string {
   const text = questionText.trim()
   return QUESTION_PREFIX_REGEX.test(text) ? text : `Câu ${index + 1}: ${text}`
+}
+
+type ShortAnswerMeta = {
+  questionText: string
+  suggestedAnswer?: string
+  hint?: string
+}
+
+function parseShortAnswerMeta(rawQuestion: string): ShortAnswerMeta {
+  const matches = Array.from(rawQuestion.matchAll(SHORT_ANSWER_MARKER_REGEX))
+
+  if (matches.length === 0) {
+    return { questionText: rawQuestion.trim() }
+  }
+
+  const firstMarkerIndex = matches[0].index ?? rawQuestion.length
+  const questionText = rawQuestion.slice(0, firstMarkerIndex).trim()
+  let suggestedAnswer: string | undefined
+  let hint: string | undefined
+
+  matches.forEach((match, index) => {
+    const label = match[1].trim().toLowerCase().replace(/\s+/g, ' ')
+    const start = (match.index ?? 0) + match[0].length
+    const end = matches[index + 1]?.index ?? rawQuestion.length
+    const value = rawQuestion.slice(start, end).trim()
+    if (!value) return
+
+    if (label === 'đáp án gợi ý') {
+      suggestedAnswer = value
+      return
+    }
+    if (label === 'gợi ý') {
+      hint = value
+    }
+  })
+
+  return {
+    questionText: questionText || rawQuestion.trim(),
+    suggestedAnswer,
+    hint,
+  }
 }
 
 function parseContent(raw: string): ParsedContent {
@@ -349,15 +391,20 @@ export default function AssignmentDetail() {
           <p className="font-semibold text-slate-800">Bài tập chưa có câu hỏi đọc hiểu.</p>
         </article>
       ) : (
-        content.questions.map((question, idx) => (
-          <article key={question.id} className="rounded-2xl bg-white p-4 border border-cyan-200">
-            <p className="font-semibold text-slate-800 text-lg">
-              {formatQuestionLabel(question.text, idx)}
-              {question.maxMark && (
-                <span className="ml-2 text-sm font-normal text-slate-500">({question.maxMark} điểm)</span>
-              )}
-            </p>
-            {question.options?.length || question.type === 'multiple-choice' ? (
+        content.questions.map((question, idx) => {
+          const isMultipleChoice = Boolean(question.options?.length || question.type === 'multiple-choice')
+          const shortAnswerMeta = isMultipleChoice ? null : parseShortAnswerMeta(question.text)
+          const questionText = shortAnswerMeta?.questionText ?? question.text
+
+          return (
+            <article key={question.id} className="rounded-2xl bg-white p-4 border border-cyan-200">
+              <p className="font-semibold text-slate-800 text-lg">
+                {formatQuestionLabel(questionText, idx)}
+                {question.maxMark && (
+                  <span className="ml-2 text-sm font-normal text-slate-500">({question.maxMark} điểm)</span>
+                )}
+              </p>
+              {isMultipleChoice ? (
               <>
                 <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {(question.options || []).map((option) => {
@@ -396,17 +443,26 @@ export default function AssignmentDetail() {
                 )}
               </>
             ) : (
-              <textarea
-                value={answers[question.id] || ''}
-                onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
-                disabled={!canEdit}
-                rows={4}
-                placeholder="Nhập câu trả lời của bạn..."
-                className="mt-3 h-32 w-full resize-none rounded-xl border border-cyan-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-500"
-              />
+              <>
+                <textarea
+                  value={answers[question.id] || ''}
+                  onChange={(e) => setAnswers((prev) => ({ ...prev, [question.id]: e.target.value }))}
+                  disabled={!canEdit}
+                  rows={4}
+                  placeholder="Nhập câu trả lời của bạn..."
+                  className="mt-3 h-32 w-full resize-none rounded-xl border border-cyan-200 bg-white px-4 py-3 outline-none focus:ring-2 focus:ring-teal-500 disabled:bg-slate-100 disabled:text-slate-500"
+                />
+                {!canEdit && shortAnswerMeta && (shortAnswerMeta.suggestedAnswer || shortAnswerMeta.hint) && (
+                  <div className="mt-2 space-y-1 text-sm font-semibold text-red-600">
+                    {shortAnswerMeta.suggestedAnswer && <p>Đáp án gợi ý: {shortAnswerMeta.suggestedAnswer}</p>}
+                    {shortAnswerMeta.hint && <p>Gợi ý: {shortAnswerMeta.hint}</p>}
+                  </div>
+                )}
+              </>
             )}
-          </article>
-        ))
+            </article>
+          )
+        })
       )}
 
       {isReviewed && (
