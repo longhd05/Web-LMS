@@ -225,10 +225,16 @@ export default function CongDongTemplate({
 
     useEffect(() => {
         if (!displayCards.length) return
-        setLikedByCardId(() => {
-            const next: Record<string, boolean> = {}
+        setLikedByCardId((prev) => {
+            const next = { ...prev }
             displayCards.forEach((card) => {
-                next[card.id] = !!card.likedByMe
+                if (typeof card.likedByMe === 'boolean') {
+                    next[card.id] = card.likedByMe
+                    return
+                }
+                if (!(card.id in next)) {
+                    next[card.id] = false
+                }
             })
             return next
         })

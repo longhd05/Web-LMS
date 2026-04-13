@@ -1,8 +1,16 @@
 import { Router, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { prisma } from '../lib/prisma';
 import { authenticate, optionalAuth } from '../middleware/auth';
 
 const router = Router();
+const likeActionLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.user?.userId ?? req.ip,
+});
 
 router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { communityKey } = req.params;
@@ -80,7 +88,7 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
   res.json({ data: post });
 });
 
-router.post('/:communityKey/posts/:postId/like', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.post('/:communityKey/posts/:postId/like', authenticate, likeActionLimiter, async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId } = req.params;
 
   const post = await prisma.communityPost.findFirst({
@@ -93,24 +101,20 @@ router.post('/:communityKey/posts/:postId/like', authenticate, async (req: Reque
     return;
   }
 
-  await prisma.communityPostLike.upsert({
-    where: {
-      communityPostId_userId: {
+  await prisma.communityPostLike.createMany({
+    data: [
+      {
         communityPostId: postId,
         userId: req.user!.userId,
       },
-    },
-    update: {},
-    create: {
-      communityPostId: postId,
-      userId: req.user!.userId,
-    },
+    ],
+    skipDuplicates: true,
   });
 
-  res.json({ data: { postId, liked: true } });
+  res.json({ data: { postId, liked: false } });
 });
 
-router.delete('/:communityKey/posts/:postId/like', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.delete('/:communityKey/posts/:postId/like', authenticate, likeActionLimiter, async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId } = req.params;
 
   const post = await prisma.communityPost.findFirst({
@@ -130,7 +134,7 @@ router.delete('/:communityKey/posts/:postId/like', authenticate, async (req: Req
     },
   });
 
-  res.json({ data: { postId, liked: false } });
+  res.json({ data: { postId, liked: true } });
 });
 
 export default router;
