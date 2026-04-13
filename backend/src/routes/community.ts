@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { authenticate, optionalAuth } from '../middleware/auth';
 
@@ -9,7 +10,7 @@ const likeActionLimiter = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.user?.userId ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.ip ?? 'unknown',
 });
 
 router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
@@ -88,7 +89,7 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
   res.json({ data: post });
 });
 
-router.post('/:communityKey/posts/:postId/like', authenticate, likeActionLimiter, async (req: Request, res: Response): Promise<void> => {
+router.post('/:communityKey/posts/:postId/like', likeActionLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId } = req.params;
 
   const post = await prisma.communityPost.findFirst({
@@ -101,20 +102,23 @@ router.post('/:communityKey/posts/:postId/like', authenticate, likeActionLimiter
     return;
   }
 
-  await prisma.communityPostLike.createMany({
-    data: [
-      {
+  try {
+    await prisma.communityPostLike.create({
+      data: {
         communityPostId: postId,
         userId: req.user!.userId,
       },
-    ],
-    skipDuplicates: true,
-  });
+    });
+  } catch (error) {
+    if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2002') {
+      throw error;
+    }
+  }
 
-  res.json({ data: { postId, liked: false } });
+  res.json({ data: { postId, liked: true } });
 });
 
-router.delete('/:communityKey/posts/:postId/like', authenticate, likeActionLimiter, async (req: Request, res: Response): Promise<void> => {
+router.delete('/:communityKey/posts/:postId/like', likeActionLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId } = req.params;
 
   const post = await prisma.communityPost.findFirst({
@@ -134,7 +138,7 @@ router.delete('/:communityKey/posts/:postId/like', authenticate, likeActionLimit
     },
   });
 
-  res.json({ data: { postId, liked: true } });
+  res.json({ data: { postId, liked: false } });
 });
 
 export default router;
