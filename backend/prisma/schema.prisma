@@ -25,6 +25,7 @@ model User {
   reviews        Review[]
   notifications  Notification[]
   communityPosts CommunityPost[]
+  communityLikes CommunityPostLike[]
 }
 
 model Class {
@@ -119,6 +120,19 @@ model CommunityPost {
 
   submission Submission @relation(fields: [submissionId], references: [id])
   publisher  User       @relation(fields: [publishedBy], references: [id])
+  likes      CommunityPostLike[]
+}
+
+model CommunityPostLike {
+  id              String   @id @default(cuid())
+  communityPostId String
+  userId          String
+  createdAt       DateTime @default(now())
+
+  communityPost CommunityPost @relation(fields: [communityPostId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
+
+  @@unique([communityPostId, userId])
 }
 
 model Notification {
