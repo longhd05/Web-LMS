@@ -6,6 +6,11 @@ body {
   font-family: 'Segoe UI', 'Noto Sans', Arial, Helvetica, sans-serif;
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;

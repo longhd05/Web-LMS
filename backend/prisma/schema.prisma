@@ -25,7 +25,8 @@ model User {
   reviews        Review[]
   notifications  Notification[]
   communityPosts CommunityPost[]
-  communityLikes CommunityPostLike[]
+  communityComments CommunityPostComment[]
+  communityPostLikes CommunityPostLike[]
 }
 
 model Class {
@@ -118,21 +119,36 @@ model CommunityPost {
   publishedBy  String
   publishedAt  DateTime @default(now())
 
-  submission Submission @relation(fields: [submissionId], references: [id])
-  publisher  User       @relation(fields: [publishedBy], references: [id])
+  submission Submission            @relation(fields: [submissionId], references: [id])
+  publisher  User                  @relation(fields: [publishedBy], references: [id])
+  comments   CommunityPostComment[]
   likes      CommunityPostLike[]
 }
 
+model CommunityPostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String   @db.LongText
+  createdAt DateTime @default(now())
+
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+}
+
 model CommunityPostLike {
-  id              String   @id @default(cuid())
-  communityPostId String
-  userId          String
-  createdAt       DateTime @default(now())
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
 
-  communityPost CommunityPost @relation(fields: [communityPostId], references: [id])
-  user          User          @relation(fields: [userId], references: [id])
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([communityPostId, userId])
+  @@unique([postId, userId])
+  @@index([userId])
 }
 
 model Notification {
