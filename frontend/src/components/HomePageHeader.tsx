@@ -53,13 +53,13 @@ export default function HomePageHeader() {
   )
 
   return (
-    <header className="sticky top-12 z-50 px-4 md:px-8">
+    <header className="sticky top-12 z-50 px-2 sm:px-4 md:px-8">
       {/* Main container - horizontally centered with responsive width (80-90%) */}
       <div className="mx-auto relative" style={{ maxWidth: '90%' }}>
         
         {/* Pill-shaped navigation bar with double border and glow effects */}
         <div
-          className="relative flex items-center justify-between px-8 md:px-16"
+          className="relative flex items-center justify-between px-3 sm:px-6 md:px-16"
           style={{
             height: '70px',
             borderRadius: '999px',
@@ -123,17 +123,17 @@ export default function HomePageHeader() {
           />
           {/* LEFT SECTION - Site Title */}
           <div 
-            className="flex-1 relative z-10"
+            className="relative z-10 min-w-0 flex-1"
             onClick={() => navigate("/thu-vien-xanh")}  
           >
-            <h1 
-              className="text-white uppercase text-sm md:text-base whitespace-nowrap"
+            <h1
+              className="text-[11px] font-semibold uppercase leading-tight text-white sm:text-sm md:text-base"
               style={{ 
-                fontWeight: 600, 
                 letterSpacing: '0.05em'
               }}
             >
-              THƯ VIỆN KHOA HỌC VIỄN TƯỞNG
+              <span className="sm:hidden">THƯ VIỆN KHV</span>
+              <span className="hidden sm:inline">THƯ VIỆN KHOA HỌC VIỄN TƯỞNG</span>
             </h1>
           </div>
 

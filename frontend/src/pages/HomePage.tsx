@@ -105,16 +105,13 @@ export default function HomePage() {
           
           {/* Quote text */}
           <motion.p
-            className="text-2xl leading-relaxed text-[#1e3a8a] max-w-[1000px] mx-auto text-center font-medium"
+            className="mx-auto max-w-[1000px] text-center text-base font-medium leading-relaxed text-[#1e3a8a] sm:text-lg md:text-2xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Bằng cách đọc tác phẩm văn học, chúng ta có thể hóa thân
-            <br />
-            vào nhiều hành trình sống, để rồi thấu cảm những giá trị sống, từ đó biết cách
-            <br />
-            tôn trọng bản thân, người khác và môi trường.
+            Bằng cách đọc tác phẩm văn học, chúng ta có thể hóa thân vào nhiều hành trình sống, để rồi thấu cảm
+            những giá trị sống, từ đó biết cách tôn trọng bản thân, người khác và môi trường.
           </motion.p>
         </div>
         

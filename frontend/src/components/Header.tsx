@@ -217,7 +217,7 @@ export default function Header() {
             <span
               className={
                 isPortalUser
-                  ? 'hidden text-l font-bold uppercase tracking-wide text-white/95 sm:block'
+                  ? 'hidden text-lg font-bold uppercase tracking-wide text-white/95 sm:block'
                   : 'hidden text-base font-bold text-gray-900 sm:block'
               }
             >
@@ -277,7 +277,7 @@ export default function Header() {
                   <button
                     ref={greetingButtonRef}
                     onClick={() => setGreetingOpen((v) => !v)}
-                    className="hidden text-l font-semibold uppercase tracking-wide text-white/95 hover:text-white sm:block"
+                    className="hidden text-lg font-semibold uppercase tracking-wide text-white/95 hover:text-white sm:block"
                   >
                     Xin chào, {user.name}
                   </button>
