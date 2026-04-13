@@ -43,9 +43,7 @@ function parseShortAnswerMeta(rawQuestion: string): ShortAnswerMeta {
 
     if (label === 'đáp án gợi ý') {
       suggestedAnswer = value
-      return
-    }
-    if (label === 'gợi ý') {
+    } else if (label === 'gợi ý') {
       hint = value
     }
   })
