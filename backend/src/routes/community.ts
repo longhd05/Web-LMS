@@ -25,6 +25,10 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
       where: { communityKey },
       include: {
         publisher: { select: { id: true, name: true, avatarUrl: true } },
+        likes: {
+          where: currentUserId ? { userId: currentUserId } : { userId: '__none__' },
+          select: { id: true },
+        },
         comments: {
           include: { user: { select: { id: true, name: true, role: true } } },
           orderBy: { createdAt: 'desc' },
@@ -45,8 +49,16 @@ router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Respo
     prisma.communityPost.count({ where: { communityKey } }),
   ]);
 
+  const serializedPosts = posts.map((post) => {
+    const { likes, ...postWithoutLikes } = post;
+    return {
+      ...postWithoutLikes,
+      likedByMe: likes.length > 0,
+    };
+  });
+
   res.json({
-    data: posts,
+    data: serializedPosts,
     meta: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) },
   });
 });
@@ -58,6 +70,10 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
     where: { id: postId, communityKey },
     include: {
       publisher: { select: { id: true, name: true, avatarUrl: true } },
+      likes: {
+        where: req.user?.userId ? { userId: req.user.userId } : { userId: '__none__' },
+        select: { id: true },
+      },
       comments: {
         include: { user: { select: { id: true, name: true, role: true } } },
         orderBy: { createdAt: 'desc' },
@@ -78,7 +94,52 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
     return;
   }
 
-  res.json({ data: post });
+  const { likes, ...postWithoutLikes } = post;
+  res.json({ data: { ...postWithoutLikes, likedByMe: likes.length > 0 } });
+});
+
+router.post('/:communityKey/posts/:postId/like', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const { communityKey, postId } = req.params;
+  const userId = req.user!.userId;
+
+  const post = await prisma.communityPost.findFirst({
+    where: { id: postId, communityKey },
+    select: { id: true },
+  });
+
+  if (!post) {
+    res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    return;
+  }
+
+  await prisma.communityPostLike.upsert({
+    where: { postId_userId: { postId: post.id, userId } },
+    update: {},
+    create: { postId: post.id, userId },
+  });
+
+  res.status(200).json({ data: { likedByMe: true } });
+});
+
+router.delete('/:communityKey/posts/:postId/like', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const { communityKey, postId } = req.params;
+  const userId = req.user!.userId;
+
+  const post = await prisma.communityPost.findFirst({
+    where: { id: postId, communityKey },
+    select: { id: true },
+  });
+
+  if (!post) {
+    res.status(404).json({ error: 'Không tìm thấy bài viết' });
+    return;
+  }
+
+  await prisma.communityPostLike.deleteMany({
+    where: { postId: post.id, userId },
+  });
+
+  res.status(200).json({ data: { likedByMe: false } });
 });
 
 router.post('/:communityKey/posts/:postId/comments', commentCreateLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
