@@ -353,6 +353,7 @@ export default function CongDongTemplate({
         () => apiPosts.find(p => p.id === commentModalPostId) ?? null,
         [apiPosts, commentModalPostId]
     )
+    const selectedCommentList = selectedCommentPost?.comments ?? []
 
     const handleCardClick = (cardId: string) => {
         if (!communityKey) return
@@ -969,8 +970,8 @@ export default function CongDongTemplate({
                         </div>
 
                         <div className="space-y-4">
-                            {(selectedCommentPost?.comments ?? []).length > 0 ? (
-                                (selectedCommentPost?.comments ?? []).map((comment) => (
+                            {selectedCommentList.length > 0 ? (
+                                selectedCommentList.map((comment) => (
                                     <div key={comment.id} className="rounded-2xl border border-[#d8e9ff] bg-[#f8fbff] p-4">
                                         <p className="text-base font-bold text-[#1f3f8f]">
                                             [{comment.user.name}] - [{formatRoleLabel(comment.user.role)}]

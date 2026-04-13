@@ -1,8 +1,16 @@
 import { Router, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { prisma } from '../lib/prisma';
 import { authenticate, optionalAuth } from '../middleware/auth';
 
 const router = Router();
+const commentCreateLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Quá nhiều bình luận. Vui lòng thử lại sau.' },
+});
 
 router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { communityKey } = req.params;
@@ -72,17 +80,18 @@ router.get('/:communityKey/posts/:postId', optionalAuth, async (req: Request, re
   res.json({ data: post });
 });
 
-router.post('/:communityKey/posts/:postId/comments', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.post('/:communityKey/posts/:postId/comments', commentCreateLimiter, authenticate, async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId } = req.params;
+  const userId = req.user!.userId;
   const content = typeof req.body?.content === 'string' ? req.body.content.trim() : '';
 
   if (!content) {
-    res.status(400).json({ error: 'Comment content is required' });
+    res.status(400).json({ error: 'Nội dung bình luận là bắt buộc' });
     return;
   }
 
   if (content.length > 5000) {
-    res.status(400).json({ error: 'Comment is too long' });
+    res.status(400).json({ error: 'Bình luận quá dài' });
     return;
   }
 
@@ -92,14 +101,14 @@ router.post('/:communityKey/posts/:postId/comments', authenticate, async (req: R
   });
 
   if (!post) {
-    res.status(404).json({ error: 'Post not found' });
+    res.status(404).json({ error: 'Không tìm thấy bài viết' });
     return;
   }
 
   const comment = await prisma.communityPostComment.create({
     data: {
       postId: post.id,
-      userId: req.user!.userId,
+      userId,
       content,
     },
     include: { user: { select: { id: true, name: true, role: true } } },
