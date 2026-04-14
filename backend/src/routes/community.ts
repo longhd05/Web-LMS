@@ -21,6 +21,14 @@ const likeActionLimiter = rateLimit({
   message: { error: 'Thao tác quá nhanh. Vui lòng thử lại sau.' },
 });
 
+const commentDeleteLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Thao tác quá nhanh. Vui lòng thử lại sau.' },
+});
+
 router.get('/:communityKey/posts', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   const { communityKey } = req.params;
   const { page = '1', limit = '10' } = req.query as Record<string, string>;
@@ -195,7 +203,7 @@ router.post('/:communityKey/posts/:postId/comments', commentCreateLimiter, authe
   res.status(201).json({ data: comment });
 });
 
-router.delete('/:communityKey/posts/:postId/comments/:commentId', authenticate, requireRole('TEACHER'), async (req: Request, res: Response): Promise<void> => {
+router.delete('/:communityKey/posts/:postId/comments/:commentId', commentDeleteLimiter, authenticate, requireRole('TEACHER'), async (req: Request, res: Response): Promise<void> => {
   const { communityKey, postId, commentId } = req.params;
 
   const comment = await prisma.communityPostComment.findFirst({

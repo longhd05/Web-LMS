@@ -471,7 +471,7 @@ export default function CongDongTemplate({
                     ? { ...post, comments: post.comments.filter(comment => comment.id !== commentId) }
                     : post
             )))
-            setOpenCommentMenuId((prev) => (prev === commentId ? null : prev))
+            setOpenCommentMenuId(null)
         } catch (error: unknown) {
             const message = (typeof error === 'object' && error && 'response' in error)
                 ? (error as { response?: { data?: { error?: string } } }).response?.data?.error
@@ -481,6 +481,31 @@ export default function CongDongTemplate({
             setDeletingCommentId(null)
         }
     }
+
+    useEffect(() => {
+        if (!openCommentMenuId) return
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setOpenCommentMenuId(null)
+            }
+        }
+
+        const handleMouseDown = (event: MouseEvent) => {
+            const menu = document.getElementById(`comment-menu-${openCommentMenuId}`)
+            const trigger = document.getElementById(`comment-menu-btn-${openCommentMenuId}`)
+            const target = event.target as Node
+            if ((menu && menu.contains(target)) || (trigger && trigger.contains(target))) return
+            setOpenCommentMenuId(null)
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+        document.addEventListener('mousedown', handleMouseDown)
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown)
+            document.removeEventListener('mousedown', handleMouseDown)
+        }
+    }, [openCommentMenuId])
 
     const parseReadingAnswers = (sub: CommunityPostSubmission) => {
         const questions: Array<{ id: string; text: string; options?: string[] }> = (() => {
@@ -1043,14 +1068,18 @@ export default function CongDongTemplate({
                                                 <div className="relative">
                                                     <button
                                                         type="button"
+                                                        id={`comment-menu-btn-${comment.id}`}
                                                         className="rounded-full px-2 py-0.5 text-xl leading-none text-[#1f3f8f] hover:bg-[#e5efff]"
                                                         aria-label="Tùy chọn bình luận"
                                                         onClick={() => setOpenCommentMenuId((prev) => (prev === comment.id ? null : comment.id))}
                                                     >
-                                                        …
+                                                        ...
                                                     </button>
                                                     {openCommentMenuId === comment.id && (
-                                                        <div className="absolute right-0 z-10 mt-1 min-w-[140px] rounded-lg border border-[#d8e9ff] bg-white p-1 shadow-lg">
+                                                        <div
+                                                            id={`comment-menu-${comment.id}`}
+                                                            className="absolute right-0 z-10 mt-1 min-w-[140px] rounded-lg border border-[#d8e9ff] bg-white p-1 shadow-lg"
+                                                        >
                                                             <button
                                                                 type="button"
                                                                 className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
