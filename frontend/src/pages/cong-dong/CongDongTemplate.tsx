@@ -415,6 +415,8 @@ export default function CongDongTemplate({
         }
     }
 
+    const normalizedCurrentUserRole = typeof user?.role === 'string' ? user.role.trim().toUpperCase() : ''
+    const isTeacherUser = normalizedCurrentUserRole === 'TEACHER'
     const formatRoleLabel = (role: string) => (role === 'TEACHER' ? 'Giáo viên' : role === 'STUDENT' ? 'Học sinh' : role)
 
     const formatCommentTime = (isoTime: string) => (
@@ -1064,7 +1066,7 @@ export default function CongDongTemplate({
                                             <p className="text-base font-bold text-[#1f3f8f]">
                                                 {comment.user.name} - {formatRoleLabel(comment.user.role)}
                                             </p>
-                                            {user?.role === 'TEACHER' && (
+                                            {isTeacherUser && (
                                                 <div className="relative">
                                                     <button
                                                         type="button"
