@@ -528,7 +528,7 @@ export default function AssignmentDetail() {
             </label>
           </div>
         )}
-        <p className="mt-2 text-center text-xs text-slate-500">doc, pdf, png, jpeg, mp4</p>
+        <p className="mt-2 text-center text-xs text-slate-500">doc, docx, pdf, jpg/jpeg, png, mp4</p>
 
         {canEdit && uploadedFileUrl && (
           <div className="mt-3 text-center">
