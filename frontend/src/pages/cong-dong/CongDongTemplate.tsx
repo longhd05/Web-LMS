@@ -415,7 +415,12 @@ export default function CongDongTemplate({
         }
     }
 
-    const formatRoleLabel = (role: string) => (role === 'TEACHER' ? 'Giáo viên' : role === 'STUDENT' ? 'Học sinh' : role)
+    const normalizedCurrentUserRole = typeof user?.role === 'string' ? user.role.trim().toUpperCase() : ''
+    const isTeacherUser = normalizedCurrentUserRole === 'TEACHER'
+    const formatRoleLabel = (role: string) => {
+        const normalizedRole = role.trim().toUpperCase()
+        return normalizedRole === 'TEACHER' ? 'Giáo viên' : normalizedRole === 'STUDENT' ? 'Học sinh' : role
+    }
 
     const formatCommentTime = (isoTime: string) => (
         new Date(isoTime).toLocaleString('vi-VN', {
@@ -1064,7 +1069,7 @@ export default function CongDongTemplate({
                                             <p className="text-base font-bold text-[#1f3f8f]">
                                                 {comment.user.name} - {formatRoleLabel(comment.user.role)}
                                             </p>
-                                            {user?.role === 'TEACHER' && (
+                                            {isTeacherUser && (
                                                 <div className="relative">
                                                     <button
                                                         type="button"
