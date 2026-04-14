@@ -417,7 +417,10 @@ export default function CongDongTemplate({
 
     const normalizedCurrentUserRole = typeof user?.role === 'string' ? user.role.trim().toUpperCase() : ''
     const isTeacherUser = normalizedCurrentUserRole === 'TEACHER'
-    const formatRoleLabel = (role: string) => (role === 'TEACHER' ? 'Giáo viên' : role === 'STUDENT' ? 'Học sinh' : role)
+    const formatRoleLabel = (role: string) => {
+        const normalizedRole = role.trim().toUpperCase()
+        return normalizedRole === 'TEACHER' ? 'Giáo viên' : normalizedRole === 'STUDENT' ? 'Học sinh' : role
+    }
 
     const formatCommentTime = (isoTime: string) => (
         new Date(isoTime).toLocaleString('vi-VN', {
