@@ -520,7 +520,7 @@ export default function AssignmentDetail() {
               </span>
               <input
                 type="file"
-                accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
+                accept=".doc,.docx,.pdf,.png,.jpg,.jpeg,.mp4"
                 onChange={handleFileUpload}
                 disabled={!canEdit || uploading}
                 className="hidden"
@@ -528,7 +528,7 @@ export default function AssignmentDetail() {
             </label>
           </div>
         )}
-        <p className="mt-2 text-center text-xs text-slate-500">doc, png, jpeg, mp4</p>
+        <p className="mt-2 text-center text-xs text-slate-500">doc, pdf, png, jpeg, mp4</p>
 
         {canEdit && uploadedFileUrl && (
           <div className="mt-3 text-center">
@@ -536,7 +536,7 @@ export default function AssignmentDetail() {
               {uploading ? 'Đang tải...' : 'Thay đổi file'}
               <input
                 type="file"
-                accept=".doc,.docx,.png,.jpg,.jpeg,.mp4"
+                accept=".doc,.docx,.pdf,.png,.jpg,.jpeg,.mp4"
                 onChange={handleFileUpload}
                 disabled={uploading}
                 className="hidden"

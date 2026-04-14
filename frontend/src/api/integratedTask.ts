@@ -153,7 +153,7 @@ Yêu cầu
 - Tạo video/đồ họa (Adobe Spark)
 - Tạo infographic (Piktochart)`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
     dueDate: '2026-03-15T23:59:59',
   },
 
@@ -169,7 +169,7 @@ Yêu cầu:
 - Phân tích tình trạng khan hiếm nước
 - Đề xuất cách tiết kiệm nước hàng ngày`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_env_03: {
@@ -184,7 +184,7 @@ Yêu cầu:
 - Nêu những nguy cơ rừng đang gặp phải
 - Đề xuất giải pháp bảo vệ rừng`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
     dueDate: '2026-03-18T23:59:59',
   },
 
@@ -200,7 +200,7 @@ Yêu cầu:
 - Phân tích nguyên nhân và hậu quả
 - Đề xuất hành động cụ thể để bảo vệ biển`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
     dueDate: '2026-03-20T23:59:59',
   },
 
@@ -216,7 +216,7 @@ Yêu cầu:
 - Nêu tầm quan trọng của việc bảo vệ cảnh quan
 - Chia sẻ trải nghiệm hoặc suy nghĩ cá nhân`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_env_06: {
@@ -231,7 +231,7 @@ Yêu cầu:
 - Phân tích nguyên nhân ô nhiễm nguồn nước
 - Đề xuất giải pháp bảo vệ`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_env_07: {
@@ -246,7 +246,7 @@ Yêu cầu:
 - Phân tích tác động đến con người và môi trường
 - Đề xuất hành động cá nhân để giảm phát thải`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_env_08: {
@@ -261,7 +261,7 @@ Yêu cầu:
 - Phân tích tác động của con người
 - Đề xuất cách sống hài hòa với thiên nhiên`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_peace_01: {
@@ -276,7 +276,7 @@ Hướng dẫn:
 - Đưa ra ví dụ thực tế về sự hòa hợp
 - Đề xuất cách để tạo ra một cộng đồng hòa bình`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
     dueDate: '2026-03-20T23:59:59',
   },
 
@@ -292,7 +292,7 @@ Yêu cầu:
 - Nêu ví dụ về hành động tạo hòa bình trong cuộc sống
 - Cam kết cá nhân vì một thế giới hòa bình`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_peace_03: {
@@ -307,7 +307,7 @@ Yêu cầu:
 - Nêu ví dụ về hợp tác thành công
 - Đề xuất cách thúc đẩy hợp tác`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_peace_04: {
@@ -322,7 +322,7 @@ Yêu cầu:
 - Đưa ra ví dụ thực tế
 - Đề xuất cách thúc đẩy tinh thần đoàn kết`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_peace_05: {
@@ -337,7 +337,7 @@ Yêu cầu:
 - Trình bày các phương pháp giải quyết
 - Chia sẻ kinh nghiệm cá nhân`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_peace_06: {
@@ -352,7 +352,7 @@ Yêu cầu:
 - Đề xuất hoạt động xây dựng văn hóa hòa bình
 - Nêu lợi ích của môi trường học tập hòa bình`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_rights_01: {
@@ -367,7 +367,7 @@ Yêu cầu:
 - Phân tích các mối đe dọa đến quyền sống
 - Đề xuất cách bảo vệ quyền trẻ em`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_rights_02: {
@@ -382,7 +382,7 @@ Yêu cầu:
 - Phân tích tình trạng bất bình đẳng
 - Đề xuất giải pháp thúc đẩy bình đẳng`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_rights_03: {
@@ -397,7 +397,7 @@ Yêu cầu:
 - Phân tích mối quan hệ giữa tự do và trách nhiệm
 - Nêu ví dụ về việc thực hiện quyền tự do có trách nhiệm`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 
   t_rights_04: {
@@ -412,7 +412,7 @@ Yêu cầu:
 - Nêu ví dụ về việc tôn trọng nhân quyền
 - Đề xuất hành động để bảo vệ nhân quyền`,
     maxFileSize: 5,
-    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt'],
+    allowedFileTypes: ['pdf', 'docx', 'doc', 'txt', 'png', 'jpg', 'mp4'],
   },
 }
 

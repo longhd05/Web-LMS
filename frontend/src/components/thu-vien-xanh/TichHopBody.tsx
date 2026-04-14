@@ -126,7 +126,7 @@ export default function TichHopBody({
   }
 
   const showUpload = userRole !== 'free_student' && isClassStudent
-  const acceptValue = (allowedFileTypes || ['pdf', 'doc', 'docx', 'png', 'jpg'])
+  const acceptValue = (allowedFileTypes || ['pdf', 'doc', 'docx', 'png', 'jpg', 'mp4'])
     .map((extension) => `.${extension}`)
     .join(',')
   const fileSizeLabel = maxFileSizeMB ?? 20

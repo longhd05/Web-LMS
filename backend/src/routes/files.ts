@@ -10,6 +10,7 @@ const router = Router();
 const ALLOWED_MIME_TYPES = [
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/pdf',
   'image/jpeg',
   'image/png',
   'image/gif',
