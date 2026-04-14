@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { prisma } from '../lib/prisma';
 import { authenticate, optionalAuth } from '../middleware/auth';
+import { requireRole } from '../middleware/rbac';
 
 const router = Router();
 const commentCreateLimiter = rateLimit({
@@ -192,6 +193,30 @@ router.post('/:communityKey/posts/:postId/comments', commentCreateLimiter, authe
   });
 
   res.status(201).json({ data: comment });
+});
+
+router.delete('/:communityKey/posts/:postId/comments/:commentId', authenticate, requireRole('TEACHER'), async (req: Request, res: Response): Promise<void> => {
+  const { communityKey, postId, commentId } = req.params;
+
+  const comment = await prisma.communityPostComment.findFirst({
+    where: {
+      id: commentId,
+      postId,
+      post: { communityKey },
+    },
+    select: { id: true },
+  });
+
+  if (!comment) {
+    res.status(404).json({ error: 'Không tìm thấy bình luận' });
+    return;
+  }
+
+  await prisma.communityPostComment.delete({
+    where: { id: comment.id },
+  });
+
+  res.status(200).json({ data: { id: comment.id, deleted: true } });
 });
 
 export default router;

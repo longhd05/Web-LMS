@@ -124,6 +124,8 @@ export default function CongDongTemplate({
     const [commentDraft, setCommentDraft] = useState('')
     const [commentError, setCommentError] = useState('')
     const [isSubmittingComment, setIsSubmittingComment] = useState(false)
+    const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null)
+    const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null)
     const [likedByCardId, setLikedByCardId] = useState<Record<string, boolean>>({})
     const videoContainerRef = useRef<HTMLDivElement | null>(null)
     const nativeVideoRef = useRef<HTMLVideoElement | null>(null)
@@ -390,6 +392,8 @@ export default function CongDongTemplate({
         setCommentModalPostId(null)
         setCommentDraft('')
         setCommentError('')
+        setOpenCommentMenuId(null)
+        setDeletingCommentId(null)
     }
     const toggleLike = async (cardId: string) => {
         const isCurrentlyLiked = !!likedByCardId[cardId]
@@ -453,6 +457,28 @@ export default function CongDongTemplate({
             setCommentError(message || 'Không thể gửi bình luận. Vui lòng thử lại.')
         } finally {
             setIsSubmittingComment(false)
+        }
+    }
+
+    const handleDeleteComment = async (commentId: string) => {
+        if (!communityKey || !commentModalPostId) return
+        try {
+            setDeletingCommentId(commentId)
+            setCommentError('')
+            await api.delete(`/community/${communityKey}/posts/${commentModalPostId}/comments/${commentId}`)
+            setApiPosts(prev => prev.map(post => (
+                post.id === commentModalPostId
+                    ? { ...post, comments: post.comments.filter(comment => comment.id !== commentId) }
+                    : post
+            )))
+            setOpenCommentMenuId((prev) => (prev === commentId ? null : prev))
+        } catch (error: unknown) {
+            const message = (typeof error === 'object' && error && 'response' in error)
+                ? (error as { response?: { data?: { error?: string } } }).response?.data?.error
+                : undefined
+            setCommentError(message || 'Không thể xóa bình luận. Vui lòng thử lại.')
+        } finally {
+            setDeletingCommentId(null)
         }
     }
 
@@ -1009,9 +1035,35 @@ export default function CongDongTemplate({
                             {selectedCommentList.length > 0 ? (
                                 selectedCommentList.map((comment) => (
                                     <div key={comment.id} className="rounded-2xl border border-[#d8e9ff] bg-[#f8fbff] p-4">
-                                        <p className="text-base font-bold text-[#1f3f8f]">
-                                            {comment.user.name} - {formatRoleLabel(comment.user.role)}
-                                        </p>
+                                        <div className="flex items-start justify-between gap-3">
+                                            <p className="text-base font-bold text-[#1f3f8f]">
+                                                {comment.user.name} - {formatRoleLabel(comment.user.role)}
+                                            </p>
+                                            {user?.role === 'TEACHER' && (
+                                                <div className="relative">
+                                                    <button
+                                                        type="button"
+                                                        className="rounded-full px-2 py-0.5 text-xl leading-none text-[#1f3f8f] hover:bg-[#e5efff]"
+                                                        aria-label="Tùy chọn bình luận"
+                                                        onClick={() => setOpenCommentMenuId((prev) => (prev === comment.id ? null : comment.id))}
+                                                    >
+                                                        …
+                                                    </button>
+                                                    {openCommentMenuId === comment.id && (
+                                                        <div className="absolute right-0 z-10 mt-1 min-w-[140px] rounded-lg border border-[#d8e9ff] bg-white p-1 shadow-lg">
+                                                            <button
+                                                                type="button"
+                                                                className="w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                                                onClick={() => { void handleDeleteComment(comment.id) }}
+                                                                disabled={deletingCommentId === comment.id}
+                                                            >
+                                                                {deletingCommentId === comment.id ? 'Đang xóa...' : 'Xóa bình luận'}
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                         <p className="mt-1 text-sm text-[#4b5f9e]">{formatCommentTime(comment.createdAt)}</p>
                                         <p className="mt-2 whitespace-pre-wrap break-words text-base text-[#1f3f8f]">{comment.content}</p>
                                     </div>
